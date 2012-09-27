@@ -1,0 +1,69 @@
+/** @file
+  * @copyright Copyright (c) 2012 PROFACTOR GmbH. All rights reserved. 
+  *
+  * Redistribution and use in source and binary forms, with or without
+  * modification, are permitted provided that the following conditions are
+  * met:
+  *
+  *     * Redistributions of source code must retain the above copyright
+  * notice, this list of conditions and the following disclaimer.
+  *     * Redistributions in binary form must reproduce the above
+  * copyright notice, this list of conditions and the following disclaimer
+  * in the documentation and/or other materials provided with the
+  * distribution.
+  *     * Neither the name of Google Inc. nor the names of its
+  * contributors may be used to endorse or promote products derived from
+  * this software without specific prior written permission.
+  *
+  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  *
+  * @authors christoph.kopf@profactor.at
+  *          florian.eckerstorfer@profactor.at
+  */
+  
+#pragma once
+
+namespace ReconstructMeGUI {
+
+  // scanner strings
+  const char* const something_went_wrong_tag = "Something went wrong, please check the log";
+  const char* const invalid_license_tag = "Invalid license. Switching to non commercial mode";
+  const char* const camera_track_found_tag = "Camera Track found";
+  const char* const camera_track_lost_tag = "Camera Track lost. Move camera to recovery pose to continue";
+  const char* const camera_track_lost_license_tag = "Please wait, camera lost track due to the use of a non commercial version.";
+  const char* const saved_file_to_tag = "Saved file to ";
+
+  // reconstructme strings
+  const char* const welcome_tag = "Welcome to ReconstructMe";
+  const char* const create_views_tag = "Creating views";
+  const char* const reload_settings_tag = "Reload settings";
+  const char* const init_scanner_tag = "Intializing scanning environment";
+  const char* const init_opencl_tag = "Initializing opencl";
+  const char* const init_sensor_tag = "Initializing sensor";
+  const char* const no_sensor_found_tag = "No sensor found";
+  const char* const no_sensor_found_msg_tag = "Press OK if you connect a sensor later and set its\nconfiguration file in the settings dialog manually.\nPress Retry if you want to plug in a sensor now and\nlet ReconstrutMe determine a sensor.";
+  const char* const saving_to_tag = "Saving to ";
+  const char* const mode_pause_tag = "Pause mode";
+  const char* const mode_play_tag = "Play mode";
+  const char* const volume_resetted_tag = "Volume resetted";
+  const char* const loading_settings_tag = "Loading new settings, please wait";
+  const char* const open_url_tag = "Open URL ";
+  const char* const application_about_tag = "This is a software for realtime \n3D surface reconstruction";
+ 
+  // urls
+  const char* const url_install_tag = "http://reconstructme.net/installation/";
+  const char* const url_device_matrix_tag = "https://docs.google.com/spreadsheet/ccc?key=0AjYhEvwkxrJOdHBGaTMyWVVBNVFjRHFzbU5RQU81TWc#gid=0" ;
+  const char* const url_usage_tag = "http://reconstructme.net/usage/";
+  const char* const url_faq_tag = "http://reconstructme.net/faq/";
+  const char* const url_forum_tag = "https://groups.google.com/forum/?fromgroups#!forum/reconstructme";
+}
