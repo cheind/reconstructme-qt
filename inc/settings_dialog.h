@@ -42,6 +42,7 @@
 
 // Forward Declaration
 class QFileDialog;
+class QFileSystemWatcher;
 namespace Ui {
   class settings_dialog;
 }
@@ -70,20 +71,25 @@ namespace ReconstructMeGUI {
     void browse_license_file_clicked();
     void create_default_settings();
     void init_opencl_device_widget();
+    void trigger_scanner_with_file(const QString &file_path);
   
   private:
     QString get_file_from_dialog(QString &current_path);
 
     // Members
+    Ui::settings_dialog *ui;
+    
     reme_context_t c;
 
-    Ui::settings_dialog *ui;
-
-    QFileDialog* file_dialog;
-
+    // Paths
     QString cfg_path;
     QString sens_path;
     QString license_file;
+    // Paths utils
+    QFileDialog* file_dialog;
+    QFileSystemWatcher *file_watcher;
+
+    // Selected device
     int device_id;
   };
 

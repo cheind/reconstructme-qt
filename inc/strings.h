@@ -35,6 +35,10 @@
 
 namespace ReconstructMeGUI {
 
+  // settings dialog strings
+  const char* const file_changed_tag = "File changed";
+  const char* const apply_changes_tag = "Do you want to reload and apply changes of\n";
+
   // scanner strings
   const char* const something_went_wrong_tag = "Something went wrong, please check the log";
   const char* const invalid_license_tag = "Invalid license. Switching to non commercial mode";

@@ -34,12 +34,15 @@
 #include "settings_dialog.h"
 #include "ui_settings_dialog.h"
 #include "settings.h"
+#include "strings.h"
 #include "opencl_info.pb.h"
 
 #include <QSettings>
 #include <QFileDialog>
 #include <QFile>
 #include <QStringList>
+#include <QFileSystemWatcher>
+#include <QMessageBox>
 
 #include <iostream>
 
@@ -53,6 +56,9 @@ namespace ReconstructMeGUI {
     ui->setupUi(this);
     c = ctx;
 
+    file_watcher = new QFileSystemWatcher(this);
+    connect(file_watcher, SIGNAL(fileChanged(const QString &)), SLOT(trigger_scanner_with_file(const QString &)));
+
     // create default settings at first program start or restore settings
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
 
@@ -61,6 +67,10 @@ namespace ReconstructMeGUI {
     cfg_path     = settings.value(config_path_tag, config_path_default_tag).toString();
     license_file = settings.value(license_file_tag, license_file_default_tag).toString();
     
+    file_watcher->addPath(sens_path);
+    file_watcher->addPath(cfg_path);
+    file_watcher->addPath(license_file);
+
     settings.setValue(sensor_path_tag, sens_path);
     settings.setValue(opencl_device_tag, device_id);
     settings.setValue(config_path_tag, cfg_path);
@@ -85,7 +95,7 @@ namespace ReconstructMeGUI {
     connect(ui->browse_button_config,  SIGNAL(clicked()), SLOT(browse_config_button_clicked()));
     connect(ui->browse_button_sensor,  SIGNAL(clicked()), SLOT(browse_sensor_button_clicked()));
     connect(ui->browse_button_license, SIGNAL(clicked()), SLOT(browse_license_file_clicked()));
-    
+
     QAbstractButton *restore = ui->buttonBox->button(QDialogButtonBox::RestoreDefaults);
     connect(restore, SIGNAL(clicked()), SLOT(create_default_settings()));
   }
@@ -126,9 +136,19 @@ namespace ReconstructMeGUI {
 
   void settings_dialog::accept() 
   {
+    // remove from filesystemwatcher
+    file_watcher->removePath(sens_path);
+    file_watcher->removePath(cfg_path);
+    file_watcher->removePath(license_file);
+
     cfg_path     = ui->config_path_tb->text();
     sens_path    = ui->sensor_path_tb->text();
     license_file = ui->license_file_tb->text();
+
+    // add to filesystemwatcher
+    file_watcher->addPath(sens_path);
+    file_watcher->addPath(cfg_path);
+    file_watcher->addPath(license_file);
 
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
 
@@ -219,8 +239,7 @@ namespace ReconstructMeGUI {
     QString selected_file = get_file_from_dialog(cfg_path);
     if (selected_file == "") return;
 
-    ui->config_path_tb->setText(selected_file);
-    
+    ui->config_path_tb->setText(selected_file); 
   }
 
   void settings_dialog::browse_sensor_button_clicked()
@@ -237,7 +256,16 @@ namespace ReconstructMeGUI {
     if (selected_file == "") return;
 
     ui->license_file_tb->setText(selected_file);
+  }
+
+  void settings_dialog::trigger_scanner_with_file(const QString &file_path) {
     
+    if (QMessageBox::No == QMessageBox::information(this, file_changed_tag, apply_changes_tag + file_path + "?", QMessageBox::Yes, QMessageBox::No)) return;
+
+    if ((file_path == cfg_path) || (file_path == license_file))
+      emit opencl_settings_changed();
+    else if (file_path == sens_path)
+      emit sensor_changed();
   }
 }
 
