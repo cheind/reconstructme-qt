@@ -41,7 +41,7 @@
 #include "qglcanvas.h"
 #include "logging_dialog.h"
 #include "hardware_key_dialog.h"
-#include "version.h"
+#include "defines.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -319,18 +319,25 @@ namespace ReconstructMeGUI {
     QMessageBox msgbox;
     msgbox.setText(application_about_tag);
                           
-    int length;               
-    const char* sdk_version;
-    reme_context_get_version(c, &sdk_version, &length);
-
     std::stringstream ss_gui_v;
     ss_gui_v << RECONSTRUCTMEQT_VERSION_MAJOR << ".";
     ss_gui_v << RECONSTRUCTMEQT_VERSION_MINOR << ".";
     ss_gui_v << RECONSTRUCTMEQT_VERSION_BUILD;
 
+    std::stringstream ss_sdk_v;
+    ss_sdk_v << REME_VERSION_MAJOR << ".";
+    ss_sdk_v << REME_VERSION_MINOR << ".";
+    ss_sdk_v << REME_VERSION_BUILD << "-";
+    ss_sdk_v << REME_VERSION_REVISION;
+
+    int length;               
+    const char* runtime_sdk_version;
+    reme_context_get_version(c, &runtime_sdk_version, &length);
+
     std::stringstream ss_about;
     ss_about << "Version ReconstructMeQT: " << ss_gui_v.str() << "\n";
-    ss_about << "Version ReconstructMeSDK: " << sdk_version << "\n";
+    ss_about << "Build Version ReconstructMeSDK: " << ss_sdk_v.str() << "\n";
+    ss_about << "Runtime Version ReconstructMeSDK: " << ss_sdk_v.str() << "\n";
     ss_about << "http://reconstructme.net/ ";
     ss_about << "\nChristoph Heindl";
     ss_about << "\nChristoph Kopf";
