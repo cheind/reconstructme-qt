@@ -145,20 +145,19 @@ namespace ReconstructMeGUI {
 
     // Set licence
     QString licence_file = settings.value(license_file_tag, license_file_default_tag).toString();
-    if (licence_file != license_file_default_tag) {
-      reme_error_t error = reme_context_set_license(_data->c, licence_file.toStdString().c_str());
-      if (error == REME_ERROR_INVALID_LICENSE) {
-        emit log_message(invalid_license_tag);
-      }
-      else if (error == REME_ERROR_UNSPECIFIED) {
-        emit log_message(license_unspecified_tag);
-      }
-      else {
-        emit log_message(license_applied_tag);
-        emit status_string(license_applied_tag, STATUS_MSG_DURATION);
-      }
-      emit licence_error_code(error);
+    reme_error_t error = reme_context_set_license(_data->c, licence_file.toStdString().c_str());
+    if (error == REME_ERROR_INVALID_LICENSE) {
+      emit log_message(invalid_license_tag);
     }
+    else if (error == REME_ERROR_UNSPECIFIED) {
+      emit log_message(license_unspecified_tag);
+    }
+    else {
+      emit log_message(license_applied_tag);
+      emit status_string(license_applied_tag, STATUS_MSG_DURATION);
+    }
+    emit licence_error_code(error);
+    
 
     // Create empty options binding
     reme_options_t o;
