@@ -108,32 +108,31 @@ namespace ReconstructMeGUI {
     // Members
     Ui::reconstructme_mw *ui;
 
+    // Dialogs
     settings_dialog *dialog_settings;
     logging_dialog *log_dialog;
-
     hardware_key_dialog *hw_key_dialog;
+    QFileDialog* save_dialog;
 
+    // Splash screens
     QSplashScreen *splash;
     QSplashScreen *splash_wait;
 
+    // Scanner utils
     scan *scanner;
     QThread* scanner_thread;
+    Mode current_mode;
 
-    reconstructme::Mode current_mode;
+    // Context
     reme_context_t c;
 
-    QLabel* fps_label;
-    QLabel* msg_label;
-
+    // Images & Widget
     QImage *rgb_image;
     QImage *phong_image;
     QImage *depth_image;
-
     QGLCanvas *rgb_canvas;
     QGLCanvas *phong_canvas;
     QGLCanvas *depth_canvas;
-
-    QFileDialog* file_dialog;
   };
 
 }

@@ -62,7 +62,7 @@
 #include <iostream>
 
 #define STATUSBAR_TIME 1500
-#define SPLASH_ALIGNMENT Qt::AlignBottom | Qt::AlignLeft
+#define SPLASH_MSG_ALIGNMENT Qt::AlignBottom | Qt::AlignLeft
 
 namespace ReconstructMeGUI {
   
@@ -79,7 +79,7 @@ namespace ReconstructMeGUI {
     QPixmap splashPix(":/images/splash_screen.png");
     splash = new QSplashScreen(this, splashPix);
     splash->setAutoFillBackground(false);
-    splash->showMessage(welcome_tag, SPLASH_ALIGNMENT);
+    splash->showMessage(welcome_tag, SPLASH_MSG_ALIGNMENT);
     splash->show();
 
     ui->setupUi(this);
@@ -105,18 +105,18 @@ namespace ReconstructMeGUI {
 
     dialog_settings = 0;
     splash_wait = 0;
-    file_dialog = 0;
+    save_dialog = 0;
     hw_key_dialog = 0;
 
     QPixmap titleBarPix (":/images/icon.ico");
     QIcon titleBarIcon(titleBarPix);
     setWindowIcon(titleBarIcon);
 
-    splash->showMessage(create_views_tag, SPLASH_ALIGNMENT);
+    splash->showMessage(create_views_tag, SPLASH_MSG_ALIGNMENT);
     create_views();    // three views
-    splash->showMessage(reload_settings_tag, SPLASH_ALIGNMENT);
+    splash->showMessage(reload_settings_tag, SPLASH_MSG_ALIGNMENT);
     create_settings(); // load settings
-    splash->showMessage(init_scanner_tag, SPLASH_ALIGNMENT);
+    splash->showMessage(init_scanner_tag, SPLASH_MSG_ALIGNMENT);
     create_scanner();  // init scanner -> called by slot
     current_mode = PAUSE;
 
@@ -187,10 +187,10 @@ namespace ReconstructMeGUI {
   void reconstructme::create_scanner() {
     scanner = new scan(c);
     
-    splash->showMessage(init_opencl_tag, SPLASH_ALIGNMENT);
+    splash->showMessage(init_opencl_tag, SPLASH_MSG_ALIGNMENT);
     scanner->initialize();
 
-    splash->showMessage(init_sensor_tag, SPLASH_ALIGNMENT);
+    splash->showMessage(init_sensor_tag, SPLASH_MSG_ALIGNMENT);
     connect(scanner, SIGNAL(sensor_created(bool)), SLOT(set_image_references(bool)));
     bool sensor_found = scanner->create_sensor();
     while (!sensor_found && QMessageBox::Retry == QMessageBox::information(this, no_sensor_found_tag, no_sensor_found_msg_tag, QMessageBox::Ok, QMessageBox::Retry))
@@ -223,13 +223,13 @@ namespace ReconstructMeGUI {
   }
 
   void reconstructme::create_filedialog() {
-    file_dialog = new QFileDialog(this, Qt::Dialog);
+    save_dialog = new QFileDialog(this, Qt::Dialog);
     
-    file_dialog->setAcceptMode(QFileDialog::AcceptSave);
-    file_dialog->setFileMode(QFileDialog::AnyFile);
-    file_dialog->setDirectory(QDir::currentPath());
-    file_dialog->setFilter("*.ply;; *.obj;; *.3ds;; Text based *.stl");
-    file_dialog->setNameFilter(".ply;; .obj;; .3ds;; .stl");
+    save_dialog->setAcceptMode(QFileDialog::AcceptSave);
+    save_dialog->setFileMode(QFileDialog::AnyFile);
+    save_dialog->setDirectory(QDir::currentPath());
+    save_dialog->setFilter("*.ply;; *.obj;; *.3ds;; Text based *.stl");
+    save_dialog->setNameFilter(".ply;; .obj;; .3ds;; .stl");
   }
 
   reconstructme::~reconstructme()
@@ -249,15 +249,15 @@ namespace ReconstructMeGUI {
   void reconstructme::save_button_clicked()
   {
     QStringList selected_files;
-    if(file_dialog->exec()) 
-      selected_files = file_dialog->selectedFiles();
+    if(save_dialog->exec()) 
+      selected_files = save_dialog->selectedFiles();
     
     if (selected_files.empty())
       return;
     
     QString file_name = selected_files[0];
-    if(!file_name.endsWith(file_dialog->selectedFilter()))
-      file_name += file_dialog->selectedFilter();
+    if(!file_name.endsWith(save_dialog->selectedFilter()))
+      file_name += save_dialog->selectedFilter();
 
     emit save_mesh_to_file(file_name);
     ui->reconstruct_satus_bar->showMessage(saving_to_tag + file_name, STATUSBAR_TIME);

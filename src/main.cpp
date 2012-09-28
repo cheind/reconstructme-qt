@@ -36,9 +36,20 @@
 
 #include "settings.h"
 #include "reconstructme.h"
+#include "defines.h"
 
-int main(int argc, char *argv[])
+#if _WIN32 && !RECONSTRUCTMEQT_ENABLE_CONSOLE
+  #define WIN32_LEAN_AND_MEAN
+  #include <windows.h>
+  int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) 
 {
+    int argc = 0;
+    char **argv = 0;
+#else
+  int main(int argc, char *argv[]) 
+{
+#endif
+
   using namespace ReconstructMeGUI;
 
   QApplication app(argc, argv);
