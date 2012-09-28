@@ -34,7 +34,7 @@
 QToolTip
 {
      border: 1px solid black;
-     background-color: #f8f8f8;
+     background-color: #646464;
      color: #ffffff;
      border-radius: 3px;
      opacity: 100;
@@ -531,11 +531,10 @@ QToolBar::handle
 QMenu::separator
 {
     height: 1px;
-    background-color: #646464;
-    border: 1px;
+    background-color: #f8f8f8;
+    border: 0px;
     border-style: solid;
     border-color: #f8f8f8;
-
 }
 
 QProgressBar
@@ -588,8 +587,8 @@ QTabBar::tab:!selected
     color: #b1b1b1;
     border-bottom-style: solid;
     margin-top: 3px;
-    background-color: QLinearGradient
-    (x1:0, y1:0,
+    background-color: QLinearGradient(
+	x1:0, y1:0,
     x2:0, y2:1,
     stop:1 #212121,
     stop:.4 #343434);
