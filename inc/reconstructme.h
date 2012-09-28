@@ -72,6 +72,7 @@ namespace ReconstructMeGUI {
 
     void hide_splash(bool unused);
     void set_image_references(bool has_sensor);
+    void hanlde_licence_error(int error);
 
     void action_installation_clicked();
     void action_usage_clicked();

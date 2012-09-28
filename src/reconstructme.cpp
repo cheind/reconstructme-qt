@@ -93,7 +93,6 @@ namespace ReconstructMeGUI {
 
      // Logger
     log_dialog = new logging_dialog(this, Qt::Dialog);
-    log_dialog->connect(this->statusBar(), SIGNAL(messageChanged(const QString&)), SLOT(append_log_message(const QString &)));
     ui->actionLog->connect(log_dialog, SIGNAL(close_clicked()), SLOT(toggle()));
 
     reme_context_create(&c);
@@ -187,20 +186,18 @@ namespace ReconstructMeGUI {
   void reconstructme::create_scanner() {
     scanner = new scan(c);
     
-    splash->showMessage(init_opencl_tag, SPLASH_MSG_ALIGNMENT);
-    scanner->initialize();
-
-    splash->showMessage(init_sensor_tag, SPLASH_MSG_ALIGNMENT);
+    // set connections to scanner
+    connect(scanner, SIGNAL(licence_error_code(int)), SLOT(hanlde_licence_error(int)));
     connect(scanner, SIGNAL(sensor_created(bool)), SLOT(set_image_references(bool)));
-    bool sensor_found = scanner->create_sensor();
-    while (!sensor_found && QMessageBox::Retry == QMessageBox::information(this, no_sensor_found_tag, no_sensor_found_msg_tag, QMessageBox::Ok, QMessageBox::Retry))
-      sensor_found = scanner->create_sensor();
     
+    // logger
+    log_dialog->connect(scanner, SIGNAL(log_message(const QString&)), SLOT(append_log_message(const QString &)));
+        
     // button handler
     scanner->connect(ui->play_button, SIGNAL(clicked()), SLOT(toggle_play_pause()));
     scanner->connect(ui->reset_button, SIGNAL(clicked()), SLOT(reset_volume()));
     scanner->connect(this, SIGNAL(save_mesh_to_file(const QString &)), SLOT(save(const QString &)));
-    
+
     // NOTE: Qt::QueuedConnection has to be defined explicity here. 
     // If Qt::AutoConnections will be used, a direct connection is choosen by Qt, 
     // since receiver object and emitter object are in the same thread.
@@ -215,6 +212,16 @@ namespace ReconstructMeGUI {
     rgb_canvas->connect(scanner, SIGNAL(new_rgb_image_bits()), SLOT(update()));
     depth_canvas->connect(scanner, SIGNAL(new_depth_image_bits()), SLOT(update()));
     phong_canvas->connect(scanner, SIGNAL(new_phong_image_bits()), SLOT(update()));
+
+    // start initializing sensor
+    splash->showMessage(init_opencl_tag, SPLASH_MSG_ALIGNMENT);
+    scanner->initialize();
+
+    // find a sensor
+    splash->showMessage(init_sensor_tag, SPLASH_MSG_ALIGNMENT);
+    bool sensor_found = scanner->create_sensor();
+    while (!sensor_found && QMessageBox::Retry == QMessageBox::information(this, no_sensor_found_tag, no_sensor_found_msg_tag, QMessageBox::Ok, QMessageBox::Retry))
+      sensor_found = scanner->create_sensor();
     
     // scan thread
     scanner_thread = new QThread(this);
@@ -294,6 +301,13 @@ namespace ReconstructMeGUI {
     dialog_settings->show();
     dialog_settings->raise();
     dialog_settings->activateWindow();
+  }
+
+  void reconstructme::hanlde_licence_error(int error) {
+    if (error == REME_ERROR_INVALID_LICENSE)
+      QMessageBox::information(this, license_info_tag, invalid_license_tag, QMessageBox::Ok);
+    else if (error == REME_ERROR_UNSPECIFIED)
+      QMessageBox::information(this, license_info_tag, license_unspecified_tag, QMessageBox::Ok);
   }
 
   void reconstructme::hide_splash(bool unused) {

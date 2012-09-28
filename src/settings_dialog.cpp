@@ -134,8 +134,7 @@ namespace ReconstructMeGUI {
     delete ui;
   }
 
-  void settings_dialog::accept() 
-  {
+  void settings_dialog::accept() {
     // remove from filesystemwatcher
     file_watcher->removePath(sens_path);
     file_watcher->removePath(cfg_path);
@@ -234,24 +233,21 @@ namespace ReconstructMeGUI {
       return selected_files[0];
   }
 
-  void settings_dialog::browse_config_button_clicked()
-  {
+  void settings_dialog::browse_config_button_clicked() {
     QString selected_file = get_file_from_dialog(cfg_path);
     if (selected_file == "") return;
 
     ui->config_path_tb->setText(selected_file); 
   }
 
-  void settings_dialog::browse_sensor_button_clicked()
-  {
+  void settings_dialog::browse_sensor_button_clicked() {
     QString selected_file = get_file_from_dialog(sens_path);
     if (selected_file == "") return;
 
     ui->sensor_path_tb->setText(selected_file);
   }
 
-  void settings_dialog::browse_license_file_clicked()
-  {
+  void settings_dialog::browse_license_file_clicked() {
     QString selected_file = get_file_from_dialog(sens_path);
     if (selected_file == "") return;
 
@@ -259,7 +255,6 @@ namespace ReconstructMeGUI {
   }
 
   void settings_dialog::trigger_scanner_with_file(const QString &file_path) {
-    
     if (QMessageBox::No == QMessageBox::information(this, file_changed_tag, apply_changes_tag + file_path + "?", QMessageBox::Yes, QMessageBox::No)) return;
 
     if ((file_path == cfg_path) || (file_path == license_file))

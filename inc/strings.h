@@ -40,10 +40,11 @@ namespace ReconstructMeGUI {
   const char* const apply_changes_tag = "Do you want to reload and apply changes of\n";
 
   // scanner strings
-  const char* const something_went_wrong_tag = "Something went wrong, please check the log";
-  const char* const invalid_license_tag = "Invalid license. Switching to non commercial mode";
-  const char* const camera_track_found_tag = "Camera Track found";
-  const char* const camera_track_lost_tag = "Camera Track lost. Move camera to recovery pose to continue";
+  const char* const something_went_wrong_tag = "Something went wrong, please check the log.";
+  const char* const invalid_license_tag = "Invalid license. Switching to non commercial mode.";
+  const char* const license_applied_tag = "Successfully applied license file.";
+  const char* const camera_track_found_tag = "Camera Track found.";
+  const char* const camera_track_lost_tag = "Camera Track lost. Move camera to recovery pose to continue.";
   const char* const camera_track_lost_license_tag = "Please wait, camera lost track due to the use of a non commercial version.";
   const char* const saved_file_to_tag = "Saved file to ";
 
@@ -54,7 +55,7 @@ namespace ReconstructMeGUI {
   const char* const init_scanner_tag = "Intializing scanning environment";
   const char* const init_opencl_tag = "Initializing opencl";
   const char* const init_sensor_tag = "Initializing sensor";
-  const char* const no_sensor_found_tag = "No sensor found";
+  const char* const no_sensor_found_tag = "No sensor found.";
   const char* const no_sensor_found_msg_tag = "Press OK if you connect a sensor later and set its\nconfiguration file in the settings dialog manually.\nPress Retry if you want to plug in a sensor now and\nlet ReconstrutMe determine a sensor.";
   const char* const saving_to_tag = "Saving to ";
   const char* const mode_pause_tag = "Pause mode";
@@ -62,7 +63,9 @@ namespace ReconstructMeGUI {
   const char* const volume_resetted_tag = "Volume resetted";
   const char* const loading_settings_tag = "Loading new settings, please wait";
   const char* const open_url_tag = "Open URL ";
-  const char* const application_about_tag = "This is a software for realtime \n3D surface reconstruction";
+  const char* const application_about_tag = "This is a software for realtime \n3D surface reconstruction.";
+  const char* const license_info_tag = "License Information";
+  const char* const license_unspecified_tag = "Unsepified error when license was applied.\nSwitching to non commercial mode.";
  
   // urls
   const char* const url_install_tag = "http://reconstructme.net/installation/";

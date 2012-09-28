@@ -33,6 +33,8 @@
   
 #pragma once
 
+#define STATUS_MSG_DURATION 2000
+
 #include "scan.h"
 #include "settings.h"
 #include "strings.h"
@@ -124,8 +126,9 @@ namespace ReconstructMeGUI {
       else 
         _data->depth_image = 0;
     }
-    else
+    else {
       emit status_string(something_went_wrong_tag);
+    }
 
     emit sensor_created(success);
 
@@ -144,8 +147,17 @@ namespace ReconstructMeGUI {
     QString licence_file = settings.value(license_file_tag, license_file_default_tag).toString();
     if (licence_file != license_file_default_tag) {
       reme_error_t error = reme_context_set_license(_data->c, licence_file.toStdString().c_str());
-      if (error == REME_ERROR_INVALID_LICENSE)
-        emit status_string(invalid_license_tag);
+      if (error == REME_ERROR_INVALID_LICENSE) {
+        emit log_message(invalid_license_tag);
+      }
+      else if (error == REME_ERROR_UNSPECIFIED) {
+        emit log_message(license_unspecified_tag);
+      }
+      else {
+        emit log_message(license_applied_tag);
+        emit status_string(license_applied_tag, STATUS_MSG_DURATION);
+      }
+      emit licence_error_code(error);
     }
 
     // Create empty options binding
@@ -232,7 +244,7 @@ namespace ReconstructMeGUI {
         if (lost_track_prev) {
           // track found
           lost_track_prev = false;
-          emit status_string(camera_track_found_tag, 2000);
+          emit status_string(camera_track_found_tag, STATUS_MSG_DURATION);
         }
         // Update volume with depth data from the current sensor perspective
         success &= REME_SUCCESS(reme_sensor_update_volume(_data->c, _data->s));
@@ -249,7 +261,7 @@ namespace ReconstructMeGUI {
         emit status_string(camera_track_lost_tag);
       }
       
-      if (!success) 
+      if (!success)
         emit status_string(something_went_wrong_tag);
       
       QCoreApplication::instance()->processEvents(); // this has to be the last command in run

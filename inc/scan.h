@@ -80,6 +80,7 @@ namespace ReconstructMeGUI {
     void new_rgb_image_bits();
     void new_phong_image_bits();
     void new_depth_image_bits();
+    void licence_error_code(int);
 
   private:
     bool try_open_sensor(const char *driver);
