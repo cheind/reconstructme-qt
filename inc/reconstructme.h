@@ -59,6 +59,11 @@ namespace ReconstructMeGUI {
 
 namespace ReconstructMeGUI {
 
+  /** Main UI element of the ReconstructMeQT application 
+  *
+  * \note This is the topmost element of the UI-tree. It holds references to 
+  *       all other UI elements, such as the necessary dialogs.
+  */
   class reconstructme : public QMainWindow
   {
     Q_OBJECT
@@ -68,33 +73,44 @@ namespace ReconstructMeGUI {
     ~reconstructme();
 
   private slots:
+    /** Write a message to the status bar */
     void write_to_status_bar(const QString &msg, const int msecs = 0);
 
+    /** Hide splashscreen when new settings are applied */
     void hide_splash(bool unused);
+    /** Set image references from scanner */
     void set_image_references(bool has_sensor);
+    /** When license is applied, different errors can appear */
     void hanlde_licence_error(int error);
 
+    // Online help
     void action_installation_clicked();
     void action_usage_clicked();
     void action_faq_clicked();
-    void action_forum_clicked();
-    void action_device_clicked();
+    void action_forum_clicked();  
+    void action_device_clicked(); 
+
+    /** Settings dialog */
     void action_settings_clicked();
+    /** About dialog */
     void action_about_clicked();
+    /** Show/Hide log dialog */
     void action_log_toggled(bool checked);
+    /** Show hardware key dialog */
     void action_hardware_key_clicked();
 
+    /** Handle save button clicked event. Trigger scanner to save current mesh */
     void save_button_clicked();
+    /** Handle play button clicked event. Trigger scanner to toggle PLAY/PAUSE */
     void play_button_clicked();
+    /** Handle reset button clicked event. Trigger scanner to reset current volume */
     void reset_button_clicked();
 
-  signals:
+signals:
+    /** Trigger scanner to save current mesh */
     void save_mesh_to_file(const QString &s);
-    void sensor_dialog_accept();
-    void filesSelected(const QStringList & select);
-    void open_settings_dialog();
+    /** This signal is emited when this objects constructor finished */
     void initialized(bool);
-    void destruct();
 
   private:
     void open_url_in_std_browser(const QString &url_string);

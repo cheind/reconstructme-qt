@@ -301,12 +301,6 @@ namespace ReconstructMeGUI {
     _data->mode = (_data->mode == data::PLAY) ? data::PAUSE : data::PLAY; // toggle mode
   }
 
-  void scan::new_log(const char* msg) 
-  {
-    QString log (msg);
-    emit log_message(log);
-  }
-
   void scan::request_stop() {
     _data->mode = data::STOP;
   }

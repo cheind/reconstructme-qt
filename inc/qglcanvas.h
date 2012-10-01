@@ -37,13 +37,19 @@
 
 namespace ReconstructMeGUI {
 
+  /** Provides a fast drawing widget, for an QImage */
   class QGLCanvas : public QGLWidget
   {
+    Q_OBJECT;
+
     public:
       QGLCanvas(QWidget* parent = NULL);
+      
+      /** Set the image to render in paintEvent */
       void setImage(const QImage* image);
 
     protected:
+      /** Render the content of the image */
       void paintEvent(QPaintEvent*);
 
     private:

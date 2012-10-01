@@ -31,7 +31,7 @@
   *          florian.eckerstorfer@profactor.at
   */
 
-/// Prevent dll interface warning on type
+// Prevent dll interface warning on type
 #ifdef WIN32
 #define NO_WARNING_DLL_INTERFACE(type, name) \
   __pragma(warning(push)) \

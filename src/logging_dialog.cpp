@@ -67,7 +67,7 @@ namespace ReconstructMeGUI {
 
   void logging_dialog::align_to_parent() {
     QRect pos = parentWidget()->geometry();
-    pos.setY(pos.y() + pos.height() + 37); // 37 is the height of the Titlebar on Windows platform :-)
+    pos.setY(pos.y() + pos.height() + 37); // 37 is the height of the titlebar on Windows platform :-)
     setGeometry(pos);
   }
 }

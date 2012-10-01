@@ -117,6 +117,7 @@ namespace ReconstructMeGUI {
     create_settings(); // load settings
     splash->showMessage(init_scanner_tag, SPLASH_MSG_ALIGNMENT);
     create_scanner();  // init scanner -> called by slot
+    create_filedialog();
     current_mode = PAUSE;
 
     // Define connections

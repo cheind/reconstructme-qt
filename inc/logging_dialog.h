@@ -36,12 +36,14 @@
 
 #include <QDialog>
 
+// Forward declarations
 namespace Ui {
   class logging_widget;
 }
 
 namespace ReconstructMeGUI {
 
+  /** This is dialog provides logging information */
   class logging_dialog : public QDialog
   {
     Q_OBJECT;
@@ -50,15 +52,19 @@ namespace ReconstructMeGUI {
     logging_dialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
     ~logging_dialog();
 
+    /** Sets the position and size of the dialog below its parent */
     void align_to_parent();
 
   signals:
+    /** Is emitted when a close event was triggered */
     void close_clicked();
 
   public slots:
+    /** This will append a log-string */
     void append_log_message(const QString &log);
 
   protected:
+    /** Since there is no signal emitted for a close event, this method is overwritten */
     virtual void closeEvent (QCloseEvent *e);
 
   private:

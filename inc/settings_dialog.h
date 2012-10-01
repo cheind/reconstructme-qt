@@ -48,7 +48,10 @@ namespace Ui {
 }
 
 namespace ReconstructMeGUI {
-
+  /** This dialog manages the settings of reconstructme 
+   *
+   *  \note The settings are application wide available via QSettings. 
+   */
   class settings_dialog : public QDialog
   {
     Q_OBJECT
@@ -58,22 +61,32 @@ namespace ReconstructMeGUI {
     ~settings_dialog();
 
   public slots:
+    /** Syncronize current settings */
     virtual void accept();
+    /** Discard changes */
     virtual void reject();
+  private slots:
+    /** Open file dialog */
+    void browse_config_button_clicked();
+    /** Open file dialog */
+    void browse_sensor_button_clicked();
+    /** Open file dialog */
+    void browse_license_file_clicked();
+    /** Load default settings */
+    void create_default_settings();
+    /** Get a list of opencl devices on the current Platform*/
+    void init_opencl_device_widget();
+    /** Apply changes when a selected file changed (was edited) outside this application */
+    void trigger_scanner_with_file(const QString &file_path);
 
   signals:
+    /** Reports a change of the selected sensor */
     void sensor_changed();
+    /** Reports a change of the configuration, license or opencl device */
     void opencl_settings_changed();
-    
-  private slots:
-    void browse_config_button_clicked();
-    void browse_sensor_button_clicked();
-    void browse_license_file_clicked();
-    void create_default_settings();
-    void init_opencl_device_widget();
-    void trigger_scanner_with_file(const QString &file_path);
   
   private:
+    /** Private helper function for easy file_dialog interaction */
     QString get_file_from_dialog(QString &current_path);
 
     // Members

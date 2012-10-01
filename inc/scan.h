@@ -48,40 +48,59 @@ class QImage;
 
 namespace ReconstructMeGUI {
 
-  class scan : public QObject {
-    
-    Q_OBJECT
+  /** This class provides scanning utilities */
+  class scan : public QObject 
+  {  
+    Q_OBJECT;
 
   public:
     scan(reme_context_t c);
     ~scan();
 
+    /** Getter for correct sized RGB QImage */
     QImage *get_rgb_image();
+    /** Getter for correct sized Phong QImage */
     QImage *get_phong_image();
+    /** Getter for correct sized Depth QImage */
     QImage *get_depth_image();
-    void new_log(const char* msg);
 
   public slots:
+    /** Toggles current mode */
     void toggle_play_pause();
+    /** Sets the volume to empty */
     void reset_volume();
-    void request_stop();
+    /** Main loop. Retrieve Images, update volume */
     void run(bool);
+    /** Exit run(bool) */
+    void request_stop();
+    
+    /** Save current volume content as polygonzied 3D model to file_name */
     void save(const QString &file_name);
-	  bool create_sensor();
+	  /** Create a sensor from QSettings */
+    bool create_sensor();
+    /** Initialized opencl utitliy with configruations from QSettings */    
     bool initialize();
 
   signals:
+    /** Emits the success of intitialization process */
     void initialized(bool);
-    void started();
-    void finished();
-    void status_string(const QString &msg, const int msecs = 0);
-    void log_message(const QString &msg);
+    /** Emits the success of the sensor creation process */
     void sensor_created(bool);
-    void new_rgb_image_bits();
-    void new_phong_image_bits();
-    void new_depth_image_bits();
+
+    /** Emit status information */
+    void status_string(const QString &msg, const int msecs = 0);
+    /** Emit log information */
+    void log_message(const QString &msg);
+    /** Provide information about error when license is applied */
     void licence_error_code(int);
 
+    /** Is emitted, when a new RGB image is available */
+    void new_rgb_image_bits();
+    /** Is emitted, when a new Phong image is available */
+    void new_phong_image_bits();
+    /** Is emitted, when a new Depth image is available */
+    void new_depth_image_bits();
+    
   private:
     bool try_open_sensor(const char *driver);
     

@@ -38,6 +38,7 @@
 
 #include <reconstructmesdk\reme.h>
 
+// Forward declarations
 class QFileDialog;
 namespace Ui {
   class hardware_key_dialog;
@@ -45,6 +46,7 @@ namespace Ui {
 
 namespace ReconstructMeGUI {
 
+  /** This dialog provides anonymized information about hardware keys */
   class hardware_key_dialog : public QDialog
   {
     Q_OBJECT;
@@ -54,14 +56,15 @@ namespace ReconstructMeGUI {
     ~hardware_key_dialog();
 
   private slots:
+    /** Saves the keys to a text file */
     void save_keys();
+    /** Copies the keys to the clipboard */
     void copy_keys_to_clipboard();
 
   private:
     Ui::hardware_key_dialog *ui;
     
     QFileDialog *file_dialog;
-
   };
 
 } 
