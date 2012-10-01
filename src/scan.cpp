@@ -214,17 +214,17 @@ namespace ReconstructMeGUI {
       success = true;
       // Prepare image and depth data
       success &= REME_SUCCESS(reme_sensor_grab(_data->c, _data->s));
-      success &= REME_SUCCESS(reme_sensor_retrieve(_data->c, _data->s));
+      if (_data->mode == data::PLAY)
+        success &= REME_SUCCESS(reme_sensor_prepare_images(_data->c, _data->s));
+      else if(_data->mode == data::PAUSE) {
+        success &= REME_SUCCESS(reme_sensor_prepare_image(_data->c, _data->s, REME_IMAGE_AUX));
+        success &= REME_SUCCESS(reme_sensor_prepare_image(_data->c, _data->s, REME_IMAGE_DEPTH));
+      }
 
       success &= REME_SUCCESS(reme_sensor_get_image(_data->c, _data->s, REME_IMAGE_AUX, &image_bytes));
       if (success) {
         memcpy((void*)_data->rgb_image->bits(), image_bytes, _data->rgb_image->byteCount());
         emit new_rgb_image_bits();
-      }
-      success &= REME_SUCCESS(reme_sensor_get_image(_data->c, _data->s, REME_IMAGE_VOLUME, &image_bytes));
-      if (success) {
-        memcpy((void*)_data->phong_image->bits(), image_bytes, _data->phong_image->byteCount());
-        emit new_phong_image_bits();
       }
       success &= REME_SUCCESS(reme_sensor_get_image(_data->c, _data->s, REME_IMAGE_DEPTH, &image_bytes));
       if (success) {
@@ -235,6 +235,12 @@ namespace ReconstructMeGUI {
       if (_data->mode != data::PLAY) {
         QCoreApplication::instance()->processEvents(); // check if something changed
         continue;
+      }
+
+      success &= REME_SUCCESS(reme_sensor_get_image(_data->c, _data->s, REME_IMAGE_VOLUME, &image_bytes));
+      if (success) {
+        memcpy((void*)_data->phong_image->bits(), image_bytes, _data->phong_image->byteCount());
+        emit new_phong_image_bits();
       }
 
       reme_error_t track_error = reme_sensor_track_position(_data->c, _data->s);
