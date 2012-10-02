@@ -40,6 +40,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QMessageBox>
 
 #include <reconstructmesdk/reme.h>
 
@@ -101,6 +102,14 @@ namespace ReconstructMeGUI {
     /** Is emitted, when a new Depth image is available */
     void new_depth_image_bits();
     
+    /** If a message box should be shown */
+    void show_message_box(
+      QMessageBox::Icon icon, 
+      QString title, 
+      QString message, 
+      QMessageBox::StandardButton btn_1 = QMessageBox::Ok,
+      QMessageBox::StandardButton btn_2 = QMessageBox::NoButton);
+
   private:
     bool try_open_sensor(const char *driver);
     

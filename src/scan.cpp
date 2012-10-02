@@ -91,8 +91,10 @@ namespace ReconstructMeGUI {
   bool scan::create_sensor()
   {
     bool success = true;
-    if (!_data->has_compiled_context) 
+    if (!_data->has_compiled_context) {
+      emit show_message_box(QMessageBox::Warning, "Warning", "Could not create sensor. No context available. Please review if your settings are correct.");
       success = false;
+    }
 
     // delete sensor, if a sensor is already in use
     if (_data->has_sensor) {

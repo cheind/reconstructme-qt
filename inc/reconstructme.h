@@ -37,7 +37,8 @@
 #pragma once
 
 #include <QMainWindow>
-#include <qprogressdialog.h>
+#include <QProgressDialog>
+#include <QMessageBox>
 
 #include <reconstructmesdk/reme.h>
 
@@ -116,6 +117,14 @@ namespace ReconstructMeGUI {
     /** Handling wait_splash hiding */
     void new_context(bool success);
 
+    /** show message box */
+    void show_message_box(
+      QMessageBox::Icon icon, 
+      QString title, 
+      QString message, 
+      QMessageBox::StandardButton btn_1 = QMessageBox::Ok,
+      QMessageBox::StandardButton btn_2 = QMessageBox::NoButton)
+      ;
 signals:
     /** Trigger scanner to save current mesh */
     void save_mesh_to_file(const QString &s);

@@ -209,7 +209,11 @@ namespace ReconstructMeGUI {
 
     // logger
     log_dialog->connect(scanner, SIGNAL(log_message(const QString&)), SLOT(append_log_message(const QString &)));
-        
+    
+    // message box interaction of scanner
+    connect(scanner, SIGNAL(show_message_box(QMessageBox::Icon, QString, QString, QMessageBox::StandardButton, QMessageBox::StandardButton)), 
+      SLOT(show_message_box(QMessageBox::Icon, QString, QString, QMessageBox::StandardButton, QMessageBox::StandardButton)));
+
     // button handler
     scanner->connect(ui->play_button, SIGNAL(clicked()), SLOT(toggle_play_pause()));
     scanner->connect(ui->reset_button, SIGNAL(clicked()), SLOT(reset_volume()));
@@ -349,6 +353,29 @@ namespace ReconstructMeGUI {
     if (!hw_key_dialog)
       hw_key_dialog = new hardware_key_dialog(c, this);
     hw_key_dialog->show();
+  }
+
+  void reconstructme::show_message_box(
+      QMessageBox::Icon icon, 
+      QString title, 
+      QString message, 
+      QMessageBox::StandardButton btn_1,
+      QMessageBox::StandardButton btn_2) {
+    
+    switch (icon) {
+      case QMessageBox::Warning:
+        QMessageBox::warning(this, title, message, btn_1, btn_2);
+        break;
+      case QMessageBox::Critical:
+        QMessageBox::critical(this, title, message, btn_1, btn_2);
+        break;
+      case QMessageBox::Information:
+        QMessageBox::information(this, title, message, btn_1, btn_2);
+        break;
+      case QMessageBox::Question:
+        QMessageBox::question(this, title, message, btn_1, btn_2);
+        break;
+    }
   }
 
   void reconstructme::action_about_clicked() {
