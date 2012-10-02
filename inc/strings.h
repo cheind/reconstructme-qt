@@ -65,7 +65,7 @@ namespace ReconstructMeGUI {
   const char* const open_url_tag = "Open URL ";
   const char* const application_about_tag = "This is a software for realtime \n3D surface reconstruction.";
   const char* const license_info_tag = "License Information";
-  const char* const license_unspecified_tag = "Unsepified error when license was applied.\nSwitching to non commercial mode.";
+  const char* const license_unspecified_tag = "Unspecified error when license was applied.\nSwitching to non commercial mode.";
  
   // urls
   const char* const url_install_tag = "http://reconstructme.net/installation/";
