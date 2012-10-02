@@ -55,7 +55,7 @@ QPushButton:hover, QAbstractItemView::item:hover, QAbstractItemView::item:select
     background-color:  rgb(80, 80, 80);
 }
 
-QLineEdit, QAbstractItemView, QCheckBox::indicator
+QLineEdit, QTextEdit, QAbstractItemView, QCheckBox::indicator
 {
    background-color:  rgb(50, 50, 50);
 }
