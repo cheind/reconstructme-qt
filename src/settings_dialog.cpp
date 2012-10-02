@@ -118,8 +118,6 @@ namespace ReconstructMeGUI {
 
     google::protobuf::RepeatedPtrField<opencl_info_device>::const_iterator it;
     for (it = ocl_info.devices().begin(); it < ocl_info.devices().end(); it++) {
-
-
       QString device (it->name().c_str());
       ui->device_list_widget->addItem(new QListWidgetItem(device.trimmed()));
     }

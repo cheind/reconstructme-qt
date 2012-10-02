@@ -106,6 +106,15 @@ namespace ReconstructMeGUI {
     /** Handle reset button clicked event. Trigger scanner to reset current volume */
     void reset_button_clicked();
 
+    /** Handling wait_splash hiding */
+    void apply_new_sensor();
+    /** Handling wait_splash hiding */
+    void apply_new_context();
+    /** Handling wait_splash hiding */
+    void new_sensor(bool success);
+    /** Handling wait_splash hiding */
+    void new_context(bool success);
+
 signals:
     /** Trigger scanner to save current mesh */
     void save_mesh_to_file(const QString &s);
@@ -150,6 +159,10 @@ signals:
     QGLCanvas *rgb_canvas;
     QGLCanvas *phong_canvas;
     QGLCanvas *depth_canvas;
+
+    // Splash wait handling
+    bool wait_for_sensor;
+    bool wait_for_context;
   };
 
 }

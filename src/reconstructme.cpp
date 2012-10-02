@@ -139,7 +139,10 @@ namespace ReconstructMeGUI {
     scanner->connect(dialog_settings, SIGNAL(opencl_settings_changed()), SLOT(initialize()));
     scanner->connect(dialog_settings, SIGNAL(sensor_changed()), SLOT(create_sensor()));
     
+    // splash hiding
+    connect(scanner, SIGNAL(initialized(bool)), SLOT(new_context(bool)));
     connect(scanner, SIGNAL(initialized(bool)), SLOT(hide_splash(bool)));
+    connect(scanner, SIGNAL(sensor_created(bool)), SLOT(new_sensor(bool)));
     connect(scanner, SIGNAL(sensor_created(bool)), SLOT(hide_splash(bool)));
 
     scanner->connect(this, SIGNAL(initialized(bool)), SLOT(run(bool)));
@@ -182,6 +185,8 @@ namespace ReconstructMeGUI {
     splash_wait->showMessage(loading_settings_tag);
     splash_wait->connect(dialog_settings, SIGNAL(opencl_settings_changed()), SLOT(show()));
     splash_wait->connect(dialog_settings, SIGNAL(sensor_changed()), SLOT(show()));
+    connect(dialog_settings, SIGNAL(opencl_settings_changed()), SLOT(apply_new_context())); // just for splash hide needed
+    connect(dialog_settings, SIGNAL(sensor_changed()), SLOT(apply_new_sensor())); // just for splash hide needed
   }
 
   void reconstructme::create_scanner() {
@@ -190,7 +195,7 @@ namespace ReconstructMeGUI {
     // set connections to scanner
     connect(scanner, SIGNAL(licence_error_code(int)), SLOT(hanlde_licence_error(int)));
     connect(scanner, SIGNAL(sensor_created(bool)), SLOT(set_image_references(bool)));
-    
+
     // logger
     log_dialog->connect(scanner, SIGNAL(log_message(const QString&)), SLOT(append_log_message(const QString &)));
         
@@ -311,8 +316,25 @@ namespace ReconstructMeGUI {
       QMessageBox::information(this, license_info_tag, license_unspecified_tag, QMessageBox::Ok);
   }
 
+  void reconstructme::apply_new_sensor() {
+    wait_for_sensor = true;
+  }
+
+  void reconstructme::apply_new_context() {
+    wait_for_context = true;
+  }
+
+  void reconstructme::new_sensor(bool success) {
+    wait_for_sensor = false;
+  }
+
+  void reconstructme::new_context(bool success) {
+    wait_for_context = false;
+  }
+
   void reconstructme::hide_splash(bool unused) {
-    splash_wait->hide();
+    if (!wait_for_sensor && !wait_for_context)
+      splash_wait->hide();
   }
 
   void reconstructme::action_log_toggled(bool checked) {
