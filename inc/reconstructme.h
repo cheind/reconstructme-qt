@@ -37,6 +37,7 @@
 #pragma once
 
 #include <QMainWindow>
+#include <qprogressdialog.h>
 
 #include <reconstructmesdk/reme.h>
 
@@ -140,7 +141,7 @@ signals:
 
     // Splash screens
     QSplashScreen *splash;
-    QSplashScreen *splash_wait;
+    QProgressDialog *splash_wait;
 
     // Scanner utils
     scan *scanner;

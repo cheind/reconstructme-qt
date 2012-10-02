@@ -58,6 +58,7 @@
 #include <QKeySequence>
 #include <QFont>
 #include <QRegExp>
+#include <QProgressBar>
 
 #include <sstream>
 #include <iostream>
@@ -183,8 +184,16 @@ namespace ReconstructMeGUI {
     
     // create splashscreen for loading
     QPixmap splash_pix(":/images/wait_splash.png");
-    splash_wait = new QSplashScreen(this, splash_pix, Qt::WindowStaysOnTopHint);
-    splash_wait->showMessage(loading_settings_tag);
+    splash_wait = new QProgressDialog(this);
+    splash_wait->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+    splash_wait->setLabelText("Loading new settings, please wait...");
+    splash_wait->setAutoClose(true);
+    QPushButton *cancel = new QPushButton();
+    cancel->setText("Cancel");
+    cancel->setEnabled(false);
+    splash_wait->setCancelButton(cancel);
+    splash_wait->setMinimum(0);
+    splash_wait->setMaximum(0);
     splash_wait->connect(dialog_settings, SIGNAL(opencl_settings_changed()), SLOT(show()));
     splash_wait->connect(dialog_settings, SIGNAL(sensor_changed()), SLOT(show()));
     connect(dialog_settings, SIGNAL(opencl_settings_changed()), SLOT(apply_new_context())); // just for splash hide needed
@@ -320,8 +329,9 @@ namespace ReconstructMeGUI {
   }
 
   void reconstructme::hide_splash(bool unused) {
-    if (!wait_for_sensor && !wait_for_context)
-      splash_wait->hide();
+    if (!wait_for_sensor && !wait_for_context) {
+      splash_wait->reset();
+    }
   }
 
   void reconstructme::action_log_toggled(bool checked) {
