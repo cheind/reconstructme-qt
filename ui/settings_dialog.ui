@@ -6,12 +6,138 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>466</width>
-    <height>281</height>
+    <width>586</width>
+    <height>434</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>ReconstructMeQt - Settings</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">/** @file
+  * @copyright Copyright (c) 2012 PROFACTOR GmbH. All rights reserved. 
+  *
+  * Redistribution and use in source and binary forms, with or without
+  * modification, are permitted provided that the following conditions are
+  * met:
+  *
+  *     * Redistributions of source code must retain the above copyright
+  * notice, this list of conditions and the following disclaimer.
+  *     * Redistributions in binary form must reproduce the above
+  * copyright notice, this list of conditions and the following disclaimer
+  * in the documentation and/or other materials provided with the
+  * distribution.
+  *     * Neither the name of Google Inc. nor the names of its
+  * contributors may be used to endorse or promote products derived from
+  * this software without specific prior written permission.
+  *
+  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  *
+  * @authors christoph.heindl@profactor.at
+  *                  christoph.kopf@profactor.at 
+  *                  florian.eckerstorfer@profactor.at
+  */
+  
+
+QWidget, QAbstractItemView::item, QMenuBar::item, QComboBox::drop-down
+{
+	border: 0px;
+	font: 8pt;
+    border-radius: 2px;
+    padding: 4px;
+    margin: 2px;
+    color: rgb(180, 180, 180);
+    background-color:  rgb(60, 60, 60);
+}
+
+QPushButton
+{
+    border: 1px solid  rgb(180,180, 180);
+    min-width: 5em;
+}
+
+QPushButton:hover, QAbstractItemView::item:hover, QAbstractItemView::item:selected,  QCheckBox::indicator:checked, QMenu:selected, QMenu:hover,  QMenuBar::item:selected
+{
+    background-color:  rgb(80, 80, 80);
+}
+
+QLineEdit, QAbstractItemView, QCheckBox::indicator
+{
+   background-color:  rgb(50, 50, 50);
+}
+
+QCheckBox::indicator:checked
+{
+    image:url(:/images/checkbox.png);
+}
+
+/** -------------------------------
+    * Scrollbar
+    * ------------------------------ */
+
+
+ QScrollBar:horizontal {
+     margin: 0px 20px 0px 20px;
+ }
+
+ QScrollBar:vertical {
+     margin: 20px 0px 20px 0px;
+ }
+
+ QScrollBar::handle,  QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal, QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+	 background-color:  rgb(180,180, 180);
+     border: 1px solid  rgb(180,180, 180);
+ } 
+
+ QScrollBar::handle:horizontal {
+     min-width: 10px;
+ }
+
+QScrollBar::handle:vertical {
+     min-height: 10px;
+ }
+
+ QScrollBar::add-line:horizontal {
+     width: 15px;
+     height: 10px;
+     subcontrol-position: right;
+     subcontrol-origin: margin;
+ }
+
+ QScrollBar::sub-line:horizontal {
+     width: 15px;
+     height: 10px;
+     subcontrol-position: left;
+     subcontrol-origin: margin;
+ }
+
+ QScrollBar::add-line:vertical {
+     height: 15px;
+     width: 10px;
+     subcontrol-position: bottom;
+     subcontrol-origin: margin;
+ }
+
+ QScrollBar::sub-line:vertical {
+     height: 15px;
+     width: 10px;
+     subcontrol-position: top;
+     subcontrol-origin: margin;
+ }
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal,  QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+     background: none;
+ }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -96,29 +222,27 @@
     </layout>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Calucation device</string>
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Computation Device</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QListWidget" name="device_list_widget">
-        <property name="locale">
-         <locale language="English" country="UnitedStates"/>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QCheckBox" name="ocl_device_auto_cb">
-        <property name="toolTip">
-         <string>Use this, if you want to ReconstructMe determine a fitting calcuation devcie</string>
-        </property>
-        <property name="text">
-         <string>Auto select device</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QListWidget" name="device_list_widget">
+     <property name="locale">
+      <locale language="English" country="UnitedStates"/>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="ocl_device_auto_cb">
+     <property name="toolTip">
+      <string>Use this, if you want to ReconstructMe determine a fitting calcuation devcie</string>
+     </property>
+     <property name="text">
+      <string>Auto select device</string>
+     </property>
     </widget>
    </item>
    <item>

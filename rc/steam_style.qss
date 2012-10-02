@@ -31,6 +31,7 @@
   *                  christoph.kopf@profactor.at 
   *                  florian.eckerstorfer@profactor.at
   */
+  
 
 QWidget, QAbstractItemView::item, QMenuBar::item, QComboBox::drop-down
 {
@@ -59,14 +60,15 @@ QLineEdit, QAbstractItemView, QCheckBox::indicator
    background-color:  rgb(50, 50, 50);
 }
 
-QCheckBox::indicator:checked
+QCheckBox::indicator 
 {
-    image:url(:/img/checkbox.png);
+	width: 13px;
+	height: 13px;
 }
 
-QComboBox::down-arrow
+QCheckBox::indicator:checked
 {
-     image: url(:/down_arrow.png);
+    image:url(:/images/checkbox.png);
 }
 
 /** -------------------------------
