@@ -188,10 +188,7 @@ namespace ReconstructMeGUI {
     splash_wait->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
     splash_wait->setLabelText("Loading new settings, please wait...");
     splash_wait->setAutoClose(true);
-    QPushButton *cancel = new QPushButton();
-    cancel->setText("Cancel");
-    cancel->setEnabled(false);
-    splash_wait->setCancelButton(cancel);
+    splash_wait->setCancelButton(0);
     splash_wait->setMinimum(0);
     splash_wait->setMaximum(0);
     splash_wait->connect(dialog_settings, SIGNAL(opencl_settings_changed()), SLOT(show()));
