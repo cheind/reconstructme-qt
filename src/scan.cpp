@@ -92,7 +92,7 @@ namespace ReconstructMeGUI {
   {
     bool success = true;
     if (!_data->has_compiled_context) {
-      emit show_message_box(QMessageBox::Warning, "Warning", "Could not create sensor. No context available. Please review if your settings are correct.");
+      emit show_message_box(QMessageBox::Warning, create_sensor_failed_no_context_tag);
       success = false;
     }
 
@@ -127,8 +127,8 @@ namespace ReconstructMeGUI {
       else 
         _data->depth_image = 0;
     }
-    else {
-      emit status_string(something_went_wrong_tag);
+    else if (_data->has_compiled_context) {
+      emit show_message_box(QMessageBox::Critical, something_went_wrong_tag);
     }
 
     _data->has_sensor = success;
@@ -151,17 +151,18 @@ namespace ReconstructMeGUI {
       reme_error_t error = reme_context_set_license(_data->c, licence_file.toStdString().c_str());
       if (error == REME_ERROR_INVALID_LICENSE) {
         emit log_message(invalid_license_tag);
+        emit show_message_box(QMessageBox::Warning, invalid_license_tag);
       }
       else if (error == REME_ERROR_UNSPECIFIED) {
         emit log_message(license_unspecified_tag);
+        emit show_message_box(QMessageBox::Warning, license_unspecified_tag);
       }
       else {
         emit log_message(license_applied_tag);
-        emit status_string(license_applied_tag, STATUS_MSG_DURATION);
+        emit status_string(license_applied_tag);
       }
-      emit licence_error_code(error);
     }
-  
+
     // Create empty options binding
     reme_options_t o;
     success &= REME_SUCCESS(reme_options_create(_data->c, &o));
@@ -189,7 +190,7 @@ namespace ReconstructMeGUI {
     }
     
     if (!success)
-      emit status_string(something_went_wrong_tag);
+      emit show_message_box(QMessageBox::Critical, something_went_wrong_tag);
 
     _data->has_compiled_context = success;
     
@@ -200,12 +201,17 @@ namespace ReconstructMeGUI {
   void scan::run(bool unused) {
     
     // check requirements for run!
-    if ((!_data->has_compiled_context && !_data->has_sensor) ||
-        _data->rgb_image   == 0 ||
-        _data->phong_image == 0 ||
-        _data->depth_image == 0 ||
-        _data->mode != data::STOP) 
+    if (!_data->has_compiled_context || 
+        !_data->has_sensor           ||
+        _data->rgb_image   == 0      ||
+        _data->phong_image == 0      ||
+        _data->depth_image == 0      ||
+        _data->mode != data::STOP)  {
+      
+      //show_message_box(QMessageBox::Warning, run_failed_tag);
       return;
+    }
+
 
     _data->mode = data::PAUSE;
     // Get ready
@@ -270,7 +276,7 @@ namespace ReconstructMeGUI {
       }
       
       if (!success)
-        emit status_string(something_went_wrong_tag);
+        emit show_message_box(QMessageBox::Critical, something_went_wrong_tag);
       
       QCoreApplication::instance()->processEvents(); // this has to be the last command in run
     } // while
@@ -297,13 +303,10 @@ namespace ReconstructMeGUI {
     success &= REME_SUCCESS(reme_surface_generate(_data->c, m, _data->v));
     success &= REME_SUCCESS(reme_surface_save_to_file(_data->c, m, file_name.toStdString().c_str()));
 
-    QString msg;
     if (!success)
-      msg = something_went_wrong_tag;
+      emit show_message_box(QMessageBox::Critical, something_went_wrong_tag);
     else 
-      msg = saved_file_to_tag + file_name;
-    
-    emit status_string(msg);
+      emit show_message_box(QMessageBox::Information, saved_file_to_tag + file_name);
   }
 
   void scan::toggle_play_pause() {

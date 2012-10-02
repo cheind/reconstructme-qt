@@ -204,15 +204,13 @@ namespace ReconstructMeGUI {
     scanner = new scan(c);
     
     // set connections to scanner
-    connect(scanner, SIGNAL(licence_error_code(int)), SLOT(hanlde_licence_error(int)));
     connect(scanner, SIGNAL(sensor_created(bool)), SLOT(set_image_references(bool)));
 
     // logger
     log_dialog->connect(scanner, SIGNAL(log_message(const QString&)), SLOT(append_log_message(const QString &)));
     
     // message box interaction of scanner
-    connect(scanner, SIGNAL(show_message_box(QMessageBox::Icon, QString, QString, QMessageBox::StandardButton, QMessageBox::StandardButton)), 
-      SLOT(show_message_box(QMessageBox::Icon, QString, QString, QMessageBox::StandardButton, QMessageBox::StandardButton)));
+    connect(scanner, SIGNAL(show_message_box(int, QString, int, int)), SLOT(show_message_box(int, QString, int, int)));
 
     // button handler
     scanner->connect(ui->play_button, SIGNAL(clicked()), SLOT(toggle_play_pause()));
@@ -242,7 +240,6 @@ namespace ReconstructMeGUI {
     splash->showMessage(init_sensor_tag, SPLASH_MSG_ALIGNMENT);
     bool sensor_found = scanner->create_sensor();
     while (!sensor_found && QMessageBox::Retry == QMessageBox::information(this, no_sensor_found_tag, no_sensor_found_msg_tag, QMessageBox::Ok, QMessageBox::Retry)) {
-      QApplication::processEvents();
       sensor_found = scanner->create_sensor();
     }
     
@@ -311,13 +308,6 @@ namespace ReconstructMeGUI {
     dialog_settings->activateWindow();
   }
 
-  void reconstructme::hanlde_licence_error(int error) {
-    if (error == REME_ERROR_INVALID_LICENSE)
-      QMessageBox::information(this, license_info_tag, invalid_license_tag, QMessageBox::Ok);
-    else if (error == REME_ERROR_UNSPECIFIED)
-      QMessageBox::information(this, license_info_tag, license_unspecified_tag, QMessageBox::Ok);
-  }
-
   void reconstructme::apply_new_sensor() {
     wait_for_sensor = true;
   }
@@ -356,24 +346,23 @@ namespace ReconstructMeGUI {
   }
 
   void reconstructme::show_message_box(
-      QMessageBox::Icon icon, 
-      QString title, 
+      int icon, 
       QString message, 
-      QMessageBox::StandardButton btn_1,
-      QMessageBox::StandardButton btn_2) {
+      int btn_1,
+      int btn_2) {
     
     switch (icon) {
       case QMessageBox::Warning:
-        QMessageBox::warning(this, title, message, btn_1, btn_2);
+        QMessageBox::warning(this, warning_tag, message, btn_1, btn_2);
         break;
       case QMessageBox::Critical:
-        QMessageBox::critical(this, title, message, btn_1, btn_2);
+        QMessageBox::critical(this, critical_tag, message, btn_1, btn_2);
         break;
       case QMessageBox::Information:
-        QMessageBox::information(this, title, message, btn_1, btn_2);
+        QMessageBox::information(this, information_tag, message, btn_1, btn_2);
         break;
       case QMessageBox::Question:
-        QMessageBox::question(this, title, message, btn_1, btn_2);
+        QMessageBox::question(this, question_tag, message, btn_1, btn_2);
         break;
     }
   }

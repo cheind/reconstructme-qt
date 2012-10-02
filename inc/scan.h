@@ -92,8 +92,6 @@ namespace ReconstructMeGUI {
     void status_string(const QString &msg, const int msecs = 0);
     /** Emit log information */
     void log_message(const QString &msg);
-    /** Provide information about error when license is applied */
-    void licence_error_code(int);
 
     /** Is emitted, when a new RGB image is available */
     void new_rgb_image_bits();
@@ -104,11 +102,10 @@ namespace ReconstructMeGUI {
     
     /** If a message box should be shown */
     void show_message_box(
-      QMessageBox::Icon icon, 
-      QString title, 
+      int icon,
       QString message, 
-      QMessageBox::StandardButton btn_1 = QMessageBox::Ok,
-      QMessageBox::StandardButton btn_2 = QMessageBox::NoButton);
+      int btn_1 = QMessageBox::Ok,
+      int btn_2 = QMessageBox::NoButton);
 
   private:
     bool try_open_sensor(const char *driver);

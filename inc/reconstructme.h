@@ -82,8 +82,6 @@ namespace ReconstructMeGUI {
     void hide_splash(bool unused);
     /** Set image references from scanner */
     void set_image_references(bool has_sensor);
-    /** When license is applied, different errors can appear */
-    void hanlde_licence_error(int error);
 
     // Online help
     void action_installation_clicked();
@@ -119,12 +117,10 @@ namespace ReconstructMeGUI {
 
     /** show message box */
     void show_message_box(
-      QMessageBox::Icon icon, 
-      QString title, 
+      int icon,
       QString message, 
-      QMessageBox::StandardButton btn_1 = QMessageBox::Ok,
-      QMessageBox::StandardButton btn_2 = QMessageBox::NoButton)
-      ;
+      int btn_1 = QMessageBox::Ok,
+      int btn_2 = QMessageBox::NoButton);
 signals:
     /** Trigger scanner to save current mesh */
     void save_mesh_to_file(const QString &s);

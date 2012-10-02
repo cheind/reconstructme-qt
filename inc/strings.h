@@ -40,13 +40,21 @@ namespace ReconstructMeGUI {
   const char* const apply_changes_tag = "Do you want to reload and apply changes of\n";
 
   // scanner strings
-  const char* const something_went_wrong_tag = "Something went wrong, please check the log.";
+  const char* const something_went_wrong_tag = "Something went wrong, please review your settings and control the log output.";
   const char* const invalid_license_tag = "Invalid license. Switching to non commercial mode.";
   const char* const license_applied_tag = "Successfully applied license file.";
   const char* const camera_track_found_tag = "Camera Track found.";
   const char* const camera_track_lost_tag = "Camera Track lost. Move camera to recovery pose to continue.";
   const char* const camera_track_lost_license_tag = "Please wait, camera lost track due to the use of a non commercial version.";
   const char* const saved_file_to_tag = "Saved file to ";
+
+  // scanner message box strings
+  const char* const warning_tag = "Warning";
+  const char* const information_tag = "Information";
+  const char* const critical_tag = "Critical";
+  const char* const question_tag = "Question";
+  const char* const create_sensor_failed_no_context_tag = "Could not create sensor. No context available. Please review if your settings are correct.";
+  const char* const run_failed_tag = "Could not start scanner. No sensor or no valid context detected. Please review your settings.";
 
   // reconstructme strings
   const char* const welcome_tag = "Welcome to ReconstructMe";
