@@ -278,25 +278,24 @@ namespace ReconstructMeGUI {
 
   void reconstructme::play_button_clicked()
   {
+    current_mode = (current_mode == PLAY) ? PAUSE : PLAY; // toggle mode
+    
     QPushButton* playPause_b = ui->play_button;
-    
-    // toggle mode
-    current_mode = (current_mode == PLAY) ? PAUSE : PLAY;
-    
+    QPixmap pixmap;
     if (current_mode == PAUSE) {
-      ui->save_button->setDisabled(false);
-      QPixmap changePixPlay (":/images/record-button.png");
-      QIcon newIconPlay (changePixPlay);
-      playPause_b->setIcon(newIconPlay);
+      ui->save_button->setEnabled(true);
+      ui->actionSave->setEnabled(true);
+      pixmap.load(":/images/record-button.png");
       ui->reconstruct_satus_bar->showMessage(mode_pause_tag, STATUSBAR_TIME);
     }
     else if (current_mode == PLAY) {
-      QPixmap changePixPause (":/images/pause-button.png");
-      QIcon newIconPause (changePixPause);
-      playPause_b->setIcon(newIconPause);
-      ui->reconstruct_satus_bar->showMessage(mode_play_tag, STATUSBAR_TIME);
       ui->save_button->setDisabled(true);
+      ui->actionSave->setDisabled(true);
+      pixmap.load(":/images/pause-button.png");
+      ui->reconstruct_satus_bar->showMessage(mode_play_tag, STATUSBAR_TIME);
     }
+    QIcon icon(pixmap);
+    playPause_b->setIcon(icon);
   }
 
   void reconstructme::reset_button_clicked() {
