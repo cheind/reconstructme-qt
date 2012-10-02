@@ -107,6 +107,9 @@ namespace ReconstructMeGUI {
     splash_wait = 0;
     hw_key_dialog = 0;
 
+    wait_for_context = false;
+    wait_for_sensor = false;
+
     QPixmap titleBarPix (":/images/icon.ico");
     QIcon titleBarIcon(titleBarPix);
     setWindowIcon(titleBarIcon);
