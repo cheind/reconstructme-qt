@@ -90,9 +90,10 @@ namespace ReconstructMeGUI {
 
   bool scan::create_sensor()
   {
-    if (!_data->has_compiled_context) 
-      return false;
     bool success = true;
+    if (!_data->has_compiled_context) 
+      success = false;
+
     // delete sensor, if a sensor is already in use
     if (_data->has_sensor) {
       success &= REME_SUCCESS(reme_sensor_close(_data->c, _data->s));
@@ -107,8 +108,6 @@ namespace ReconstructMeGUI {
     success &= REME_SUCCESS(reme_sensor_open(_data->c, _data->s));
     
     if (success) { 
-      _data->has_sensor = true;
-      
       int width, height;
       
       if (REME_SUCCESS(reme_sensor_get_image_size(_data->c, _data->s, REME_IMAGE_AUX, &width, &height)))
@@ -130,8 +129,9 @@ namespace ReconstructMeGUI {
       emit status_string(something_went_wrong_tag);
     }
 
-    emit sensor_created(success);
+    _data->has_sensor = success;
 
+    emit sensor_created(_data->has_sensor);
     return _data->has_sensor;
   }
 
@@ -145,20 +145,21 @@ namespace ReconstructMeGUI {
 
     // Set licence
     QString licence_file = settings.value(license_file_tag, license_file_default_tag).toString();
-    reme_error_t error = reme_context_set_license(_data->c, licence_file.toStdString().c_str());
-    if (error == REME_ERROR_INVALID_LICENSE) {
-      emit log_message(invalid_license_tag);
+    if (licence_file != license_file_default_tag) {
+      reme_error_t error = reme_context_set_license(_data->c, licence_file.toStdString().c_str());
+      if (error == REME_ERROR_INVALID_LICENSE) {
+        emit log_message(invalid_license_tag);
+      }
+      else if (error == REME_ERROR_UNSPECIFIED) {
+        emit log_message(license_unspecified_tag);
+      }
+      else {
+        emit log_message(license_applied_tag);
+        emit status_string(license_applied_tag, STATUS_MSG_DURATION);
+      }
+      emit licence_error_code(error);
     }
-    else if (error == REME_ERROR_UNSPECIFIED) {
-      emit log_message(license_unspecified_tag);
-    }
-    else {
-      emit log_message(license_applied_tag);
-      emit status_string(license_applied_tag, STATUS_MSG_DURATION);
-    }
-    emit licence_error_code(error);
-    
-
+  
     // Create empty options binding
     reme_options_t o;
     success &= REME_SUCCESS(reme_options_create(_data->c, &o));
@@ -180,18 +181,18 @@ namespace ReconstructMeGUI {
 
     // Compile for OpenCL device using modified options
     success &= REME_SUCCESS(reme_context_compile(_data->c));
-    if (success) {
-      _data->has_compiled_context = true;
-      if (!_data->has_volume) {
-        success &= REME_SUCCESS(reme_volume_create(_data->c, &_data->v));
-        _data->has_volume = true;
-      }
+    if (!_data->has_volume) {
+      success &= REME_SUCCESS(reme_volume_create(_data->c, &_data->v));
+      _data->has_volume = true;
     }
-    else
+    
+    if (!success)
       emit status_string(something_went_wrong_tag);
 
-    emit initialized(success);
-    return success;
+    _data->has_compiled_context = success;
+    
+    emit initialized(_data->has_compiled_context);
+    return _data->has_compiled_context;
   }
 
   void scan::run(bool unused) {
