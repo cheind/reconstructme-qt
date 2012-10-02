@@ -77,13 +77,6 @@ namespace ReconstructMeGUI {
     settings.setValue(license_file_tag, license_file);
     settings.sync();
 
-    // setup file dialog
-    file_dialog = new QFileDialog(this, Qt::Dialog);
-    file_dialog->setFileMode(QFileDialog::ExistingFile);
-    file_dialog->setAcceptMode(QFileDialog::AcceptOpen);
-    file_dialog->setFilter("*.txt");
-    file_dialog->setNameFilter("*.txt");
-
     // update textboxes
     ui->config_path_tb->setText(cfg_path);
     ui->sensor_path_tb->setText(sens_path);
@@ -216,19 +209,13 @@ namespace ReconstructMeGUI {
   }
 
   QString settings_dialog::get_file_from_dialog(QString &current_path) {
-    int index = current_path.lastIndexOf("/");
-    QDir dir(current_path.left(index));
-    dir = dir.exists() ? dir : QDir::currentPath();
-    file_dialog->setDirectory(dir);
 
-    QStringList selected_files;
-    if(file_dialog->exec())
-      selected_files = file_dialog->selectedFiles();
+    QFileInfo fi(current_path);
+    QString file_name = QFileDialog::getOpenFileName(this, tr("Open File"),
+                                                     fi.absolutePath(),
+                                                     tr("Text files (*.txt);; All files (*.*)"));
 
-    if (selected_files.empty())
-      return "";
-    else 
-      return selected_files[0];
+    return file_name;
   }
 
   void settings_dialog::browse_config_button_clicked() {

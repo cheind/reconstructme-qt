@@ -99,7 +99,6 @@ namespace ReconstructMeGUI {
     QString sens_path;
     QString license_file;
     // Paths utils
-    QFileDialog* file_dialog;
     QFileSystemWatcher *file_watcher;
 
     // Selected device
