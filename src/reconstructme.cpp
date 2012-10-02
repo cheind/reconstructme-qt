@@ -116,10 +116,13 @@ namespace ReconstructMeGUI {
     setWindowIcon(titleBarIcon);
 
     splash->showMessage(create_views_tag, SPLASH_MSG_ALIGNMENT);
+    QApplication::processEvents();
     create_views();    // three views
     splash->showMessage(reload_settings_tag, SPLASH_MSG_ALIGNMENT);
+    QApplication::processEvents();
     create_settings(); // load settings
     splash->showMessage(init_scanner_tag, SPLASH_MSG_ALIGNMENT);
+    QApplication::processEvents();
     create_scanner();  // init scanner -> called by slot
     current_mode = PAUSE;
 
@@ -234,8 +237,10 @@ namespace ReconstructMeGUI {
     // find a sensor
     splash->showMessage(init_sensor_tag, SPLASH_MSG_ALIGNMENT);
     bool sensor_found = scanner->create_sensor();
-    while (!sensor_found && QMessageBox::Retry == QMessageBox::information(this, no_sensor_found_tag, no_sensor_found_msg_tag, QMessageBox::Ok, QMessageBox::Retry))
+    while (!sensor_found && QMessageBox::Retry == QMessageBox::information(this, no_sensor_found_tag, no_sensor_found_msg_tag, QMessageBox::Ok, QMessageBox::Retry)) {
+      QApplication::processEvents();
       sensor_found = scanner->create_sensor();
+    }
     
     // scan thread
     scanner_thread = new QThread(this);
