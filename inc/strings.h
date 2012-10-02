@@ -61,7 +61,7 @@ namespace ReconstructMeGUI {
   const char* const mode_pause_tag = "Pause mode";
   const char* const mode_play_tag = "Play mode";
   const char* const volume_resetted_tag = "Volume resetted";
-  const char* const loading_settings_tag = "Loading new settings, please wait";
+  const char* const loading_settings_tag = "Applying new settings, please wait...";
   const char* const open_url_tag = "Open URL ";
   const char* const application_about_tag = "This is a software for realtime \n3D surface reconstruction.";
   const char* const license_info_tag = "License Information";
