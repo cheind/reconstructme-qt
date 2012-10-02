@@ -127,7 +127,6 @@ signals:
     void create_settings();
     void create_scanner();
     void create_statusbar();
-    void create_filedialog();
 
     enum Mode {PLAY, PAUSE};
 
@@ -138,7 +137,6 @@ signals:
     settings_dialog *dialog_settings;
     logging_dialog *log_dialog;
     hardware_key_dialog *hw_key_dialog;
-    QFileDialog* save_dialog;
 
     // Splash screens
     QSplashScreen *splash;

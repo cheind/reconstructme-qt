@@ -57,6 +57,7 @@
 #include <QDesktopWidget>
 #include <QKeySequence>
 #include <QFont>
+#include <QRegExp>
 
 #include <sstream>
 #include <iostream>
@@ -104,7 +105,6 @@ namespace ReconstructMeGUI {
 
     dialog_settings = 0;
     splash_wait = 0;
-    save_dialog = 0;
     hw_key_dialog = 0;
 
     QPixmap titleBarPix (":/images/icon.ico");
@@ -117,7 +117,6 @@ namespace ReconstructMeGUI {
     create_settings(); // load settings
     splash->showMessage(init_scanner_tag, SPLASH_MSG_ALIGNMENT);
     create_scanner();  // init scanner -> called by slot
-    create_filedialog();
     current_mode = PAUSE;
 
     // Define connections
@@ -235,16 +234,6 @@ namespace ReconstructMeGUI {
     scanner_thread->start();
   }
 
-  void reconstructme::create_filedialog() {
-    save_dialog = new QFileDialog(this, Qt::Dialog);
-    
-    save_dialog->setAcceptMode(QFileDialog::AcceptSave);
-    save_dialog->setFileMode(QFileDialog::AnyFile);
-    save_dialog->setDirectory(QDir::currentPath());
-    save_dialog->setFilter("*.ply;; *.obj;; *.3ds;; Text based *.stl");
-    save_dialog->setNameFilter(".ply;; .obj;; .3ds;; .stl");
-  }
-
   reconstructme::~reconstructme()
   {
     scanner->request_stop();
@@ -261,16 +250,12 @@ namespace ReconstructMeGUI {
 
   void reconstructme::save_button_clicked()
   {
-    QStringList selected_files;
-    if(save_dialog->exec()) 
-      selected_files = save_dialog->selectedFiles();
-    
-    if (selected_files.empty())
+    QString file_name = QFileDialog::getSaveFileName(this, tr("Save 3D Model"),
+                                                 QDir::currentPath(),
+                                                 tr("PLY files (*.ply);;OBJ files (*.obj);;3DS files (*.3ds);;STL files (*.stl)"),
+                                                 0);
+    if (file_name.isEmpty())
       return;
-    
-    QString file_name = selected_files[0];
-    if(!file_name.endsWith(save_dialog->selectedFilter()))
-      file_name += save_dialog->selectedFilter();
 
     emit save_mesh_to_file(file_name);
     ui->reconstruct_satus_bar->showMessage(saving_to_tag + file_name, STATUSBAR_TIME);

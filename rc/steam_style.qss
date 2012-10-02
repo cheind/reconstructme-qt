@@ -27,8 +27,9 @@
   * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
-  * @authors christoph.kopf@profactor.at
-  *                  christoph.heindl@profactor.at
+  * @authors christoph.heindl@profactor.at
+  *                  christoph.kopf@profactor.at 
+  *                  florian.eckerstorfer@profactor.at
   */
 
 QWidget, QAbstractItemView::item, QMenuBar::item, QComboBox::drop-down
@@ -67,3 +68,61 @@ QComboBox::down-arrow
 {
      image: url(:/down_arrow.png);
 }
+
+/** -------------------------------
+    * Scrollbar
+    * ------------------------------ */
+
+
+ QScrollBar:horizontal {
+     margin: 0px 20px 0px 20px;
+ }
+
+ QScrollBar:vertical {
+     margin: 20px 0px 20px 0px;
+ }
+
+ QScrollBar::handle,  QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal, QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+	 background-color:  rgb(180,180, 180);
+     border: 1px solid  rgb(180,180, 180);
+ } 
+
+ QScrollBar::handle:horizontal {
+     min-width: 10px;
+ }
+
+QScrollBar::handle:vertical {
+     min-height: 10px;
+ }
+
+ QScrollBar::add-line:horizontal {
+     width: 15px;
+     height: 10px;
+     subcontrol-position: right;
+     subcontrol-origin: margin;
+ }
+
+ QScrollBar::sub-line:horizontal {
+     width: 15px;
+     height: 10px;
+     subcontrol-position: left;
+     subcontrol-origin: margin;
+ }
+
+ QScrollBar::add-line:vertical {
+     height: 15px;
+     width: 10px;
+     subcontrol-position: bottom;
+     subcontrol-origin: margin;
+ }
+
+ QScrollBar::sub-line:vertical {
+     height: 15px;
+     width: 10px;
+     subcontrol-position: top;
+     subcontrol-origin: margin;
+ }
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal,  QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+     background: none;
+ }
