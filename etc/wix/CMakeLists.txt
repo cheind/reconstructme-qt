@@ -49,6 +49,7 @@ endmacro(get_env_path var name)
 
 # Create installer target
 robvis_create_wix_installer(WiXInstaller)
+add_dependencies(WiXInstaller ReconstructMeQt)
 
 # Collect necessary ReconstructMe SDK binaries
 set(HEAT_OPTS -dr INSTALLDIR 
