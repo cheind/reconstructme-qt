@@ -7,7 +7,7 @@
 	<?define ManufacturerName = 'Profactor GmbH' ?>
 	<?define ProductVersion = '@RECONSTRUCTMEQT_VERSION_MAJOR@.@RECONSTRUCTMEQT_VERSION_MINOR@.@RECONSTRUCTMEQT_VERSION_BUILD@'?>
 	
-	<Product Name=			'$(var.ProductName)' 
+	<Product Name=			'$(var.ProductName) $(var.ProductVersion)' 
 			 Id=			'$(var.ProductCode)' 
 			 UpgradeCode=	'$(var.UpgradeCode)'
 			 Language=		'1033' 
@@ -15,7 +15,7 @@
 			 Version=		'$(var.ProductVersion)' 
 			 Manufacturer=	'$(var.ManufacturerName)'>
 	
-		<Package Id='*' Keywords='Installer' Description="ReconstructMe Qt Installer"
+		<Package Id='*' Keywords='Installer' Description="ReconstructMe Qt Installer - $(var.ProductVersion)"
 		  Comments='Add your comments here' Manufacturer='$(var.ManufacturerName)'
 		  InstallerVersion='100' Languages='1033' Compressed='yes' />
 
