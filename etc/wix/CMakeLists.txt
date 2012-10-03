@@ -76,7 +76,7 @@ robvis_wix_installer_compile(
 	CANDLE_OPTS)
 	
 # Generate final .msi
-set(LIGHT_OPTS)
+set(LIGHT_OPTS -ext WixUIExtension)
 robvis_wix_installer_link(
 	WiXInstaller
 	CANDLE_OBJS

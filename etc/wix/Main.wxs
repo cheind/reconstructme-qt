@@ -35,6 +35,15 @@
 		  <ComponentGroupRef Id='QtRuntimeFiles' />
 		  <ComponentGroupRef Id='ReconstructMeQtRuntimeFiles' />
 		</Feature>
+		
+		<!-- Allow the user to change the directory -->
+		<UIRef Id="WixUI_InstallDir" />
+		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+		
+		<!-- Set the license text -->
+		<WixVariable Id="WixUILicenseRtf" Value="@PROJECT_SOURCE_DIR@/etc/wix/License.rtf" />
+		<WixVariable Id="WixUIBannerBmp" Value="@PROJECT_SOURCE_DIR@/etc/wix/images/Banner.bmp" />
+		<WixVariable Id="WixUIDialogBmp" Value="@PROJECT_SOURCE_DIR@/etc/wix/images/Welcome.bmp" />
 
 	</Product>
 </Wix>
