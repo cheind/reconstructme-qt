@@ -1,0 +1,40 @@
+<?xml version='1.0' ?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+
+	<?define ProductName = 'ReconstructMe Qt'?>
+	<?define ProductCode = '*' ?>
+	<?define UpgradeCode = 'd5ce32f5-4503-41e0-820a-0668270c8aab'?>
+	<?define ManufacturerName = 'Profactor GmbH' ?>
+	<?define ProductVersion = '@RECONSTRUCTMEQT_VERSION_MAJOR@.@RECONSTRUCTMEQT_VERSION_MINOR@.@RECONSTRUCTMEQT_VERSION_BUILD@'?>
+	
+	<Product Name=			'$(var.ProductName)' 
+			 Id=			'$(var.ProductCode)' 
+			 UpgradeCode=	'$(var.UpgradeCode)'
+			 Language=		'1033' 
+			 Codepage=		'1252'	
+			 Version=		'$(var.ProductVersion)' 
+			 Manufacturer=	'$(var.ManufacturerName)'>
+	
+		<Package Id='*' Keywords='Installer' Description="ReconstructMe Qt Installer"
+		  Comments='Add your comments here' Manufacturer='$(var.ManufacturerName)'
+		  InstallerVersion='100' Languages='1033' Compressed='yes' />
+
+		<Media Id='1' Cabinet='ReconstructMeQt.cab' EmbedCab='yes'/>
+		
+		<MajorUpgrade DowngradeErrorMessage='A later version of [ProductName] is already installed. Setup will now exit' />
+
+		<Directory Id='TARGETDIR' Name='SourceDir'>
+		  <Directory Id='ProgramFilesFolder' Name='PFiles'>
+			  <Directory Id='INSTALLDIR' Name='ReconstructMeQt'>
+			  </Directory>
+		  </Directory>
+		</Directory>
+		
+		<Feature Id='Complete' Level='1' ConfigurableDirectory='INSTALLDIR'>
+		  <ComponentGroupRef Id='ReconstructMeSDKRuntimeFiles' />
+		  <ComponentGroupRef Id='QtRuntimeFiles' />
+		  <ComponentGroupRef Id='ReconstructMeQtRuntimeFiles' />
+		</Feature>
+
+	</Product>
+</Wix>

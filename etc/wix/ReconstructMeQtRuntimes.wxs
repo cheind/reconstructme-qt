@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Fragment>
+        <DirectoryRef Id="INSTALLDIR">
+			<Component Id="ReconstructMeQt" Guid="53236194-b9c0-4bc7-bcc5-461e5ca5015a">
+                <File KeyPath="yes" Source="@RECONSTRUCTMEQT_EXE@" />
+            </Component>
+		</DirectoryRef>
+	</Fragment>
+	<Fragment>
+        <ComponentGroup Id="ReconstructMeQtRuntimeFiles">
+			<ComponentRef Id="ReconstructMeQt" />
+		</ComponentGroup>
+	</Fragment>
+</Wix>

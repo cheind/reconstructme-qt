@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Fragment>
+        <DirectoryRef Id="INSTALLDIR">
+			<Component Id="QtCore4" Guid="a84aa47f-8448-46a1-b92e-69817f1fd314">
+                <File KeyPath="yes" Source="@QT_BINARY_DIR@/QtCore4.dll" />
+            </Component>
+			<Component Id="QtGUI4" Guid="6ec49c81-ec14-4060-8afa-8f5425e75a80">
+                <File KeyPath="yes" Source="@QT_BINARY_DIR@/QtGUI4.dll" />
+            </Component>
+			<Component Id="QtOpenGL4" Guid="d21e2070-1ecc-4a87-8bd6-3d4f6c90ad1b">
+                <File KeyPath="yes" Source="@QT_BINARY_DIR@/QtOpenGL4.dll" />
+            </Component>
+		</DirectoryRef>
+	</Fragment>
+	<Fragment>
+        <ComponentGroup Id="QtRuntimeFiles">
+			<ComponentRef Id="QtCore4" />
+			<ComponentRef Id="QtGUI4" />
+			<ComponentRef Id="QtOpenGL4" />
+		</ComponentGroup>
+	</Fragment>
+</Wix>
