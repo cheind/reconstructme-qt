@@ -34,14 +34,17 @@
 #include "reconstructme.h"
 #include "ui_reconstructme.h"
 
+#include "scan.h"
+
 #include "settings.h"
 #include "strings.h"
-#include "settings_dialog.h"
-#include "scan.h"
+#include "defines.h"
+
 #include "qglcanvas.h"
 #include "logging_dialog.h"
 #include "hardware_key_dialog.h"
-#include "defines.h"
+#include "about_dialog.h"
+#include "settings_dialog.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -59,6 +62,7 @@
 #include <QFont>
 #include <QRegExp>
 #include <QProgressBar>
+#include <QProgressDialog>
 
 #include <sstream>
 #include <iostream>
@@ -107,6 +111,7 @@ namespace ReconstructMeGUI {
     dialog_settings = 0;
     splash_wait = 0;
     hw_key_dialog = 0;
+    app_about_dialog = new about_dialog(c, this);
 
     wait_for_context = false;
     wait_for_sensor = false;
@@ -368,39 +373,7 @@ namespace ReconstructMeGUI {
   }
 
   void reconstructme::action_about_clicked() {
-    QMessageBox msgbox;
-    msgbox.setText(application_about_tag);
-                          
-    std::stringstream ss_gui_v;
-    ss_gui_v << RECONSTRUCTMEQT_VERSION_MAJOR << ".";
-    ss_gui_v << RECONSTRUCTMEQT_VERSION_MINOR << ".";
-    ss_gui_v << RECONSTRUCTMEQT_VERSION_BUILD;
-
-    std::stringstream ss_sdk_v;
-    ss_sdk_v << REME_VERSION_MAJOR << ".";
-    ss_sdk_v << REME_VERSION_MINOR << ".";
-    ss_sdk_v << REME_VERSION_BUILD << "-";
-    ss_sdk_v << REME_VERSION_REVISION;
-
-    int length;               
-    const char* runtime_sdk_version;
-    reme_context_get_version(c, &runtime_sdk_version, &length);
-
-    std::stringstream ss_about;
-    ss_about << "Version ReconstructMeQT: " << ss_gui_v.str() << "\n";
-    ss_about << "Build Version ReconstructMeSDK: " << ss_sdk_v.str() << "\n";
-    ss_about << "Runtime Version ReconstructMeSDK: " << ss_sdk_v.str() << "\n";
-    ss_about << "http://reconstructme.net/ ";
-    ss_about << "\nChristoph Heindl";
-    ss_about << "\nChristoph Kopf";
-    ss_about << "\nFlorian Eckerstorfer";
-
-    QString qstr = QString::fromStdString(ss_about.str());
-
-    msgbox.setInformativeText(qstr);
-    QPixmap boxpix(":/images/reme_typo.png");
-    msgbox.setIconPixmap(boxpix);
-    msgbox.exec();
+    app_about_dialog->show();
   }
 
   void reconstructme::open_url_in_std_browser(const QString &url_string) {

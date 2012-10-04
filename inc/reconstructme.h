@@ -37,8 +37,6 @@
 #pragma once
 
 #include <QMainWindow>
-#include <QProgressDialog>
-#include <QMessageBox>
 
 #include <reconstructmesdk/reme.h>
 
@@ -48,14 +46,16 @@ class QThread;
 class QLabel;
 class QSplashScreen;
 class QFileDialog;
+class QProgressDialog;
 namespace Ui {
   class reconstructme_mw;
 }
 namespace ReconstructMeGUI {
+  class scan;
   class QGLCanvas;
+  class about_dialog;
   class settings_dialog;
   class logging_dialog;
-  class scan;
   class hardware_key_dialog;
 }
 
@@ -119,8 +119,8 @@ namespace ReconstructMeGUI {
     void show_message_box(
       int icon,
       QString message, 
-      int btn_1 = QMessageBox::Ok,
-      int btn_2 = QMessageBox::NoButton);
+      int btn_1 = 1024, // QMessageBox::Ok
+      int btn_2 = 0);   // QMessageBox::NoButton
 signals:
     /** Trigger scanner to save current mesh */
     void save_mesh_to_file(const QString &s);
@@ -143,6 +143,7 @@ signals:
     settings_dialog *dialog_settings;
     logging_dialog *log_dialog;
     hardware_key_dialog *hw_key_dialog;
+    about_dialog *app_about_dialog;
 
     // Splash screens
     QSplashScreen *splash;

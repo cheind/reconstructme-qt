@@ -31,42 +31,57 @@
   *          florian.eckerstorfer@profactor.at
   */
 
-#include "logging_dialog.h"
-#include "ui_logging_dialog.h"
+#include "about_dialog.h"
+#include "ui_about_dialog.h"
 
-#include <QDateTime>
+#include "defines.h"
+
+#include <QPixmap>
+
+#include <sstream>
 
 namespace ReconstructMeGUI {
-  logging_dialog::logging_dialog(QWidget *parent, Qt::WindowFlags f) : 
+  about_dialog::about_dialog(reme_context_t c, QWidget *parent, Qt::WindowFlags f) : 
     QDialog(parent, f),  
-    ui(new Ui::logging_widget)
+    ui(new Ui::about_dialog)
   {
     ui->setupUi(this);
-    setModal(false);
+
+    std::stringstream ss_gui_v;
+    ss_gui_v << RECONSTRUCTMEQT_VERSION_MAJOR << ".";
+    ss_gui_v << RECONSTRUCTMEQT_VERSION_MINOR << ".";
+    ss_gui_v << RECONSTRUCTMEQT_VERSION_BUILD;
+
+    std::stringstream ss_sdk_v;
+    ss_sdk_v << REME_VERSION_MAJOR << ".";
+    ss_sdk_v << REME_VERSION_MINOR << ".";
+    ss_sdk_v << REME_VERSION_BUILD << "-";
+    ss_sdk_v << REME_VERSION_REVISION;
+
+    int length;               
+    const char* runtime_sdk_version;
+    reme_context_get_version(c, &runtime_sdk_version, &length);
+
+    std::stringstream ss_version;
+    ss_version << "Version ReconstructMeQT: " << ss_gui_v.str() << "\n";
+    ss_version << "Build Version ReconstructMeSDK: " << ss_sdk_v.str() << "\n";
+    ss_version << "Runtime Version ReconstructMeSDK: " << ss_sdk_v.str();
+    
+    ui->version_label->setText(QString::fromStdString(ss_version.str()));
+    
+    std::stringstream ss_authors;
+    ss_authors << "Christoph Heindl";
+    ss_authors << "\nChristoph Kopf";
+    ss_authors << "\nFlorian Eckerstorfer";
+
+    ui->authors_label->setText(QString::fromStdString(ss_authors.str()));
+
+    ui->logo_label->setPixmap(QPixmap(":/images/reme_typo.png"));
+    ui->logo_label->setOpenExternalLinks(true);
   }
 
-  logging_dialog::~logging_dialog() 
+  about_dialog::~about_dialog()
   {
     delete ui;
-  }
-
-  void logging_dialog::append_log_message(const QString &log) {
-    if (log == "") return;
-
-    QString new_log = 
-      "=== " + QDateTime::currentDateTime().toString() + " ===\n" + 
-      log;
-
-    ui->log_te->append(new_log);
-  }
-
-  void logging_dialog::closeEvent (QCloseEvent *e) {
-    emit close_clicked();
-  }
-
-  void logging_dialog::align_to_parent() {
-    QRect pos = parentWidget()->geometry();
-    pos.setY(pos.y() + pos.height() + 37); // 37 is the height of the titlebar on Windows platform :-)
-    setGeometry(pos);
   }
 }

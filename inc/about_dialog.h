@@ -30,43 +30,35 @@
   * @authors christoph.kopf@profactor.at
   *          florian.eckerstorfer@profactor.at
   */
+  
+#ifndef ABOUT_DIALOG_H
+#define ABOUT_DIALOG_H
 
-#include "logging_dialog.h"
-#include "ui_logging_dialog.h"
+#pragma once
 
-#include <QDateTime>
+#include <QDialog>
+
+#include <reconstructmesdk/reme.h>
+
+// Forward Declaration
+namespace Ui {
+  class about_dialog;
+}
 
 namespace ReconstructMeGUI {
-  logging_dialog::logging_dialog(QWidget *parent, Qt::WindowFlags f) : 
-    QDialog(parent, f),  
-    ui(new Ui::logging_widget)
+  /** This dialog shows the application about information*/
+  class about_dialog : public QDialog
   {
-    ui->setupUi(this);
-    setModal(false);
-  }
 
-  logging_dialog::~logging_dialog() 
-  {
-    delete ui;
-  }
+  public:
+    about_dialog(reme_context_t c, QWidget *parent = 0, Qt::WindowFlags f = 0);
+    ~about_dialog();
+  
+  private:
+    // Members
+    Ui::about_dialog *ui;
+  };
 
-  void logging_dialog::append_log_message(const QString &log) {
-    if (log == "") return;
-
-    QString new_log = 
-      "=== " + QDateTime::currentDateTime().toString() + " ===\n" + 
-      log;
-
-    ui->log_te->append(new_log);
-  }
-
-  void logging_dialog::closeEvent (QCloseEvent *e) {
-    emit close_clicked();
-  }
-
-  void logging_dialog::align_to_parent() {
-    QRect pos = parentWidget()->geometry();
-    pos.setY(pos.y() + pos.height() + 37); // 37 is the height of the titlebar on Windows platform :-)
-    setGeometry(pos);
-  }
 }
+
+#endif // ABOUT_DIALOG_H
