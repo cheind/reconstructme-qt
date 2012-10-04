@@ -33,7 +33,7 @@
   */
   
 
-QWidget, QAbstractItemView::item, QMenuBar::item, QComboBox::drop-down
+QWidget, QAbstractItemView::item, QMenuBar::item, QComboBox::drop-down, QHeaderView, QHeaderView::section 
 {
 	border: 0px;
 	font: 8pt;
@@ -44,13 +44,19 @@ QWidget, QAbstractItemView::item, QMenuBar::item, QComboBox::drop-down
     background-color:  rgb(60, 60, 60);
 }
 
+QHeaderView 
+{
+	margin: 0px;
+	padding: 0px;
+}
+
 QPushButton
 {
     border: 1px solid  rgb(180,180, 180);
     min-width: 5em;
 }
 
-QPushButton:hover, QAbstractItemView::item:hover, QAbstractItemView::item:selected,  QCheckBox::indicator:checked, QMenu:selected, QMenu:hover,  QMenuBar::item:selected
+QPushButton:hover, QAbstractItemView::item:hover, QAbstractItemView::item:selected,  QCheckBox::indicator:checked, QMenu:selected, QMenu:hover, QMenuBar::item:selected, QHeaderView::section
 {
     background-color:  rgb(80, 80, 80);
 }
