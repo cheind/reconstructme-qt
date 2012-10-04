@@ -337,7 +337,6 @@ namespace ReconstructMeGUI {
 
   void reconstructme::action_log_toggled(bool checked) {
     if (checked) {
-      log_dialog->align_to_parent();
       log_dialog->show();
     }
     else

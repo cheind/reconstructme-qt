@@ -27,41 +27,49 @@
   * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
-  * @authors christoph.kopf@profactor.at
-  *          florian.eckerstorfer@profactor.at
+  * @authors christoph.heindl@profactor.at
   */
+  
+#ifndef LOG_TABLE_MODEL_H
+#define LOG_TABLE_MODEL_H
 
-#include "logging_dialog.h"
-#include "ui_logging_dialog.h"
-
+#include <QAbstractTableModel>
 #include <QDateTime>
+#include <reconstructmesdk/types.h>
 
 namespace ReconstructMeGUI {
 
-  logging_dialog::logging_dialog(QWidget *parent, Qt::WindowFlags f) : 
-    QDialog(parent, f),  
-    ui(new Ui::logging_widget)
+  /** Table model for logging messages */
+  class LogTableModel : public QAbstractTableModel
   {
-    ui->setupUi(this);
-    //_proxy_model.setSourceModel(&_log_model);
-    //_proxy_model.setDynamicSortFilter(true);
-    ui->logtableview->setModel(&_log_model);
-    ui->logtableview->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-    ui->logtableview->horizontalHeader()->setStretchLastSection(true);
-    ui->logtableview->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-    setModal(false);
-  }
+    Q_OBJECT
 
-  logging_dialog::~logging_dialog() 
-  {
-    delete ui;
-  }
+  public:
+    
+    struct LogMessage {
+      QDateTime timestamp;
+      reme_log_severity_t severity;
+      QString message;
+    };
+    
+    LogTableModel(QObject *parent=0);
 
-  void logging_dialog::append_log_message(const QString &log) {
-    _log_model.prepend(REME_LOG_SEVERITY_INFO, log);
-  }
+    /** Read */
 
-  void logging_dialog::closeEvent (QCloseEvent *e) {
-    emit close_clicked();
-  }
+    int rowCount(const QModelIndex &parent) const;
+    int columnCount(const QModelIndex &parent) const;
+    QVariant data(const QModelIndex &index, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    
+    void prepend(reme_log_severity_t sev, const QString &msg);
+
+    
+
+  private:
+    QList< LogMessage > _messages;
+  };
+
+
 }
+
+#endif

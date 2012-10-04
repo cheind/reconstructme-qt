@@ -35,6 +35,8 @@
 #define LOGGING_WIDGET_H
 
 #include <QDialog>
+#include <QSortFilterProxyModel>
+#include "log_table_model.h"
 
 // Forward declarations
 namespace Ui {
@@ -52,9 +54,6 @@ namespace ReconstructMeGUI {
     logging_dialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
     ~logging_dialog();
 
-    /** Sets the position and size of the dialog below its parent */
-    void align_to_parent();
-
   signals:
     /** Is emitted when a close event was triggered */
     void close_clicked();
@@ -69,6 +68,8 @@ namespace ReconstructMeGUI {
 
   private:
     Ui::logging_widget *ui;
+    LogTableModel _log_model;
+    QSortFilterProxyModel _proxy_model;
   };
 } 
 
