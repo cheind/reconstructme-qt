@@ -72,11 +72,8 @@ namespace ReconstructMeGUI {
      
     QStyle *style = this->style();
 
-    _log_model->insertRow(0);
-
     QString sev_str;
     QIcon sev_icon;
-
 
     switch (sev) {
       case REME_LOG_SEVERITY_INFO:
@@ -94,11 +91,23 @@ namespace ReconstructMeGUI {
         sev_icon = style->standardIcon(QStyle::SP_MessageBoxCritical);
         break;
      }
-     
-     _log_model->setData(_log_model->index(0, 0), sev_str, Qt::DisplayRole);
-     _log_model->setData(_log_model->index(0, 0), sev_icon, Qt::DecorationRole);
-     _log_model->setData(_log_model->index(0, 1), QDateTime::currentDateTime(), Qt::DisplayRole);
-     _log_model->setData(_log_model->index(0, 2), log, Qt::DisplayRole);
+
+    QList< QStandardItem *> items;
+    
+    QStandardItem *sev_item = new QStandardItem(sev_icon, sev_str);
+    QStandardItem *date_item = new QStandardItem(QDateTime::currentDateTime().toString());
+    QStandardItem *message_item = new QStandardItem(log);
+
+    sev_item->setEditable(false);
+    date_item->setEditable(false);
+    message_item->setEditable(false);
+
+    items.push_back(sev_item);
+    items.push_back(date_item);
+    items.push_back(message_item);
+
+    _log_model->insertRow(0, items);
+
   }
 
   void logging_dialog::closeEvent (QCloseEvent *e) {
