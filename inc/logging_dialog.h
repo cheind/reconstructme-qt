@@ -35,8 +35,10 @@
 #define LOGGING_WIDGET_H
 
 #include <QDialog>
+#include <QStandardItemModel>
 #include <QSortFilterProxyModel>
-#include "log_table_model.h"
+
+#include <reconstructmesdk/types.h>
 
 // Forward declarations
 namespace Ui {
@@ -60,7 +62,7 @@ namespace ReconstructMeGUI {
 
   public slots:
     /** This will append a log-string */
-    void append_log_message(const QString &log);
+    void add_log_message(reme_log_severity_t sev, const QString &log);
 
   protected:
     /** Since there is no signal emitted for a close event, this method is overwritten */
@@ -68,8 +70,8 @@ namespace ReconstructMeGUI {
 
   private:
     Ui::logging_widget *ui;
-    LogTableModel _log_model;
-    QSortFilterProxyModel _proxy_model;
+    QStandardItemModel *_log_model;
+    QSortFilterProxyModel *_proxy_model;
   };
 } 
 

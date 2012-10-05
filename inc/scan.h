@@ -42,7 +42,7 @@
 #include <QString>
 #include <QMessageBox>
 
-#include <reconstructmesdk/reme.h>
+#include <reconstructmesdk/types.h>
 
 // Forward declarations
 class QImage;
@@ -91,7 +91,7 @@ namespace ReconstructMeGUI {
     /** Emit status information */
     void status_string(const QString &msg, const int msecs = 0);
     /** Emit log information */
-    void log_message(const QString &msg);
+    void log_message(reme_log_severity_t sev, const QString &msg);
 
     /** Is emitted, when a new RGB image is available */
     void new_rgb_image_bits();

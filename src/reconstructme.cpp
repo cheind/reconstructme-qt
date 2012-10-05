@@ -64,8 +64,7 @@
 #include <QProgressBar>
 #include <QProgressDialog>
 
-#include <sstream>
-#include <iostream>
+#include <reconstructmesdk/types.h>
 
 #define STATUSBAR_TIME 1500
 #define SPLASH_MSG_ALIGNMENT Qt::AlignBottom | Qt::AlignLeft
@@ -74,7 +73,7 @@ namespace ReconstructMeGUI {
   
   void reme_log(reme_log_severity_t sev, const char *message, void *user_data)  {
     logging_dialog *l = static_cast<logging_dialog*>(user_data);
-    l->append_log_message(QString(message));
+    l->add_log_message(sev, QString(message));
   }
   
   reconstructme::reconstructme(QWidget *parent) : 
@@ -212,7 +211,7 @@ namespace ReconstructMeGUI {
     connect(scanner, SIGNAL(sensor_created(bool)), SLOT(set_image_references(bool)));
 
     // logger
-    log_dialog->connect(scanner, SIGNAL(log_message(const QString&)), SLOT(append_log_message(const QString &)));
+    log_dialog->connect(scanner, SIGNAL(log_message(reme_log_severity_t, const QString&)), SLOT(add_log_message(reme_log_severity_t, const QString &)));
     
     // message box interaction of scanner
     connect(scanner, SIGNAL(show_message_box(int, QString, int, int)), SLOT(show_message_box(int, QString, int, int)));

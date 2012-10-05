@@ -57,7 +57,7 @@ set(HEAT_OPTS -dr INSTALLDIR
 			  -var var.SDKRuntimeFilesDirectory
 			  -gg -scom -sreg -sfrag -srd)
 			  
-get_env_path(REME_ROOT_FIXED REME_ROOT_DIRECTORY)
+get_env_path(REME_ROOT_FIXED REME_ROOT_DIRECTORY)			  
 	
 robvis_wix_installer_heat_directory(
 	WiXInstaller 

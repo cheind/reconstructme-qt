@@ -43,12 +43,23 @@ namespace ReconstructMeGUI {
     ui(new Ui::logging_widget)
   {
     ui->setupUi(this);
-    //_proxy_model.setSourceModel(&_log_model);
-    //_proxy_model.setDynamicSortFilter(true);
-    ui->logtableview->setModel(&_log_model);
+
+    _log_model = new QStandardItemModel(0, 3, parent);
+    _log_model->setHeaderData(0, Qt::Horizontal, tr("Severity"));
+    _log_model->setHeaderData(1, Qt::Horizontal, tr("Timestamp"));
+    _log_model->setHeaderData(2, Qt::Horizontal, tr("Message"));
+
+    _proxy_model = new QSortFilterProxyModel(parent);
+    _proxy_model->setSourceModel(_log_model);
+    _proxy_model->setDynamicSortFilter(true);
+
     ui->logtableview->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
     ui->logtableview->horizontalHeader()->setStretchLastSection(true);
-    ui->logtableview->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+    ui->logtableview->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);    
+   
+    ui->logtableview->setModel(_proxy_model);
+    ui->logtableview->horizontalHeader()->setSortIndicator(1, Qt::AscendingOrder);
+
     setModal(false);
   }
 
@@ -57,8 +68,37 @@ namespace ReconstructMeGUI {
     delete ui;
   }
 
-  void logging_dialog::append_log_message(const QString &log) {
-    _log_model.prepend(REME_LOG_SEVERITY_INFO, log);
+  void logging_dialog::add_log_message(reme_log_severity_t sev, const QString &log) {
+     
+    QStyle *style = this->style();
+
+    _log_model->insertRow(0);
+
+    QString sev_str;
+    QIcon sev_icon;
+
+
+    switch (sev) {
+      case REME_LOG_SEVERITY_INFO:
+        sev_str = tr("Info");
+        sev_icon = style->standardIcon(QStyle::SP_MessageBoxInformation);
+        break;
+
+      case REME_LOG_SEVERITY_WARNING:
+        sev_str = tr("Warning");
+        sev_icon = style->standardIcon(QStyle::SP_MessageBoxWarning);
+        break;
+
+      case REME_LOG_SEVERITY_ERROR:
+        sev_str = tr("Error");
+        sev_icon = style->standardIcon(QStyle::SP_MessageBoxCritical);
+        break;
+     }
+     
+     _log_model->setData(_log_model->index(0, 0), sev_str, Qt::DisplayRole);
+     _log_model->setData(_log_model->index(0, 0), sev_icon, Qt::DecorationRole);
+     _log_model->setData(_log_model->index(0, 1), QDateTime::currentDateTime(), Qt::DisplayRole);
+     _log_model->setData(_log_model->index(0, 2), log, Qt::DisplayRole);
   }
 
   void logging_dialog::closeEvent (QCloseEvent *e) {

@@ -44,6 +44,8 @@
 #include <QSettings>
 #include <QImage>
 
+#include <reconstructmesdk/reme.h>
+
 #include <sstream>
 #include <iostream>
 
@@ -150,15 +152,15 @@ namespace ReconstructMeGUI {
     if (licence_file != license_file_default_tag) {
       reme_error_t error = reme_context_set_license(_data->c, licence_file.toStdString().c_str());
       if (error == REME_ERROR_INVALID_LICENSE) {
-        emit log_message(invalid_license_tag);
+        emit log_message(REME_LOG_SEVERITY_ERROR, invalid_license_tag);
         emit show_message_box(QMessageBox::Warning, invalid_license_tag);
       }
       else if (error == REME_ERROR_UNSPECIFIED) {
-        emit log_message(license_unspecified_tag);
+        emit log_message(REME_LOG_SEVERITY_ERROR, license_unspecified_tag);
         emit show_message_box(QMessageBox::Warning, license_unspecified_tag);
       }
       else {
-        emit log_message(license_applied_tag);
+        emit log_message(REME_LOG_SEVERITY_INFO, license_applied_tag);
         emit status_string(license_applied_tag);
       }
     }
@@ -180,6 +182,7 @@ namespace ReconstructMeGUI {
     int device_id = settings.value(opencl_device_tag, opencl_device_default_tag).toInt();
     std::stringstream str_stream;
     str_stream << device_id;
+
     success &= REME_SUCCESS(reme_options_set(_data->c, o, devcice_id_tag, str_stream.str().c_str()));
 
     // Compile for OpenCL device using modified options

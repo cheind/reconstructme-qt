@@ -85,13 +85,20 @@ TARGET_LINK_LIBRARIES(ReconstructMeQt
 	${RECONSTRUCTMESDK_LIBRARIES} 
 	${PROTOBUF_LITE_LIBRARY}
 	${PROTOBUF_LITE_LIBRARY_DEBUG})
+	
+macro(get_env_path var name)
+   set(${var} $ENV{${name}})
+   string( REGEX REPLACE "\\\\" "/" ${var} ${${var}} )
+endmacro(get_env_path var name)
+
+get_env_path(REME_ROOT_FIXED REME_ROOT_DIRECTORY)
 
 INSTALL(TARGETS ReconstructMeQt RUNTIME DESTINATION bin)
-INSTALL(DIRECTORY $ENV{REME_ROOT_DIRECTORY}/bin/ DESTINATION bin)
+INSTALL(DIRECTORY ${REME_ROOT_FIXED}/bin/ DESTINATION bin)
 INSTALL(FILES 
 		${QT_BINARY_DIR}/QtCore4.dll 
 		${QT_BINARY_DIR}/QtGUI4.dll 
 		${QT_BINARY_DIR}/QtOpenGL4.dll 
-	  DESTINATION bin)
+	    DESTINATION bin)
 
 add_subdirectory(etc/wix)
