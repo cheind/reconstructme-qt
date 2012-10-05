@@ -42,7 +42,7 @@ namespace ReconstructMeGUI {
 
   }
 
-  void QGLCanvas::setImage(const QImage* image) {
+  void QGLCanvas::setImage(QImage* image) {
     img = image;
   }
 

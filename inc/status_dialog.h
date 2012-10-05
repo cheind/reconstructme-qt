@@ -30,81 +30,62 @@
   * @authors christoph.kopf@profactor.at
   *          florian.eckerstorfer@profactor.at
   */
-  
-#ifndef SETTINGS_DIALOG_H
-#define SETTINGS_DIALOG_H
 
-#pragma once
+#ifndef STATUS_DIALOG_H
+#define STATUS_DIALOG_H
 
 #include "types.h"
 
 #include <QDialog>
+#include <QStandardItemModel>
 
-#include <reconstructmesdk/reme.h>
+#include <reconstructmesdk/types.h>
 
-// Forward Declaration
-class QFileDialog;
-class QFileSystemWatcher;
+// Forward declarations
 namespace Ui {
-  class settings_dialog;
+  class status_dialog;
 }
 
 namespace ReconstructMeGUI {
-  /** This dialog manages the settings of reconstructme 
-   *
-   *  \note The settings are application wide available via QSettings. 
-   */
-  class settings_dialog : public QDialog
-  {
-    Q_OBJECT
-    
-  public:
-    settings_dialog(reme_context_t ctx, QWidget *parent = 0);
-    ~settings_dialog();
 
-  public slots:
-    /** Syncronize current settings */
-    virtual void accept();
-    /** Discard changes */
-    virtual void reject();
-  private slots:
-    /** Open file dialog */
-    void browse_config_button_clicked();
-    /** Open file dialog */
-    void browse_sensor_button_clicked();
-    /** Open file dialog */
-    void browse_license_file_clicked();
-    /** Load default settings */
-    void create_default_settings();
-    /** Get a list of opencl devices on the current Platform*/
-    void init_opencl_device_widget();
-    /** Apply changes when a selected file changed (was edited) outside this application */
-    void trigger_scanner_with_file(const QString &file_path);
+  /** This is dialog provides status information of the scanner*/
+  class status_dialog : public QDialog
+  {
+    Q_OBJECT;
+
+  public:
+    status_dialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    ~status_dialog();
+
+    enum status_object { Sensor, License, Device };
 
   signals:
-    /** Reports a change of the selected sensor */
-    void initialize(init_t what);
-  
-  private:
-    /** Private helper function for easy file_dialog interaction */
-    QString get_file_from_dialog(QString &current_path);
-
-    // Members
-    Ui::settings_dialog *ui;
     
-    reme_context_t c;
+  public slots:
+    void initializing(init_t what);
+    void initialized(init_t what, bool success);
 
-    // Paths
-    QString cfg_path;
-    QString sens_path;
-    QString license_file;
-    // Paths utils
-    QFileSystemWatcher *file_watcher;
+  protected:
+    
+  private:
+    void create_content();
 
-    // Selected device
-    int device_id;
+    Ui::status_dialog *ui;
+    QStandardItemModel *_status_model;
+
+    QStandardItem *_lic_obj_item;
+    QStandardItem *_lic_status_item;
+    QStandardItem *_lic_message_item;
+                   
+    QStandardItem *_sen_obj_item;
+    QStandardItem *_sen_status_item;
+    QStandardItem *_sen_message_item;
+                   
+    QStandardItem *_dev_obj_item;
+    QStandardItem *_dev_status_item;
+    QStandardItem *_dev_message_item;
+
   };
+} 
 
-}
-
-#endif // SETTINGS_DIALOG_H
+#endif // STATUS_DIALOG_H

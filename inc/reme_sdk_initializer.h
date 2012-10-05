@@ -31,80 +31,77 @@
   *          florian.eckerstorfer@profactor.at
   */
   
-#ifndef SETTINGS_DIALOG_H
-#define SETTINGS_DIALOG_H
+#ifndef REME_SDK_INITIALIZER_H
+#define REME_SDK_INITIALIZER_H
 
 #pragma once
 
 #include "types.h"
 
-#include <QDialog>
+#include <QObject>
 
-#include <reconstructmesdk/reme.h>
+#include <reconstructmesdk/types.h>
 
-// Forward Declaration
-class QFileDialog;
-class QFileSystemWatcher;
-namespace Ui {
-  class settings_dialog;
-}
+// FoWrward declarations
+class QImage;
 
 namespace ReconstructMeGUI {
-  /** This dialog manages the settings of reconstructme 
-   *
-   *  \note The settings are application wide available via QSettings. 
-   */
-  class settings_dialog : public QDialog
-  {
-    Q_OBJECT
+
+  /** This class provides scanning utilities */
+  class reme_sdk_initializer : public QObject 
+  {  
+    Q_OBJECT;
     
   public:
-    settings_dialog(reme_context_t ctx, QWidget *parent = 0);
-    ~settings_dialog();
+    reme_sdk_initializer(reme_context_t c);
+    ~reme_sdk_initializer();
 
   public slots:
-    /** Syncronize current settings */
-    virtual void accept();
-    /** Discard changes */
-    virtual void reject();
-  private slots:
-    /** Open file dialog */
-    void browse_config_button_clicked();
-    /** Open file dialog */
-    void browse_sensor_button_clicked();
-    /** Open file dialog */
-    void browse_license_file_clicked();
-    /** Load default settings */
-    void create_default_settings();
-    /** Get a list of opencl devices on the current Platform*/
-    void init_opencl_device_widget();
-    /** Apply changes when a selected file changed (was edited) outside this application */
-    void trigger_scanner_with_file(const QString &file_path);
+    void initialize(init_t what);
+
+    const reme_context_t context() const;
+    const reme_sensor_t sensor() const;
+    const reme_volume_t volume() const;
+
+    /** Getter for correct sized RGB QImage */
+    const QImage *rgb_image() const;
+    /** Getter for correct sized Phong QImage */
+    const QImage *phong_image() const;
+    /** Getter for correct sized Depth QImage */
+    const QImage *depth_image() const;
+
+    /** Getter for correct sized RGB QImage */
+    QImage *rgb_image();
+    /** Getter for correct sized Phong QImage */
+    QImage *phong_image();
+    /** Getter for correct sized Depth QImage */
+    QImage *depth_image();
 
   signals:
-    /** Reports a change of the selected sensor */
-    void initialize(init_t what);
-  
+    void initializing(init_t what);
+    void initialized(init_t what, bool success);
+    void sdk_initialized();
+    void initialized_images();
+
   private:
-    /** Private helper function for easy file_dialog interaction */
-    QString get_file_from_dialog(QString &current_path);
-
-    // Members
-    Ui::settings_dialog *ui;
+    bool try_open_sensor(const char *driver);
     
-    reme_context_t c;
+    bool open_sensor();
+    bool compile_context();
+    bool apply_license();
 
-    // Paths
-    QString cfg_path;
-    QString sens_path;
-    QString license_file;
-    // Paths utils
-    QFileSystemWatcher *file_watcher;
+    reme_context_t _c;
+    reme_sensor_t _s;
+    reme_volume_t _v;
 
-    // Selected device
-    int device_id;
+    QImage* _rgb_image;
+    QImage* _phong_image;
+    QImage* _depth_image;
+
+    bool _has_compiled_context;
+    bool _has_sensor;
+    bool _has_volume;
   };
-
 }
 
-#endif // SETTINGS_DIALOG_H
+#endif // REME_SDK_INITIALIZER_H

@@ -38,8 +38,8 @@
 #include "scan.h"
 #include "settings.h"
 #include "strings.h"
+#include "reme_sdk_initializer.h"
 
-#include <QDebug>
 #include <QCoreApplication>
 #include <QSettings>
 #include <QImage>
@@ -51,284 +51,128 @@
 
 namespace ReconstructMeGUI {
 
-  struct scan::data {
+  scan::scan(reme_sdk_initializer *initializer) {
+    _mode = NOT_RUN;
+    _i = initializer;
 
-    enum Mode {PLAY, PAUSE, STOP};
-
-    reme_context_t c;
-    reme_sensor_t s;
-    reme_volume_t v;
-
-    bool has_compiled_context;
-    bool has_sensor;
-    bool has_volume;
-
-    Mode mode;
-
-    QImage* rgb_image;
-    QImage* phong_image;
-    QImage* depth_image;
-
-    // initialize data
-    data() {
-      has_compiled_context = false;
-      has_sensor = false;
-      has_volume = false;
-      mode = STOP;
-    }
-  };
-
-  scan::scan(reme_context_t c) : _data(new data()) {
-    _data->c = c;
+    // NOTE: Qt::QueuedConnection has to be defined explicity here. 
+    // If Qt::AutoConnections will be used, a direct connection is choosen by Qt, 
+    // since receiver object and emitter object are in the same thread.
+    // http://qt-project.org/doc/qt-4.8/qt.html#ConnectionType-enum
+    connect(_i, SIGNAL(sdk_initialized()), SLOT(start()), Qt::QueuedConnection);
   }
 
   scan::~scan() {
-    if (_data->has_sensor) {
-      reme_sensor_close(_data->c, _data->s);
-      reme_sensor_destroy(_data->c, &_data->s);
-    }
-    delete _data;
   }
 
-  bool scan::create_sensor()
-  {
-    bool success = true;
-    if (!_data->has_compiled_context) {
-      emit show_message_box(QMessageBox::Warning, create_sensor_failed_no_context_tag);
-      success = false;
-    }
 
-    // delete sensor, if a sensor is already in use
-    if (_data->has_sensor) {
-      success &= REME_SUCCESS(reme_sensor_close(_data->c, _data->s));
-      success &= REME_SUCCESS(reme_sensor_destroy(_data->c, &_data->s));
-    }
-    _data->has_sensor = false;
-    // get settings
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
-    QString sensor_path = settings.value(sensor_path_tag).toString();
-    // create a sensor from settings
-    success &= REME_SUCCESS(reme_sensor_create(_data->c, sensor_path.toStdString().c_str(), true, &_data->s));
-    success &= REME_SUCCESS(reme_sensor_open(_data->c, _data->s));
+  void scan::start() {
+    // no recursion!
+    if (_mode != NOT_RUN) return;
     
-    if (success) { 
-      int width, height;
-      
-      if (REME_SUCCESS(reme_sensor_get_image_size(_data->c, _data->s, REME_IMAGE_AUX, &width, &height)))
-        _data->rgb_image   = new QImage(width, height, QImage::Format_RGB888);
-      else 
-        _data->rgb_image   = 0;
-
-      if (REME_SUCCESS(reme_sensor_get_image_size(_data->c, _data->s, REME_IMAGE_VOLUME, &width, &height)))
-        _data->phong_image = new QImage(width, height, QImage::Format_RGB888);
-      else
-        _data->phong_image = 0;
-
-      if (REME_SUCCESS(reme_sensor_get_image_size(_data->c, _data->s, REME_IMAGE_DEPTH, &width, &height)))
-        _data->depth_image = new QImage(width, height, QImage::Format_RGB888);
-      else 
-        _data->depth_image = 0;
-    }
-    else if (_data->has_compiled_context) {
-      emit show_message_box(QMessageBox::Critical, something_went_wrong_tag);
-    }
-
-    _data->has_sensor = success;
-
-    emit sensor_created(_data->has_sensor);
-    return _data->has_sensor;
-  }
-
-  bool scan::initialize() 
-  {
-    _data->has_compiled_context = false;
-    bool success = true;
-
-    // reload settings
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
-
-    // Set licence
-    QString licence_file = settings.value(license_file_tag, license_file_default_tag).toString();
-    if (licence_file != license_file_default_tag) {
-      reme_error_t error = reme_context_set_license(_data->c, licence_file.toStdString().c_str());
-      if (error == REME_ERROR_INVALID_LICENSE) {
-        emit log_message(REME_LOG_SEVERITY_ERROR, invalid_license_tag);
-        emit show_message_box(QMessageBox::Warning, invalid_license_tag);
-      }
-      else if (error == REME_ERROR_UNSPECIFIED) {
-        emit log_message(REME_LOG_SEVERITY_ERROR, license_unspecified_tag);
-        emit show_message_box(QMessageBox::Warning, license_unspecified_tag);
-      }
-      else {
-        emit log_message(REME_LOG_SEVERITY_INFO, license_applied_tag);
-        emit status_string(license_applied_tag);
-      }
-    }
-
-    // Create empty options binding
-    reme_options_t o;
-    success &= REME_SUCCESS(reme_options_create(_data->c, &o));
-
-    // Bind to compile time options
-    success &= REME_SUCCESS(reme_context_bind_compile_options(_data->c, o));
-
-    // load options if config_path already set
-    std::string path = settings.value(config_path_tag, config_path_default_tag).toString().toStdString();
-    if (path != config_path_default_tag) {
-      success &= REME_SUCCESS(reme_options_load_from_file(_data->c, o, path.c_str()));
-    }
-
-    // Modify the 'device_id' field through a reflection like syntax
-    int device_id = settings.value(opencl_device_tag, opencl_device_default_tag).toInt();
-    std::stringstream str_stream;
-    str_stream << device_id;
-
-    success &= REME_SUCCESS(reme_options_set(_data->c, o, devcice_id_tag, str_stream.str().c_str()));
-
-    // Compile for OpenCL device using modified options
-    success &= REME_SUCCESS(reme_context_compile(_data->c));
-    if (!_data->has_volume) {
-      success &= REME_SUCCESS(reme_volume_create(_data->c, &_data->v));
-      _data->has_volume = true;
-    }
-    
-    if (!success)
-      emit show_message_box(QMessageBox::Critical, something_went_wrong_tag);
-
-    _data->has_compiled_context = success;
-    
-    emit initialized(_data->has_compiled_context);
-    return _data->has_compiled_context;
-  }
-
-  void scan::run(bool unused) {
-    
-    // check requirements for run!
-    if (!_data->has_compiled_context || 
-        !_data->has_sensor           ||
-        _data->rgb_image   == 0      ||
-        _data->phong_image == 0      ||
-        _data->depth_image == 0      ||
-        _data->mode != data::STOP)  {
-      
-      //show_message_box(QMessageBox::Warning, run_failed_tag);
-      return;
-    }
-
-
-    _data->mode = data::PAUSE;
     // Get ready
+    _mode = PAUSE;
     bool success = true;
     bool lost_track_prev = false;
     const void *image_bytes;
 
-    while (_data->mode != data::STOP && success) {
+    while (_mode != NOT_RUN && success) {
       success = true;
+
       // Prepare image and depth data
-      success &= REME_SUCCESS(reme_sensor_grab(_data->c, _data->s));
-      if (_data->mode == data::PLAY)
-        success &= REME_SUCCESS(reme_sensor_prepare_images(_data->c, _data->s));
-      else if(_data->mode == data::PAUSE) {
-        success &= REME_SUCCESS(reme_sensor_prepare_image(_data->c, _data->s, REME_IMAGE_AUX));
-        success &= REME_SUCCESS(reme_sensor_prepare_image(_data->c, _data->s, REME_IMAGE_DEPTH));
+      success &= REME_SUCCESS(reme_sensor_grab(_i->context(), _i->sensor()));
+      if (_mode == PLAY)
+        success &= REME_SUCCESS(reme_sensor_prepare_images(_i->context(), _i->sensor()));
+      else if(_mode == PAUSE) {
+        success &= REME_SUCCESS(reme_sensor_prepare_image(_i->context(), _i->sensor(), REME_IMAGE_AUX));
+        success &= REME_SUCCESS(reme_sensor_prepare_image(_i->context(), _i->sensor(), REME_IMAGE_DEPTH));
       }
 
-      success &= REME_SUCCESS(reme_sensor_get_image(_data->c, _data->s, REME_IMAGE_AUX, &image_bytes));
+      success &= REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_AUX, &image_bytes));
       if (success) {
-        memcpy((void*)_data->rgb_image->bits(), image_bytes, _data->rgb_image->byteCount());
+        memcpy((void*)_i->rgb_image()->bits(), image_bytes, _i->rgb_image()->byteCount());
         emit new_rgb_image_bits();
       }
-      success &= REME_SUCCESS(reme_sensor_get_image(_data->c, _data->s, REME_IMAGE_DEPTH, &image_bytes));
+      success &= REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_DEPTH, &image_bytes));
       if (success) {
-        memcpy((void*)_data->depth_image->bits(), image_bytes, _data->depth_image->byteCount());
+        memcpy((void*)_i->depth_image()->bits(), image_bytes, _i->depth_image()->byteCount());
         emit new_depth_image_bits();
       }
       
-      if (_data->mode != data::PLAY) {
+      if (_mode != PLAY) {
         QCoreApplication::instance()->processEvents(); // check if something changed
         continue;
       }
 
-      success &= REME_SUCCESS(reme_sensor_get_image(_data->c, _data->s, REME_IMAGE_VOLUME, &image_bytes));
+      success &= REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME, &image_bytes));
       if (success) {
-        memcpy((void*)_data->phong_image->bits(), image_bytes, _data->phong_image->byteCount());
+        memcpy((void*)_i->phong_image()->bits(), image_bytes, _i->phong_image()->byteCount());
         emit new_phong_image_bits();
       }
 
-      reme_error_t track_error = reme_sensor_track_position(_data->c, _data->s);
+      reme_error_t track_error = reme_sensor_track_position(_i->context(), _i->sensor());
       if (REME_SUCCESS(track_error)) {
         // Track camera success (engine step)
         if (lost_track_prev) {
           // track found
           lost_track_prev = false;
-          emit status_string(camera_track_found_tag, STATUS_MSG_DURATION);
+          // camera_track_found_tag
         }
         // Update volume with depth data from the current sensor perspective
-        success &= REME_SUCCESS(reme_sensor_update_volume(_data->c, _data->s));
+        success &= REME_SUCCESS(reme_sensor_update_volume(_i->context(), _i->sensor()));
       }
       else if (track_error == REME_ERROR_INVALID_LICENSE) {
         // lost track
-        if (!lost_track_prev)
-          emit status_string(camera_track_lost_license_tag);
+        if (!lost_track_prev) {
+          // camera_track_lost_license_tag
+        }
         lost_track_prev = true;
       }
       else if (!lost_track_prev) {
         // track lost
         lost_track_prev = true;
-        emit status_string(camera_track_lost_tag);
+        // camera_track_lost_tag
       }
       
-      if (!success)
-        emit show_message_box(QMessageBox::Critical, something_went_wrong_tag);
+      if (!success) {
+        //something_went_wrong_tag
+      }
       
       QCoreApplication::instance()->processEvents(); // this has to be the last command in run
     } // while
 
-    _data->mode = data::STOP;
+    _mode = NOT_RUN;
   }
 
-  void scan::reset_volume()
-  {
-    if (_data->has_volume)
-      reme_volume_reset(_data->c, _data->v);
+  void scan::reset_volume() {
+    if (_mode == NOT_RUN) return;
 
-    if (_data->has_sensor)
-      reme_sensor_reset(_data->c, _data->s);
+    reme_volume_reset(_i->context(), _i->volume());
+    reme_sensor_reset(_i->context(), _i->sensor());
   }
 
   void scan::save(const QString &file_name) {
-    if (!_data->has_compiled_context) return;
+    if (_mode == NOT_RUN) return;
 
     // Create a new surface
     reme_surface_t m;
     bool success = true;
-    success &= REME_SUCCESS(reme_surface_create(_data->c, &m));
-    success &= REME_SUCCESS(reme_surface_generate(_data->c, m, _data->v));
-    success &= REME_SUCCESS(reme_surface_save_to_file(_data->c, m, file_name.toStdString().c_str()));
-
-    if (!success)
-      emit show_message_box(QMessageBox::Critical, something_went_wrong_tag);
-    else 
-      emit show_message_box(QMessageBox::Information, saved_file_to_tag + file_name);
+    success &= REME_SUCCESS(reme_surface_create(_i->context(), &m));
+    success &= REME_SUCCESS(reme_surface_generate(_i->context(), m, _i->volume()));
+    success &= REME_SUCCESS(reme_surface_save_to_file(_i->context(), m, file_name.toStdString().c_str()));
   }
 
   void scan::toggle_play_pause() {
-    _data->mode = (_data->mode == data::PLAY) ? data::PAUSE : data::PLAY; // toggle mode
+    if (_mode == NOT_RUN) return;
+
+    _mode = (_mode == PLAY) ? PAUSE : PLAY; // toggle mode
   }
 
-  void scan::request_stop() {
-    _data->mode = data::STOP;
+  void scan::stop() {
+    _mode = NOT_RUN;
   }
 
-  QImage *scan::get_rgb_image() {
-    return _data->rgb_image;
-  }
-
-  QImage *scan::get_phong_image() {
-    return _data->phong_image;
-  }
-
-  QImage *scan::get_depth_image() {
-    return _data->depth_image;
+  const mode_t scan::get_current_mode() const {
+    return _mode;
   }
 }

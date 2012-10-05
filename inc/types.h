@@ -30,15 +30,14 @@
   * @authors christoph.kopf@profactor.at
   *          florian.eckerstorfer@profactor.at
   */
+  
+#pragma once
 
-// Prevent dll interface warning on type
-#ifdef WIN32
-#define NO_WARNING_DLL_INTERFACE(type, name) \
-  __pragma(warning(push)) \
-  __pragma(warning(disable : 4251)) \
-  type name; \
-  __pragma(warning(pop))
-#else
-#define NO_WARNING_DLL_INTERFACE(type, name) \
-  type name;
-#endif
+#include <QMetaType>
+
+namespace ReconstructMeGUI {
+  enum init_t { OPENCL, SENSOR, LICENSE };
+  enum mode_t { PLAY, PAUSE, NOT_RUN };
+
+  Q_DECLARE_METATYPE( init_t );
+}

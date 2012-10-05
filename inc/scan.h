@@ -36,16 +36,17 @@
 
 #pragma once
 
-#include "macros.h"
+#include "types.h"
 
 #include <QObject>
-#include <QString>
-#include <QMessageBox>
 
 #include <reconstructmesdk/types.h>
 
 // Forward declarations
 class QImage;
+namespace ReconstructMeGUI {
+  class reme_sdk_initializer;
+}
 
 namespace ReconstructMeGUI {
 
@@ -53,43 +54,27 @@ namespace ReconstructMeGUI {
   class scan : public QObject 
   {  
     Q_OBJECT;
-
+    
   public:
-    scan(reme_context_t c);
+    scan(reme_sdk_initializer *initializer);
     ~scan();
 
-    /** Getter for correct sized RGB QImage */
-    QImage *get_rgb_image();
-    /** Getter for correct sized Phong QImage */
-    QImage *get_phong_image();
-    /** Getter for correct sized Depth QImage */
-    QImage *get_depth_image();
-
   public slots:
+    /** Main loop. Retrieve Images, update volume */
+    void start();
+    /** Exit run(bool) */
+    void stop();
     /** Toggles current mode */
     void toggle_play_pause();
     /** Sets the volume to empty */
     void reset_volume();
-    /** Main loop. Retrieve Images, update volume */
-    void run(bool);
-    /** Exit run(bool) */
-    void request_stop();
     
     /** Save current volume content as polygonzied 3D model to file_name */
     void save(const QString &file_name);
-	  /** Create a sensor from QSettings */
-    bool create_sensor();
-    /** Initialized opencl utitliy with configruations from QSettings */    
-    bool initialize();
+
+    const mode_t get_current_mode() const;
 
   signals:
-    /** Emits the success of intitialization process */
-    void initialized(bool);
-    /** Emits the success of the sensor creation process */
-    void sensor_created(bool);
-
-    /** Emit status information */
-    void status_string(const QString &msg, const int msecs = 0);
     /** Emit log information */
     void log_message(reme_log_severity_t sev, const QString &msg);
 
@@ -100,19 +85,12 @@ namespace ReconstructMeGUI {
     /** Is emitted, when a new Depth image is available */
     void new_depth_image_bits();
     
-    /** If a message box should be shown */
-    void show_message_box(
-      int icon,
-      QString message, 
-      int btn_1 = QMessageBox::Ok,
-      int btn_2 = QMessageBox::NoButton);
-
   private:
-    bool try_open_sensor(const char *driver);
+    void initialize_images();
     
-    // Members
-    struct data;
-    NO_WARNING_DLL_INTERFACE(data*, _data);
+    const reme_sdk_initializer *_i;
+    
+    mode_t _mode;
   };
 }
 

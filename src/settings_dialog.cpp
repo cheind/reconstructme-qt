@@ -159,13 +159,15 @@ namespace ReconstructMeGUI {
     }
     
     // if an option changed
-    if ((settings.value(config_path_tag, config_path_default_tag).toString()   != cfg_path)     ||
-        (settings.value(license_file_tag, license_file_default_tag).toString() != license_file) ||
-        (settings.value(opencl_device_tag, opencl_device_default_tag).toInt()  != device_id)      )
-      emit opencl_settings_changed();
+    if ((settings.value(config_path_tag, config_path_default_tag).toString()   != cfg_path) ||
+        (settings.value(opencl_device_tag, opencl_device_default_tag).toInt()  != device_id)  )
+      emit initialize(OPENCL);
+
+    if (settings.value(license_file_tag, license_file_default_tag).toString() != license_file)
+      emit initialize(LICENSE);
     
     if (settings.value(sensor_path_tag, sensor_path_default_tag).toString()   != sens_path)
-      emit sensor_changed();
+      emit initialize(SENSOR);
 
     // persist changes
     settings.setValue(config_path_tag, cfg_path);
@@ -242,10 +244,12 @@ namespace ReconstructMeGUI {
   void settings_dialog::trigger_scanner_with_file(const QString &file_path) {
     if (QMessageBox::No == QMessageBox::information(this, file_changed_tag, apply_changes_tag + file_path + "?", QMessageBox::Yes, QMessageBox::No)) return;
 
-    if ((file_path == cfg_path) || (file_path == license_file))
-      emit opencl_settings_changed();
+    if (file_path == cfg_path)
+      emit initialize(OPENCL);
+    else if (file_path == license_file)
+      emit initialize(LICENSE);
     else if (file_path == sens_path)
-      emit sensor_changed();
+      emit initialize(SENSOR);
   }
 }
 

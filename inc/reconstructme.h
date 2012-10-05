@@ -36,9 +36,12 @@
 
 #pragma once
 
+#include "types.h"
+
 #include <QMainWindow>
 
-#include <reconstructmesdk/reme.h>
+#include <reconstructmesdk/types.h>
+
 
 // Forward declarations
 class QImage;
@@ -56,7 +59,9 @@ namespace ReconstructMeGUI {
   class about_dialog;
   class settings_dialog;
   class logging_dialog;
+  class status_dialog;
   class hardware_key_dialog;
+  class reme_sdk_initializer;
 }
 
 namespace ReconstructMeGUI {
@@ -78,10 +83,8 @@ namespace ReconstructMeGUI {
     /** Write a message to the status bar */
     void write_to_status_bar(const QString &msg, const int msecs = 0);
 
-    /** Hide splashscreen when new settings are applied */
-    void hide_splash(bool unused);
     /** Set image references from scanner */
-    void set_image_references(bool has_sensor);
+    void set_image_references();
 
     // Online help
     void action_installation_clicked();
@@ -106,26 +109,17 @@ namespace ReconstructMeGUI {
     /** Handle reset button clicked event. Trigger scanner to reset current volume */
     void reset_button_clicked();
 
-    /** Handling wait_splash hiding */
-    void apply_new_sensor();
-    /** Handling wait_splash hiding */
-    void apply_new_context();
-    /** Handling wait_splash hiding */
-    void new_sensor(bool success);
-    /** Handling wait_splash hiding */
-    void new_context(bool success);
-
     /** show message box */
     void show_message_box(
       int icon,
       QString message, 
       int btn_1 = 1024, // QMessageBox::Ok
       int btn_2 = 0);   // QMessageBox::NoButton
-signals:
+  signals:
     /** Trigger scanner to save current mesh */
     void save_mesh_to_file(const QString &s);
     /** This signal is emited when this objects constructor finished */
-    void initialized(bool);
+    void initialize(init_t what);
 
   private:
     void open_url_in_std_browser(const QString &url_string);
@@ -133,8 +127,6 @@ signals:
     void create_settings();
     void create_scanner();
     void create_statusbar();
-
-    enum Mode {PLAY, PAUSE};
 
     // Members
     Ui::reconstructme_mw *ui;
@@ -144,6 +136,7 @@ signals:
     logging_dialog *log_dialog;
     hardware_key_dialog *hw_key_dialog;
     about_dialog *app_about_dialog;
+    status_dialog *init_status_dialog;
 
     // Splash screens
     QSplashScreen *splash;
@@ -151,8 +144,8 @@ signals:
 
     // Scanner utils
     scan *scanner;
+    reme_sdk_initializer *initializer;
     QThread* scanner_thread;
-    Mode current_mode;
 
     // Context
     reme_context_t c;
@@ -164,10 +157,6 @@ signals:
     QGLCanvas *rgb_canvas;
     QGLCanvas *phong_canvas;
     QGLCanvas *depth_canvas;
-
-    // Splash wait handling
-    bool wait_for_sensor;
-    bool wait_for_context;
   };
 
 }
