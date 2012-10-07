@@ -56,7 +56,9 @@ namespace ReconstructMeGUI {
     reme_options_t o;
     reme_options_create(ctx, &o);
 
-    reme_context_bind_hardware_hashes(ctx, o);
+    reme_license_t l;
+    reme_license_create(ctx, &l);
+    reme_license_bind_hardware_hashes(ctx, l, o);
 
     reme_options_get_bytes(ctx, o, &bytes, &length); 
 

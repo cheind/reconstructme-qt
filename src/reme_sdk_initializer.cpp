@@ -137,13 +137,16 @@ namespace ReconstructMeGUI {
   }
 
   bool reme_sdk_initializer::apply_license() {
-    bool success = true;
+    bool success = false;
+
+    reme_license_t l;
+    reme_license_create(_c, &l);
     
     // Set licence
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
     QString licence_file = settings.value(license_file_tag, license_file_default_tag).toString();
-    if (licence_file != license_file_default_tag) {
-      reme_error_t error = reme_context_set_license(_c, licence_file.toStdString().c_str());
+    if (licence_file != license_file_default_tag) {      
+      reme_error_t error = reme_license_authenticate(_c, l, licence_file.toStdString().c_str());
       if (error == REME_ERROR_INVALID_LICENSE)
         success = false;
       else if (error == REME_ERROR_UNSPECIFIED) 
