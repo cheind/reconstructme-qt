@@ -40,7 +40,6 @@
 #include "settings.h"
 #include "strings.h"
 #include "defines.h"
-#include "types.h"
 
 #include "qglcanvas.h"
 #include "logging_dialog.h"
@@ -150,12 +149,10 @@ namespace ReconstructMeGUI {
     init_status_dialog->connect(initializer, SIGNAL(initializing(init_t)), SLOT(initializing(init_t)));
     init_status_dialog->connect(initializer, SIGNAL(initialized(init_t, bool)), SLOT(initialized(init_t, bool)));
 
-    initializer->connect(dialog_settings, SIGNAL(initialize(init_t)), SLOT(initialize(init_t)));
-    initializer->connect(this, SIGNAL(initialize(init_t)), SLOT(initialize(init_t)));
+    initializer->connect(dialog_settings, SIGNAL(initialize()), SLOT(initialize()));
+    initializer->connect(this, SIGNAL(initialize()), SLOT(initialize()));
     
-    emit initialize(OPENCL);
-    emit initialize(LICENSE);
-    emit initialize(SENSOR);
+    emit initialize();
 
     // shortcuts
     ui->play_button->setShortcut(QKeySequence("Ctrl+P"));
@@ -195,7 +192,6 @@ namespace ReconstructMeGUI {
     // scan thread
     scanner_thread = new QThread(this);
     scanner->moveToThread(scanner_thread);    
-    initializer->moveToThread(scanner_thread);
     scanner_thread->start();
   }
 

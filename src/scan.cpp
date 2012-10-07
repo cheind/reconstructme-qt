@@ -39,6 +39,7 @@
 #include "settings.h"
 #include "strings.h"
 #include "reme_sdk_initializer.h"
+#include "mutex.h"
 
 #include <QCoreApplication>
 #include <QSettings>
@@ -80,21 +81,23 @@ namespace ReconstructMeGUI {
       success = true;
 
       // Prepare image and depth data
-      success &= REME_SUCCESS(reme_sensor_grab(_i->context(), _i->sensor()));
+      success = success && REME_SUCCESS(reme_sensor_grab(_i->context(), _i->sensor()));
       if (_mode == PLAY)
-        success &= REME_SUCCESS(reme_sensor_prepare_images(_i->context(), _i->sensor()));
+        success = success && REME_SUCCESS(reme_sensor_prepare_images(_i->context(), _i->sensor()));
       else if(_mode == PAUSE) {
-        success &= REME_SUCCESS(reme_sensor_prepare_image(_i->context(), _i->sensor(), REME_IMAGE_AUX));
-        success &= REME_SUCCESS(reme_sensor_prepare_image(_i->context(), _i->sensor(), REME_IMAGE_DEPTH));
+        success = success && REME_SUCCESS(reme_sensor_prepare_image(_i->context(), _i->sensor(), REME_IMAGE_AUX));
+        success = success && REME_SUCCESS(reme_sensor_prepare_image(_i->context(), _i->sensor(), REME_IMAGE_DEPTH));
       }
 
-      success &= REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_AUX, &image_bytes));
+      success = success && REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_AUX, &image_bytes));
       if (success) {
+        QMutexLocker lock(&image_mutex);
         memcpy((void*)_i->rgb_image()->bits(), image_bytes, _i->rgb_image()->byteCount());
         emit new_rgb_image_bits();
       }
-      success &= REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_DEPTH, &image_bytes));
+      success = success && REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_DEPTH, &image_bytes));
       if (success) {
+        QMutexLocker lock(&image_mutex);
         memcpy((void*)_i->depth_image()->bits(), image_bytes, _i->depth_image()->byteCount());
         emit new_depth_image_bits();
       }
@@ -104,11 +107,13 @@ namespace ReconstructMeGUI {
         continue;
       }
 
-      success &= REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME, &image_bytes));
+      success = success && REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME, &image_bytes));
       if (success) {
+        QMutexLocker lock(&image_mutex);
         memcpy((void*)_i->phong_image()->bits(), image_bytes, _i->phong_image()->byteCount());
         emit new_phong_image_bits();
       }
+      
 
       reme_error_t track_error = reme_sensor_track_position(_i->context(), _i->sensor());
       if (REME_SUCCESS(track_error)) {
@@ -119,7 +124,7 @@ namespace ReconstructMeGUI {
           // camera_track_found_tag
         }
         // Update volume with depth data from the current sensor perspective
-        success &= REME_SUCCESS(reme_sensor_update_volume(_i->context(), _i->sensor()));
+        success = success && REME_SUCCESS(reme_sensor_update_volume(_i->context(), _i->sensor()));
       }
       else if (track_error == REME_ERROR_INVALID_LICENSE) {
         // lost track
@@ -157,9 +162,9 @@ namespace ReconstructMeGUI {
     // Create a new surface
     reme_surface_t m;
     bool success = true;
-    success &= REME_SUCCESS(reme_surface_create(_i->context(), &m));
-    success &= REME_SUCCESS(reme_surface_generate(_i->context(), m, _i->volume()));
-    success &= REME_SUCCESS(reme_surface_save_to_file(_i->context(), m, file_name.toStdString().c_str()));
+    success = success && REME_SUCCESS(reme_surface_create(_i->context(), &m));
+    success = success && REME_SUCCESS(reme_surface_generate(_i->context(), m, _i->volume()));
+    success = success && REME_SUCCESS(reme_surface_save_to_file(_i->context(), m, file_name.toStdString().c_str()));
   }
 
   void scan::toggle_play_pause() {

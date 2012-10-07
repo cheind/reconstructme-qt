@@ -36,8 +36,6 @@
 
 #pragma once
 
-#include "types.h"
-
 #include <QDialog>
 
 #include <reconstructmesdk/reme.h>
@@ -83,7 +81,7 @@ namespace ReconstructMeGUI {
 
   signals:
     /** Reports a change of the selected sensor */
-    void initialize(init_t what);
+    void initialize();
   
   private:
     /** Private helper function for easy file_dialog interaction */

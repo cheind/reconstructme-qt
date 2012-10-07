@@ -36,8 +36,6 @@
 
 #pragma once
 
-#include "types.h"
-
 #include <QMainWindow>
 
 #include <reconstructmesdk/types.h>
@@ -119,7 +117,7 @@ namespace ReconstructMeGUI {
     /** Trigger scanner to save current mesh */
     void save_mesh_to_file(const QString &s);
     /** This signal is emited when this objects constructor finished */
-    void initialize(init_t what);
+    void initialize();
 
   private:
     void open_url_in_std_browser(const QString &url_string);

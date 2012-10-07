@@ -38,11 +38,13 @@
 #include "reme_sdk_initializer.h"
 #include "settings.h"
 #include "strings.h"
+#include "mutex.h"
 
 #include <QDebug>
 #include <QCoreApplication>
 #include <QSettings>
 #include <QImage>
+#include <QtConcurrentRun>
 
 #include <reconstructmesdk/reme.h>
 
@@ -68,28 +70,32 @@ namespace ReconstructMeGUI {
     }
   }
 
-  void reme_sdk_initializer::initialize(init_t what) {
-   
-    emit initializing(what);
-
+  void reme_sdk_initializer::_initialize() {
     bool success = false;
-    switch (what) {
-     case OPENCL:
-       success = compile_context();
-       break;
-     case SENSOR :
-       success = open_sensor();
-       break;
-     case LICENSE:
-       success = apply_license();
-       break;
-    }
 
-    initialized(what, success);
+    emit initializing(OPENCL);
+    success = compile_context();
+    emit initialized(OPENCL, success);
 
+    emit initializing(LICENSE);
+    success = apply_license();
+    emit initialized(LICENSE, success);
+    
+    emit initializing(SENSOR);
+    success = open_sensor();
+    emit initialized(SENSOR, success);
+    
     if (_has_compiled_context && _has_sensor && _has_volume) {
       emit sdk_initialized();
     }
+  }
+
+  void _init(reme_sdk_initializer *initializer) {
+    return initializer->_initialize();
+  }
+
+  void reme_sdk_initializer::initialize() {
+    QtConcurrent::run(_init, this);
   }
 
   bool reme_sdk_initializer::open_sensor() {
@@ -100,15 +106,15 @@ namespace ReconstructMeGUI {
 
     // destroy sensor object, if a sensor is already in use
     if (_has_sensor) {
-      success &= REME_SUCCESS(reme_sensor_close(_c, _s));
-      success &= REME_SUCCESS(reme_sensor_destroy(_c, &_s));
+      success = success && REME_SUCCESS(reme_sensor_close(_c, _s));
+      success = success && REME_SUCCESS(reme_sensor_destroy(_c, &_s));
     }
 
     // create and open a sensor from settings
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
     QString sensor_path = settings.value(sensor_path_tag).toString();
-    success &= REME_SUCCESS(reme_sensor_create(_c, sensor_path.toStdString().c_str(), true, &_s));
-    success &= REME_SUCCESS(reme_sensor_open(_c, _s));
+    success = success && REME_SUCCESS(reme_sensor_create(_c, sensor_path.toStdString().c_str(), true, &_s));
+    success = success && REME_SUCCESS(reme_sensor_open(_c, _s));
     
     if (success)
     {
@@ -152,7 +158,7 @@ namespace ReconstructMeGUI {
       else if (error == REME_ERROR_UNSPECIFIED) 
         success = false;
     }
-
+    
     return success;
   }
 
@@ -165,25 +171,25 @@ namespace ReconstructMeGUI {
 
     // Create empty options binding
     reme_options_t o;
-    success &= REME_SUCCESS(reme_options_create(_c, &o));
-    success &= REME_SUCCESS(reme_context_bind_compile_options(_c, o));
+    success = success && REME_SUCCESS(reme_options_create(_c, &o));
+    success = success && REME_SUCCESS(reme_context_bind_compile_options(_c, o));
 
     // load options if config_path already set
     std::string path = settings.value(config_path_tag, config_path_default_tag).toString().toStdString();
     if (path != config_path_default_tag) {
-      success &= REME_SUCCESS(reme_options_load_from_file(_c, o, path.c_str()));
+      success = success && REME_SUCCESS(reme_options_load_from_file(_c, o, path.c_str()));
     }
 
     // apply selected opencl_device
     int device_id = settings.value(opencl_device_tag, opencl_device_default_tag).toInt();
     std::stringstream str_stream;
     str_stream << device_id;
-    success &= REME_SUCCESS(reme_options_set(_c, o, devcice_id_tag, str_stream.str().c_str()));
+    success = success && REME_SUCCESS(reme_options_set(_c, o, devcice_id_tag, str_stream.str().c_str()));
 
     // Compile for OpenCL device using modified options
-    success &= REME_SUCCESS(reme_context_compile(_c));
+    success = success && REME_SUCCESS(reme_context_compile(_c));
     if (!_has_volume) {
-      success &= REME_SUCCESS(reme_volume_create(_c, &_v));
+      success = success && REME_SUCCESS(reme_volume_create(_c, &_v));
       _has_volume = true;
     }
     

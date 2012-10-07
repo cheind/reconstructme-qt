@@ -39,6 +39,9 @@
 #include "types.h"
 
 #include <QObject>
+#include <QPair>
+#include <QFuture>
+#include <QFutureWatcher>
 
 #include <reconstructmesdk/types.h>
 
@@ -56,8 +59,10 @@ namespace ReconstructMeGUI {
     reme_sdk_initializer(reme_context_t c);
     ~reme_sdk_initializer();
 
+    void _initialize();
+
   public slots:
-    void initialize(init_t what);
+    void initialize();
 
     const reme_context_t context() const;
     const reme_sensor_t sensor() const;

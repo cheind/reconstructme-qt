@@ -31,36 +31,16 @@
   *          florian.eckerstorfer@profactor.at
   */
 
-#ifndef QGLCANVAS_H
-#define QGLCANVAS_H
+#ifndef MUTEX_H
+#define MUTEX_H
 
 #pragma once
 
-#include "qglcanvas.h"
-#include "mutex.h"
-
-#include <iostream>
+#include <QMutex>
+#include <QMutexLocker>
 
 namespace ReconstructMeGUI {
-
-  QGLCanvas::QGLCanvas(QWidget* parent) : QGLWidget(parent) {
-    img = 0;
-  }
-
-  void QGLCanvas::setImage(QImage* image) {
-    img = image;
-  }
-
-  void QGLCanvas::paintEvent(QPaintEvent* ev) {
-    QMutexLocker lock(&image_mutex);
-    if (img == 0) return;
-
-    QPainter p(this);
-    //Set the painter to use a smooth scaling algorithm.
-    p.setRenderHint(QPainter::SmoothPixmapTransform, 1);
-    p.drawImage(this->rect(), *img);
-    p.end();
-  }
+  static QMutex image_mutex;
 }
 
 #endif
