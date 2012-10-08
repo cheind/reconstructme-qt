@@ -53,6 +53,11 @@
 
 namespace ReconstructMeGUI {
 
+  void reme_log(reme_log_severity_t sev, const char *message, void *user_data)  {
+    reme_sdk_initializer *i = static_cast<reme_sdk_initializer*>(user_data);
+    i->new_log_message(sev, QString(message));
+  }
+
   reme_sdk_initializer::reme_sdk_initializer() {
     _c = 0;
     _initializing = false;
@@ -62,6 +67,10 @@ namespace ReconstructMeGUI {
   reme_sdk_initializer::~reme_sdk_initializer() {
     if (_c != 0)
       reme_context_destroy(&_c); 
+  }
+
+  void reme_sdk_initializer::new_log_message(reme_log_severity_t sev, const QString &log) {
+    emit log_message(sev, log);
   }
 
   void reme_sdk_initializer::_initialize() {
@@ -75,7 +84,9 @@ namespace ReconstructMeGUI {
 
     if (_c != 0)
       reme_context_destroy(&_c);
+
     reme_context_create(&_c);
+    reme_context_set_log_callback(_c, reme_log, this);
     
     emit initializing(LICENSE);
     success = apply_license();
@@ -109,6 +120,8 @@ namespace ReconstructMeGUI {
   void reme_sdk_initializer::finished_initialize() {
     _initializing = false;
   }
+
+
 
   bool reme_sdk_initializer::open_sensor() {
     bool success = true;

@@ -36,11 +36,12 @@
 
 #include <QStandardItemModel>
 #include <QStandardItem>
+#include <QTimer> 
 
 namespace ReconstructMeGUI {
 
   status_dialog::status_dialog(QWidget *parent, Qt::WindowFlags f) : 
-    window_dialog(parent, f),  
+    QDialog(parent, f),  
     ui(new Ui::status_dialog)
   {
     ui->setupUi(this);
@@ -171,7 +172,9 @@ namespace ReconstructMeGUI {
           _lic_message_item->setText("Non commercial mode");
         break;
     }
-    
-    this->show();
+  }
+
+  QPushButton *status_dialog::closeBtn() {
+    return ui->closeBtn;
   }
 }

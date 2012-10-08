@@ -49,6 +49,7 @@ class QLabel;
 class QSplashScreen;
 class QFileDialog;
 class QProgressDialog;
+class QSignalMapper;
 namespace Ui {
   class reconstructme_mw;
 }
@@ -86,11 +87,7 @@ namespace ReconstructMeGUI {
     void set_image_references();
 
     // Online help
-    void action_installation_clicked();
-    void action_usage_clicked();
-    void action_faq_clicked();
-    void action_forum_clicked();  
-    void action_device_clicked(); 
+    void open_url(const QString &url_string);
 
     /** Settings dialog */
     void action_settings_clicked();
@@ -123,11 +120,11 @@ namespace ReconstructMeGUI {
     void initialize();
 
   private:
-    void open_url_in_std_browser(const QString &url_string);
     void create_views();
-    void create_settings();
     void create_scanner();
-    void create_statusbar();
+    void create_mappings();
+
+    QSignalMapper *url_mapper;
 
     // Members
     Ui::reconstructme_mw *ui;

@@ -66,6 +66,7 @@
 #include <QProgressBar>
 #include <QProgressDialog>
 #include <QMetaType>
+#include <QSignalMapper>
 
 #include <iostream>
 
@@ -73,11 +74,6 @@
 #define SPLASH_MSG_ALIGNMENT Qt::AlignBottom | Qt::AlignLeft
 
 namespace ReconstructMeGUI {
-  
-  void reme_log(reme_log_severity_t sev, const char *message, void *user_data)  {
-    logging_dialog *l = static_cast<logging_dialog*>(user_data);
-    l->add_log_message(sev, QString(message));
-  }
   
   reconstructme::reconstructme(QWidget *parent) : 
     QMainWindow(parent),  
@@ -100,10 +96,8 @@ namespace ReconstructMeGUI {
     reme_context_t c;
     reme_context_create(&c);
     
-     // logger
+     // Create dialogs
     log_dialog = new logging_dialog(this, Qt::Dialog);
-    reme_context_set_log_callback(c, reme_log, log_dialog);
-    
     dialog_settings = new settings_dialog(c, this);
     hw_key_dialog = new hardware_key_dialog(c, this);
     app_about_dialog = new about_dialog(c, this);
@@ -111,31 +105,24 @@ namespace ReconstructMeGUI {
 
     reme_context_destroy(&c);
 
+    // application icon
     QPixmap titleBarPix (":/images/icon.ico");
     QIcon titleBarIcon(titleBarPix);
     setWindowIcon(titleBarIcon);
 
+    // Create 
     splash->showMessage(create_views_tag, SPLASH_MSG_ALIGNMENT);
-    QApplication::processEvents();
     create_views();    // three views
     splash->showMessage(init_scanner_tag, SPLASH_MSG_ALIGNMENT);
-    QApplication::processEvents();
     create_scanner();  // init scanner -> called by slot
-    
-    //// Define connections
-    connect(ui->actionInstallation, SIGNAL(triggered()), SLOT(action_installation_clicked()));
-    connect(ui->actionDevice, SIGNAL(triggered()), SLOT(action_device_clicked()));
-    connect(ui->actionUsage, SIGNAL(triggered()), SLOT(action_usage_clicked()));
-    connect(ui->actionFAQ, SIGNAL(triggered()), SLOT(action_faq_clicked()));
-    connect(ui->actionForum, SIGNAL(triggered()), SLOT(action_forum_clicked()));
-    connect(ui->actionSettings, SIGNAL(triggered()),SLOT(action_settings_clicked()));
-    connect(ui->actionAbout, SIGNAL(triggered()), SLOT(action_about_clicked()));
-    connect(ui->actionSave, SIGNAL(triggered()), SLOT(save_button_clicked()));
-    hw_key_dialog->connect(ui->actionGenerate_hardware_key, SIGNAL(triggered()), SLOT(show()));
-    
-    connect(ui->actionStatus, SIGNAL(toggled(bool)), SLOT(action_status_toggled(bool)));
-    ui->actionStatus->connect(init_status_dialog, SIGNAL(close_clicked()), SLOT(toggle()));
+    create_mappings();
 
+    // Dialog connections
+    dialog_settings->connect(ui->actionSettings, SIGNAL(triggered()),SLOT(show()));
+    app_about_dialog->connect(ui->actionAbout, SIGNAL(triggered()), SLOT(show()));
+    hw_key_dialog->connect(ui->actionGenerate_hardware_key, SIGNAL(triggered()), SLOT(show()));
+    connect(ui->actionSave, SIGNAL(triggered()), SLOT(save_button_clicked()));
+    
     connect(ui->actionLog, SIGNAL(toggled(bool)), SLOT(action_log_toggled(bool)));
     ui->actionLog->connect(log_dialog, SIGNAL(close_clicked()), SLOT(toggle()));
     
@@ -145,7 +132,6 @@ namespace ReconstructMeGUI {
     connect(scanner, SIGNAL(mode_changed(mode_t)), SLOT(apply_mode(mode_t)));
     scanner->connect(ui->reset_button, SIGNAL(clicked()), SLOT(reset_volume()));
     connect(ui->reset_button, SIGNAL(clicked()), SLOT(reset_button_clicked()));
-    connect(ui->save_button, SIGNAL(clicked()), SLOT(save_button_clicked()));
     scanner->connect(this, SIGNAL(save_mesh_to_file(const QString &)), SLOT(save(const QString &)));
     
     // views update
@@ -154,21 +140,32 @@ namespace ReconstructMeGUI {
     depth_canvas->connect(scanner, SIGNAL(new_depth_image_bits()), SLOT(update()));
     phong_canvas->connect(scanner, SIGNAL(new_phong_image_bits()), SLOT(update()));
 
+    // sdk initializer
     qRegisterMetaType<init_t>( "init_t" );
     init_status_dialog->connect(initializer, SIGNAL(initializing(init_t)), SLOT(initializing(init_t)), Qt::BlockingQueuedConnection);
     init_status_dialog->connect(initializer, SIGNAL(initialized(init_t, bool)), SLOT(initialized(init_t, bool)), Qt::BlockingQueuedConnection);
 
+    init_status_dialog->connect(init_status_dialog->closeBtn(), SIGNAL(clicked()), SLOT(hide()));
+    init_status_dialog->connect(initializer, SIGNAL(initializing_sdk()), SLOT(show()));
+    init_status_dialog->closeBtn()->connect(initializer, SIGNAL(initializing_sdk()), SLOT(hide()));
+    init_status_dialog->closeBtn()->connect(initializer, SIGNAL(sdk_initialized()), SLOT(show()));
+
     initializer->connect(dialog_settings, SIGNAL(initialize()), SLOT(initialize()));
     
+    qRegisterMetaType<init_t>( "reme_log_severity_t" );
+    log_dialog->connect(initializer, SIGNAL(log_message(reme_log_severity_t, const QString &)), SLOT(add_log_message(reme_log_severity_t, const QString &)));
+
+    // Trigger concurrent initialization
     initializer->initialize();
 
-    // shortcuts
+    // Shortcuts
     ui->play_button->setShortcut(QKeySequence("Ctrl+P"));
     ui->reset_button->setShortcut(QKeySequence("Ctrl+R"));
     ui->actionSave->setShortcut(QKeySequence("Ctrl+S"));
     ui->actionLog->setShortcut(QKeySequence("Ctrl+L"));
     ui->actionSettings->setShortcut(QKeySequence("Ctrl+E"));
 
+    // CLose Splashscreen
     splash->finish(this);
   }
 
@@ -205,6 +202,27 @@ namespace ReconstructMeGUI {
     scanner_thread = new QThread(this);
     scanner->moveToThread(scanner_thread);
     scanner_thread->start();
+  }
+
+  void reconstructme::create_mappings() {
+    url_mapper = new QSignalMapper(this);
+    url_mapper->setMapping(ui->actionDevice, QString(url_device_matrix_tag));
+    url_mapper->setMapping(ui->actionFAQ, QString(url_faq_tag));
+    url_mapper->setMapping(ui->actionForum, QString(url_forum_tag));
+    url_mapper->setMapping(ui->actionInstallation, QString(url_install_tag));
+    url_mapper->setMapping(ui->actionProjectHome, QString(url_reconstructme_qt));
+    url_mapper->setMapping(ui->actionSDKDocumentation, QString(url_sdk_doku_tag));
+    url_mapper->setMapping(ui->actionUsage, QString(url_usage_tag));
+    
+    url_mapper->connect(ui->actionDevice, SIGNAL(triggered()), SLOT(map()));
+    url_mapper->connect(ui->actionFAQ, SIGNAL(triggered()), SLOT(map()));
+    url_mapper->connect(ui->actionForum, SIGNAL(triggered()), SLOT(map()));
+    url_mapper->connect(ui->actionInstallation, SIGNAL(triggered()), SLOT(map()));
+    url_mapper->connect(ui->actionProjectHome, SIGNAL(triggered()), SLOT(map()));
+    url_mapper->connect(ui->actionSDKDocumentation, SIGNAL(triggered()), SLOT(map()));
+    url_mapper->connect(ui->actionUsage, SIGNAL(triggered()), SLOT(map()));
+
+    connect(url_mapper, SIGNAL(mapped(const QString&)), SLOT(open_url(const QString&)));
   }
 
   reconstructme::~reconstructme()
@@ -302,31 +320,11 @@ namespace ReconstructMeGUI {
     app_about_dialog->show();
   }
 
-  void reconstructme::open_url_in_std_browser(const QString &url_string) {
+  void reconstructme::open_url(const QString &url_string) {
     QUrl url (url_string);
     QDesktopServices::openUrl(url);
     QString msg = open_url_tag + url_string;
     ui->reconstruct_satus_bar->showMessage(msg, STATUSBAR_TIME);
-  }
-
-  void reconstructme::action_installation_clicked() {
-    open_url_in_std_browser(url_install_tag);
-  }
-
-  void reconstructme::action_device_clicked() {
-    open_url_in_std_browser(url_device_matrix_tag);
-  }
-
-  void reconstructme::action_usage_clicked() {
-    open_url_in_std_browser(url_usage_tag);
-  }
-
-  void reconstructme::action_faq_clicked() {
-    open_url_in_std_browser(url_faq_tag);
-  }
-
-  void reconstructme::action_forum_clicked() {
-    open_url_in_std_browser(url_forum_tag);
   }
 
   void reconstructme::write_to_status_bar(const QString &msg, const int msecs) {

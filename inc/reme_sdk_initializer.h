@@ -82,6 +82,8 @@ namespace ReconstructMeGUI {
     /** Getter for correct sized Depth QImage */
     QSize *depth_size();
 
+    void new_log_message(reme_log_severity_t sev, const QString &log);
+
   private slots:
     void finished_initialize();
 
@@ -91,6 +93,7 @@ namespace ReconstructMeGUI {
     void sdk_initialized();
     void initialized_images();
     void initializing_sdk();
+    void log_message(reme_log_severity_t sev, const QString &log);
 
   private:
     bool try_open_sensor(const char *driver);

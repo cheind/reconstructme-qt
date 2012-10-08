@@ -35,7 +35,8 @@
 #define STATUS_DIALOG_H
 
 #include "types.h"
-#include "window_dialog.h"
+
+#include <QDialog>
 
 #include <reconstructmesdk/types.h>
 
@@ -49,24 +50,23 @@ namespace Ui {
 namespace ReconstructMeGUI {
 
   /** This is dialog provides status information of the scanner*/
-  class status_dialog : public window_dialog
+  class status_dialog : public QDialog
   {
     Q_OBJECT;
 
   public:
-    status_dialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    status_dialog(QWidget *parent = 0, Qt::WindowFlags f = Qt::FramelessWindowHint);
     ~status_dialog();
-
-    enum status_object { Sensor, License, Device };
-
-  signals:
     
+    QPushButton *closeBtn();
+
   public slots:
     void initializing(init_t what);
     void initialized(init_t what, bool success);
 
   protected:
-    
+    /** Since there is no signal emitted for a close event, this method is overwritten */
+
   private:
     void create_content();
 
