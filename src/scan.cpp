@@ -74,6 +74,13 @@ namespace ReconstructMeGUI {
     bool lost_track_prev = false;
     const void *image_bytes;
 
+    success = success && REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME, &image_bytes));
+    if (success) {
+      QMutexLocker lock(&image_mutex);
+      memcpy((void*)_phong_image->bits(), image_bytes, _phong_image->byteCount());
+      emit new_phong_image_bits();
+    }
+
     while (_mode != NOT_RUN && success) {
       success = true;
 
@@ -170,6 +177,13 @@ namespace ReconstructMeGUI {
     bool success = true;
     success = success && REME_SUCCESS(reme_surface_create(_i->context(), &m));
     success = success && REME_SUCCESS(reme_surface_generate(_i->context(), m, _i->volume()));
+
+    // Transform the mesh from world space to CAD space, so external viewers
+    // can cope better with the result.
+    float mat[16];
+    success = success && REME_SUCCESS(reme_transform_set_predefined(_i->context(), REME_TRANSFORM_WORLD_TO_CAD, mat));
+    success = success && REME_SUCCESS(reme_surface_transform(_i->context(), m, mat));
+
     success = success && REME_SUCCESS(reme_surface_save_to_file(_i->context(), m, file_name.toStdString().c_str()));
   }
 
