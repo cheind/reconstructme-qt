@@ -248,6 +248,7 @@
      <string>Window</string>
     </property>
     <addaction name="actionLog"/>
+    <addaction name="actionStatus"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuWindow"/>
@@ -318,6 +319,14 @@
   <action name="actionGenerate_hardware_key">
    <property name="text">
     <string>Generate hardware hashes</string>
+   </property>
+  </action>
+  <action name="actionStatus">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Status</string>
    </property>
   </action>
  </widget>

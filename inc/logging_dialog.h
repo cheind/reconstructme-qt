@@ -34,7 +34,8 @@
 #ifndef LOGGING_WIDGET_H
 #define LOGGING_WIDGET_H
 
-#include <QDialog>
+#include "window_dialog.h"
+
 #include <QStandardItemModel>
 #include <QSortFilterProxyModel>
 
@@ -48,7 +49,7 @@ namespace Ui {
 namespace ReconstructMeGUI {
 
   /** This is dialog provides logging information */
-  class logging_dialog : public QDialog
+  class logging_dialog : public window_dialog
   {
     Q_OBJECT;
 
@@ -56,17 +57,9 @@ namespace ReconstructMeGUI {
     logging_dialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
     ~logging_dialog();
 
-  signals:
-    /** Is emitted when a close event was triggered */
-    void close_clicked();
-
   public slots:
     /** This will append a log-string */
     void add_log_message(reme_log_severity_t sev, const QString &log);
-
-  protected:
-    /** Since there is no signal emitted for a close event, this method is overwritten */
-    virtual void closeEvent (QCloseEvent *e);
 
   private:
     Ui::logging_widget *ui;

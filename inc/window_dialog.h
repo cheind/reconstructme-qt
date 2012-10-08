@@ -31,61 +31,30 @@
   *          florian.eckerstorfer@profactor.at
   */
 
-#ifndef STATUS_DIALOG_H
-#define STATUS_DIALOG_H
+#ifndef WINDOW_DIALOG_H
+#define WINDOW_DIALOG_H
 
-#include "types.h"
-#include "window_dialog.h"
-
-#include <QStandardItemModel>
-
-#include <reconstructmesdk/types.h>
-
-// Forward declarations
-namespace Ui {
-  class status_dialog;
-}
+#include <QDialog>
 
 namespace ReconstructMeGUI {
 
-  /** This is dialog provides status information of the scanner*/
-  class status_dialog : public window_dialog
+  /** This is dialog provides logging information */
+  class window_dialog : public QDialog
   {
     Q_OBJECT;
 
   public:
-    status_dialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
-    ~status_dialog();
-
-    enum status_object { Sensor, License, Device };
+    window_dialog(QWidget *parent = 0, Qt::WindowFlags f = 0) : QDialog(parent, f) {};
+    ~window_dialog() {}
 
   signals:
-    
-  public slots:
-    void initializing(init_t what);
-    void initialized(init_t what, bool success);
+    /** Is emitted when a close event was triggered */
+    void close_clicked();
 
   protected:
-    
-  private:
-    void create_content();
-
-    Ui::status_dialog *ui;
-    QStandardItemModel *_status_model;
-
-    QStandardItem *_lic_obj_item;
-    QStandardItem *_lic_status_item;
-    QStandardItem *_lic_message_item;
-                   
-    QStandardItem *_sen_obj_item;
-    QStandardItem *_sen_status_item;
-    QStandardItem *_sen_message_item;
-                   
-    QStandardItem *_dev_obj_item;
-    QStandardItem *_dev_status_item;
-    QStandardItem *_dev_message_item;
-
+    /** Since there is no signal emitted for a close event, this method is overwritten */
+    virtual void closeEvent (QCloseEvent *e) { emit close_clicked(); }
   };
 } 
 
-#endif // STATUS_DIALOG_H
+#endif // WINDOW_DIALOG_H

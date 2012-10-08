@@ -39,7 +39,7 @@
 namespace ReconstructMeGUI {
 
   logging_dialog::logging_dialog(QWidget *parent, Qt::WindowFlags f) : 
-    QDialog(parent, f),  
+    window_dialog(parent, f),  
     ui(new Ui::logging_widget)
   {
     ui->setupUi(this);
@@ -108,9 +108,5 @@ namespace ReconstructMeGUI {
 
     _log_model->insertRow(0, items);
 
-  }
-
-  void logging_dialog::closeEvent (QCloseEvent *e) {
-    emit close_clicked();
   }
 }

@@ -37,7 +37,7 @@
 namespace ReconstructMeGUI {
 
   status_dialog::status_dialog(QWidget *parent, Qt::WindowFlags f) : 
-    QDialog(parent, f),  
+    window_dialog(parent, f),  
     ui(new Ui::status_dialog)
   {
     ui->setupUi(this);

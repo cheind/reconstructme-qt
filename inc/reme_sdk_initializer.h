@@ -87,6 +87,7 @@ namespace ReconstructMeGUI {
     void initialized(init_t what, bool success);
     void sdk_initialized();
     void initialized_images();
+    void initializing_sdk();
 
   private:
     bool try_open_sensor(const char *driver);

@@ -129,9 +129,12 @@ namespace ReconstructMeGUI {
     connect(ui->actionAbout, SIGNAL(triggered()), SLOT(action_about_clicked()));
     connect(ui->actionSave, SIGNAL(triggered()), SLOT(save_button_clicked()));
     connect(ui->actionGenerate_hardware_key, SIGNAL(triggered()), SLOT(action_hardware_key_clicked()));
+    
+    connect(ui->actionStatus, SIGNAL(toggled(bool)), SLOT(action_status_toggled(bool)));
+    ui->actionStatus->connect(init_status_dialog, SIGNAL(close_clicked()), SLOT(toggle()));
+
     connect(ui->actionLog, SIGNAL(toggled(bool)), SLOT(action_log_toggled(bool)));
     ui->actionLog->connect(log_dialog, SIGNAL(close_clicked()), SLOT(toggle()));
-
     
     // button handler
     qRegisterMetaType<init_t>( "mode_t" );
@@ -264,6 +267,13 @@ namespace ReconstructMeGUI {
       log_dialog->show();
     else
       log_dialog->hide();
+  }
+
+  void reconstructme::action_status_toggled(bool checked) {
+    if (checked) 
+      init_status_dialog->show();
+    else
+      init_status_dialog->hide();
   }
 
   void reconstructme::action_hardware_key_clicked() {

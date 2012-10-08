@@ -98,6 +98,8 @@ namespace ReconstructMeGUI {
     void action_about_clicked();
     /** Show/Hide log dialog */
     void action_log_toggled(bool checked);
+    /** Show/Hide log dialog */
+    void action_status_toggled(bool checked);
     /** Show hardware key dialog */
     void action_hardware_key_clicked();
 

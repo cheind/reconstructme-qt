@@ -55,12 +55,9 @@ namespace ReconstructMeGUI {
   scan::scan(reme_sdk_initializer *initializer) {
     _mode = NOT_RUN;
     _i = initializer;
-
-    // NOTE: Qt::QueuedConnection has to be defined explicity here. 
-    // If Qt::AutoConnections will be used, a direct connection is choosen by Qt, 
-    // since receiver object and emitter object are in the same thread.
-    // http://qt-project.org/doc/qt-4.8/qt.html#ConnectionType-enum
-    connect(_i, SIGNAL(sdk_initialized()), SLOT(start()), Qt::QueuedConnection);
+    
+    connect(_i, SIGNAL(sdk_initialized()), SLOT(start()));
+    connect(_i, SIGNAL(initializing_sdk()), SLOT(stop()));
   }
 
   scan::~scan() {
@@ -151,8 +148,17 @@ namespace ReconstructMeGUI {
   void scan::reset_volume() {
     if (_mode == NOT_RUN) return;
 
-    reme_volume_reset(_i->context(), _i->volume());
-    reme_sensor_reset(_i->context(), _i->sensor());
+    bool success = true;
+    success = success && REME_SUCCESS(reme_volume_reset(_i->context(), _i->volume()));
+    success = success && REME_SUCCESS(reme_sensor_reset(_i->context(), _i->sensor()));
+    
+    const void* image_bytes;
+    success = success && REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME, &image_bytes));
+    if (success) {
+      QMutexLocker lock(&image_mutex);
+      memcpy((void*)_phong_image->bits(), image_bytes, _phong_image->byteCount());
+      emit new_phong_image_bits();
+    }
   }
 
   void scan::save(const QString &file_name) {
