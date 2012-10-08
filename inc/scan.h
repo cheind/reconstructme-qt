@@ -72,8 +72,6 @@ namespace ReconstructMeGUI {
     /** Save current volume content as polygonzied 3D model to file_name */
     void save(const QString &file_name);
 
-    const mode_t get_current_mode() const;
-
   signals:
     /** Emit log information */
     void log_message(reme_log_severity_t sev, const QString &msg);
@@ -85,6 +83,8 @@ namespace ReconstructMeGUI {
     /** Is emitted, when a new Depth image is available */
     void new_depth_image_bits();
     
+    void mode_changed(mode_t);
+
   private:
     void initialize_images();
     

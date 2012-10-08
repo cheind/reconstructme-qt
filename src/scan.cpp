@@ -171,13 +171,11 @@ namespace ReconstructMeGUI {
     if (_mode == NOT_RUN) return;
 
     _mode = (_mode == PLAY) ? PAUSE : PLAY; // toggle mode
+
+    emit mode_changed(_mode);
   }
 
   void scan::stop() {
     _mode = NOT_RUN;
-  }
-
-  const mode_t scan::get_current_mode() const {
-    return _mode;
   }
 }

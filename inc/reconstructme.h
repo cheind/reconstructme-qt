@@ -38,8 +38,9 @@
 
 #include <QMainWindow>
 
-#include <reconstructmesdk/types.h>
+#include "types.h"
 
+#include <reconstructmesdk/types.h>
 
 // Forward declarations
 class QImage;
@@ -102,10 +103,12 @@ namespace ReconstructMeGUI {
 
     /** Handle save button clicked event. Trigger scanner to save current mesh */
     void save_button_clicked();
-    /** Handle play button clicked event. Trigger scanner to toggle PLAY/PAUSE */
-    void play_button_clicked();
+    
     /** Handle reset button clicked event. Trigger scanner to reset current volume */
     void reset_button_clicked();
+
+    /** Handle play button clicked event. Trigger scanner to toggle PLAY/PAUSE */
+    void apply_mode(mode_t mode);
 
     /** show message box */
     void show_message_box(

@@ -40,4 +40,5 @@ namespace ReconstructMeGUI {
   enum mode_t { PLAY, PAUSE, NOT_RUN };
 
   Q_DECLARE_METATYPE( init_t );
+  Q_DECLARE_METATYPE( mode_t );
 }

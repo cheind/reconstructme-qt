@@ -67,6 +67,8 @@
 #include <QProgressDialog>
 #include <QMetaType>
 
+#include <iostream>
+
 #define STATUSBAR_TIME 1500
 #define SPLASH_MSG_ALIGNMENT Qt::AlignBottom | Qt::AlignLeft
 
@@ -132,8 +134,9 @@ namespace ReconstructMeGUI {
 
     
     // button handler
+    qRegisterMetaType<init_t>( "mode_t" );
     scanner->connect(ui->play_button, SIGNAL(clicked()), SLOT(toggle_play_pause()));
-    connect(ui->play_button, SIGNAL(clicked()), SLOT(play_button_clicked()));
+    connect(scanner, SIGNAL(mode_changed(mode_t)), SLOT(apply_mode(mode_t)));
     scanner->connect(ui->reset_button, SIGNAL(clicked()), SLOT(reset_volume()));
     connect(ui->reset_button, SIGNAL(clicked()), SLOT(reset_button_clicked()));
     connect(ui->save_button, SIGNAL(clicked()), SLOT(save_button_clicked()));
@@ -223,21 +226,16 @@ namespace ReconstructMeGUI {
     ui->reconstruct_satus_bar->showMessage(saving_to_tag + file_name, STATUSBAR_TIME);
   }
 
-  void reconstructme::play_button_clicked()
-  {
-    const mode_t current_scanner_mode = scanner->get_current_mode();
-    
-    if (current_scanner_mode == NOT_RUN) return;
-
+  void reconstructme::apply_mode(mode_t current_scanner_mode) {
     QPushButton* playPause_b = ui->play_button;
     QPixmap pixmap;
-    if (current_scanner_mode == PAUSE) {
+    if (current_scanner_mode != PLAY) {
       ui->save_button->setEnabled(true);
       ui->actionSave->setEnabled(true);
       pixmap.load(":/images/record-button.png");
       ui->reconstruct_satus_bar->showMessage(mode_pause_tag, STATUSBAR_TIME);
     }
-    else if (current_scanner_mode == PLAY) {
+    else {
       ui->save_button->setDisabled(true);
       ui->actionSave->setDisabled(true);
       pixmap.load(":/images/pause-button.png");

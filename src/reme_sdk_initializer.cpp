@@ -73,14 +73,14 @@ namespace ReconstructMeGUI {
   void reme_sdk_initializer::_initialize() {
     bool success = false;
 
-    emit initializing(OPENCL);
-    success = compile_context();
-    emit initialized(OPENCL, success);
-
     emit initializing(LICENSE);
     success = apply_license();
     emit initialized(LICENSE, success);
     
+    emit initializing(OPENCL);
+    success = compile_context();
+    emit initialized(OPENCL, success);
+
     emit initializing(SENSOR);
     success = open_sensor();
     emit initialized(SENSOR, success);
