@@ -35,6 +35,7 @@
 #include "ui_logging_dialog.h"
 
 #include <QDateTime>
+#include <QFile>
 
 namespace ReconstructMeGUI {
 
@@ -61,6 +62,9 @@ namespace ReconstructMeGUI {
     ui->logtableview->horizontalHeader()->setSortIndicator(1, Qt::AscendingOrder);
 
     setModal(false);
+
+    connect(ui->btnClear, SIGNAL(clicked()), SLOT(clear_log()));
+    connect(ui->btnSave, SIGNAL(clicked()), SLOT(save_log()));
   }
 
   logging_dialog::~logging_dialog() 
@@ -90,7 +94,7 @@ namespace ReconstructMeGUI {
         sev_str = tr("Error");
         sev_icon = style->standardIcon(QStyle::SP_MessageBoxCritical);
         break;
-     }
+    }
 
     QList< QStandardItem *> items;
     
@@ -107,6 +111,13 @@ namespace ReconstructMeGUI {
     items.push_back(message_item);
 
     _log_model->insertRow(0, items);
+  }
 
+  void logging_dialog::clear_log() {
+    _log_model->removeRows(0, _log_model->rowCount());
+  }
+  
+  void logging_dialog::save_log() {
+    // Not implemented yet
   }
 }

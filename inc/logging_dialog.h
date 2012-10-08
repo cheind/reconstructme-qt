@@ -61,6 +61,10 @@ namespace ReconstructMeGUI {
     /** This will append a log-string */
     void add_log_message(reme_log_severity_t sev, const QString &log);
 
+    void clear_log();
+
+    void save_log();
+
   private:
     Ui::logging_widget *ui;
     QStandardItemModel *_log_model;
