@@ -67,9 +67,9 @@ namespace ReconstructMeGUI {
     cfg_path     = settings.value(config_path_tag, config_path_default_tag).toString();
     license_file = settings.value(license_file_tag, license_file_default_tag).toString();
     
-    file_watcher->addPath(sens_path);
-    file_watcher->addPath(cfg_path);
-    file_watcher->addPath(license_file);
+    if (QFile::exists(sens_path))    file_watcher->addPath(sens_path);
+    if (QFile::exists(cfg_path))     file_watcher->addPath(cfg_path);
+    if (QFile::exists(license_file)) file_watcher->addPath(license_file);
 
     settings.setValue(sensor_path_tag, sens_path);
     settings.setValue(opencl_device_tag, device_id);
@@ -126,19 +126,19 @@ namespace ReconstructMeGUI {
   }
 
   void settings_dialog::accept() {
-    // remove from filesystemwatcher
-    file_watcher->removePath(sens_path);
-    file_watcher->removePath(cfg_path);
-    file_watcher->removePath(license_file);
+    // remove old once from filesystemwatcher
+    if (QFile::exists(sens_path))    file_watcher->removePath(sens_path);
+    if (QFile::exists(cfg_path))     file_watcher->removePath(cfg_path);
+    if (QFile::exists(license_file)) file_watcher->removePath(license_file);
 
     cfg_path     = ui->config_path_tb->text();
     sens_path    = ui->sensor_path_tb->text();
     license_file = ui->license_file_tb->text();
 
     // add to filesystemwatcher
-    file_watcher->addPath(sens_path);
-    file_watcher->addPath(cfg_path);
-    file_watcher->addPath(license_file);
+    if (QFile::exists(sens_path))    file_watcher->addPath(sens_path);
+    if (QFile::exists(cfg_path))     file_watcher->addPath(cfg_path);
+    if (QFile::exists(license_file)) file_watcher->addPath(license_file);
 
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
 
@@ -191,14 +191,6 @@ namespace ReconstructMeGUI {
   }
 
   void settings_dialog::create_default_settings() {
-    // update settings
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
-    settings.setValue(sensor_path_tag, sensor_path_default_tag);
-    settings.setValue(opencl_device_tag, opencl_device_default_tag);
-    settings.setValue(config_path_tag, config_path_default_tag);
-    settings.setValue(license_file_tag, license_file_default_tag);
-    settings.sync();
-
     // update ui
     ui->config_path_tb->setText(config_path_default_tag);
     ui->sensor_path_tb->setText(sensor_path_default_tag);
