@@ -58,7 +58,7 @@ namespace ReconstructMeGUI {
   }
 
   void status_dialog::create_content() {
-    QList< QStandardItem *> items;
+    QList< QStandardItem *> sensor_items;
     
     _sen_obj_item = new QStandardItem("Sensor");
     _sen_status_item = new QStandardItem(style()->standardIcon(QStyle::SP_MessageBoxQuestion),"");
@@ -68,14 +68,12 @@ namespace ReconstructMeGUI {
     _sen_status_item->setEditable(false);
     _sen_message_item->setEditable(false);
 
-    items.push_back(_sen_obj_item);
-    items.push_back(_sen_status_item);
-    items.push_back(_sen_message_item);
+    sensor_items.push_back(_sen_obj_item);
+    sensor_items.push_back(_sen_status_item);
+    sensor_items.push_back(_sen_message_item);
 
-    _status_model->appendRow(items);
-    
     //============================
-    QList< QStandardItem *> items2;
+    QList< QStandardItem *> device_items;
     
     _dev_obj_item = new QStandardItem("Device");
     _dev_status_item = new QStandardItem(style()->standardIcon(QStyle::SP_DialogOkButton), QString());
@@ -85,14 +83,12 @@ namespace ReconstructMeGUI {
     _dev_status_item->setEditable(false);
     _dev_message_item->setEditable(false);
 
-    items2.push_back(_dev_obj_item);
-    items2.push_back(_dev_status_item);
-    items2.push_back(_dev_message_item);
-
-    _status_model->appendRow(items2);
+    device_items.push_back(_dev_obj_item);
+    device_items.push_back(_dev_status_item);
+    device_items.push_back(_dev_message_item);
 
     //============================
-    QList< QStandardItem *> items3;
+    QList< QStandardItem *> license_items;
     
     _lic_obj_item = new QStandardItem("License");
     _lic_status_item = new QStandardItem(style()->standardIcon(QStyle::SP_MessageBoxWarning),"");
@@ -102,11 +98,14 @@ namespace ReconstructMeGUI {
     _lic_status_item->setEditable(false);
     _lic_message_item->setEditable(false);
 
-    items3.push_back(_lic_obj_item);
-    items3.push_back(_lic_status_item);
-    items3.push_back(_lic_message_item);
+    license_items.push_back(_lic_obj_item);
+    license_items.push_back(_lic_status_item);
+    license_items.push_back(_lic_message_item);
 
-    _status_model->appendRow(items3);
+    _status_model->appendRow(license_items);
+    _status_model->appendRow(device_items);
+    _status_model->appendRow(sensor_items);
+    
   }
 
   status_dialog::~status_dialog() 
