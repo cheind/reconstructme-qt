@@ -121,7 +121,7 @@ namespace ReconstructMeGUI {
     dialog_settings->connect(ui->actionSettings, SIGNAL(triggered()),SLOT(show()));
     app_about_dialog->connect(ui->actionAbout, SIGNAL(triggered()), SLOT(show()));
     hw_key_dialog->connect(ui->actionGenerate_hardware_key, SIGNAL(triggered()), SLOT(show()));
-    connect(ui->actionSave, SIGNAL(triggered()), SLOT(save_button_clicked()));
+    
     
     connect(ui->actionLog, SIGNAL(toggled(bool)), SLOT(action_log_toggled(bool)));
     ui->actionLog->connect(log_dialog, SIGNAL(close_clicked()), SLOT(toggle()));
@@ -133,7 +133,9 @@ namespace ReconstructMeGUI {
     scanner->connect(ui->reset_button, SIGNAL(clicked()), SLOT(reset_volume()));
     connect(ui->reset_button, SIGNAL(clicked()), SLOT(reset_button_clicked()));
     scanner->connect(this, SIGNAL(save_mesh_to_file(const QString &)), SLOT(save(const QString &)));
-    
+    connect(ui->save_button, SIGNAL(clicked()), SLOT(save_button_clicked()));
+    connect(ui->actionSave, SIGNAL(triggered()), SLOT(save_button_clicked()));
+
     // views update
     connect(initializer, SIGNAL(initialized_images()), SLOT(set_image_references()), Qt::BlockingQueuedConnection);
     rgb_canvas->connect(scanner, SIGNAL(new_rgb_image_bits()), SLOT(update()));

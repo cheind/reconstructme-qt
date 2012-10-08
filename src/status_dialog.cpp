@@ -115,13 +115,12 @@ namespace ReconstructMeGUI {
     
   }
 
-  status_dialog::~status_dialog() 
-  {
+  status_dialog::~status_dialog() {
     delete ui;
   }
 
   void status_dialog::initializing(init_t what) {
-    QIcon icon(style()->standardIcon(QStyle::SP_BrowserReload));
+    QIcon icon(":/images/status_refresh.png");
 
     QString message("Initializing, please wait...");
 
@@ -147,11 +146,11 @@ namespace ReconstructMeGUI {
     QIcon icon;
     QString message;
     if (success) {
-      icon = style()->standardIcon(QStyle::SP_MessageBoxInformation);
+      icon.swap(QIcon(":/images/status_ok.png"));
       message = "Successfully initialized";
     }
     else {
-      icon = style()->standardIcon(QStyle::SP_MessageBoxWarning);
+       icon.swap(QIcon(":/images/status_error.png"));
       message = "Error occured";
     }
 
@@ -166,9 +165,9 @@ namespace ReconstructMeGUI {
         break;
       case LICENSE:
         _lic_status_item->setIcon(icon);
-        if (success)
+        if (success) 
           _lic_message_item->setText("Commercial mode");
-        else
+        else 
           _lic_message_item->setText("Non commercial mode");
         break;
     }
