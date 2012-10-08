@@ -53,28 +53,28 @@
 
 namespace ReconstructMeGUI {
 
-  reme_sdk_initializer::reme_sdk_initializer(reme_context_t c) {
-    _c = c;
-    _has_compiled_context = false;
-    _has_sensor = false;
-    _has_volume = false;
+  reme_sdk_initializer::reme_sdk_initializer() {
+    _c = 0;
   }
 
   reme_sdk_initializer::~reme_sdk_initializer() {
-    if (_has_sensor) {
-      reme_sensor_close(_c, _s);
-      reme_sensor_destroy(_c, &_s);
-    }
-    if (_has_volume) {
-      reme_volume_destroy(_c, &_v);
-    }
+    if (_c != 0)
+      reme_context_destroy(&_c); 
   }
 
   void reme_sdk_initializer::_initialize() {
     bool success = false;
 
+    _has_sensor = false;
+    _has_compiled_context = false;
+    _has_volume = false;
+
     emit initializing_sdk();
 
+    if (_c != 0)
+      reme_context_destroy(&_c);
+    reme_context_create(&_c);
+    
     emit initializing(LICENSE);
     success = apply_license();
     emit initialized(LICENSE, success);
@@ -82,7 +82,7 @@ namespace ReconstructMeGUI {
     emit initializing(OPENCL);
     success = compile_context();
     emit initialized(OPENCL, success);
-
+    
     emit initializing(SENSOR);
     success = open_sensor();
     emit initialized(SENSOR, success);
@@ -106,18 +106,12 @@ namespace ReconstructMeGUI {
     // can not initialize sensor is no compiled context is available
     if (!_has_compiled_context) success = false;
 
-    // destroy sensor object, if a sensor is already in use
-    if (_has_sensor) {
-      success = success && REME_SUCCESS(reme_sensor_close(_c, _s));
-      success = success && REME_SUCCESS(reme_sensor_destroy(_c, &_s));
-    }
-
     // create and open a sensor from settings
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
     QString sensor_path = settings.value(sensor_path_tag).toString();
     success = success && REME_SUCCESS(reme_sensor_create(_c, sensor_path.toStdString().c_str(), true, &_s));
     success = success && REME_SUCCESS(reme_sensor_open(_c, _s));
-    
+
     if (success)
     {
       int width, height;
@@ -185,11 +179,12 @@ namespace ReconstructMeGUI {
 
     // Compile for OpenCL device using modified options
     success = success && REME_SUCCESS(reme_context_compile(_c));
+
     if (!_has_volume) {
       success = success && REME_SUCCESS(reme_volume_create(_c, &_v));
       _has_volume = true;
     }
-    
+
     _has_compiled_context = success;
     return _has_compiled_context;
   }

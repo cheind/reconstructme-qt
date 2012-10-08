@@ -97,16 +97,19 @@ namespace ReconstructMeGUI {
     r.moveCenter(QApplication::desktop()->availableGeometry().center());
     setGeometry(r);
 
+    reme_context_t c;
     reme_context_create(&c);
     
      // logger
     log_dialog = new logging_dialog(this, Qt::Dialog);
     reme_context_set_log_callback(c, reme_log, log_dialog);
     
-    dialog_settings = new settings_dialog(c,this);
+    dialog_settings = new settings_dialog(c, this);
     hw_key_dialog = new hardware_key_dialog(c, this);
     app_about_dialog = new about_dialog(c, this);
     init_status_dialog = new status_dialog(this);
+
+    reme_context_destroy(&c);
 
     QPixmap titleBarPix (":/images/icon.ico");
     QIcon titleBarIcon(titleBarPix);
@@ -128,7 +131,7 @@ namespace ReconstructMeGUI {
     connect(ui->actionSettings, SIGNAL(triggered()),SLOT(action_settings_clicked()));
     connect(ui->actionAbout, SIGNAL(triggered()), SLOT(action_about_clicked()));
     connect(ui->actionSave, SIGNAL(triggered()), SLOT(save_button_clicked()));
-    connect(ui->actionGenerate_hardware_key, SIGNAL(triggered()), SLOT(action_hardware_key_clicked()));
+    hw_key_dialog->connect(ui->actionGenerate_hardware_key, SIGNAL(triggered()), SLOT(show()));
     
     connect(ui->actionStatus, SIGNAL(toggled(bool)), SLOT(action_status_toggled(bool)));
     ui->actionStatus->connect(init_status_dialog, SIGNAL(close_clicked()), SLOT(toggle()));
@@ -152,13 +155,12 @@ namespace ReconstructMeGUI {
     phong_canvas->connect(scanner, SIGNAL(new_phong_image_bits()), SLOT(update()));
 
     qRegisterMetaType<init_t>( "init_t" );
-    init_status_dialog->connect(initializer, SIGNAL(initializing(init_t)), SLOT(initializing(init_t)));
-    init_status_dialog->connect(initializer, SIGNAL(initialized(init_t, bool)), SLOT(initialized(init_t, bool)));
+    init_status_dialog->connect(initializer, SIGNAL(initializing(init_t)), SLOT(initializing(init_t)), Qt::BlockingQueuedConnection);
+    init_status_dialog->connect(initializer, SIGNAL(initialized(init_t, bool)), SLOT(initialized(init_t, bool)), Qt::BlockingQueuedConnection);
 
     initializer->connect(dialog_settings, SIGNAL(initialize()), SLOT(initialize()));
-    initializer->connect(this, SIGNAL(initialize()), SLOT(initialize()));
     
-    emit initialize();
+    initializer->initialize();
 
     // shortcuts
     ui->play_button->setShortcut(QKeySequence("Ctrl+P"));
@@ -196,7 +198,7 @@ namespace ReconstructMeGUI {
 
   void reconstructme::create_scanner() {
     // do not change order, due to a connect in the scan constructor
-    initializer = new reme_sdk_initializer(c);
+    initializer = new reme_sdk_initializer();
     
     scanner = new scan(initializer);
     // scan thread
@@ -216,8 +218,6 @@ namespace ReconstructMeGUI {
     delete initializer;
 
     delete ui;
-
-    reme_context_destroy(&c);
   }
 
   void reconstructme::save_button_clicked()
@@ -274,12 +274,6 @@ namespace ReconstructMeGUI {
       init_status_dialog->show();
     else
       init_status_dialog->hide();
-  }
-
-  void reconstructme::action_hardware_key_clicked() {
-    if (!hw_key_dialog)
-      hw_key_dialog = new hardware_key_dialog(c, this);
-    hw_key_dialog->show();
   }
 
   void reconstructme::show_message_box(

@@ -56,7 +56,7 @@ namespace ReconstructMeGUI {
     Q_OBJECT;
     
   public:
-    reme_sdk_initializer(reme_context_t c);
+    reme_sdk_initializer();
     ~reme_sdk_initializer();
 
     void _initialize();

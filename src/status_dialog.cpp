@@ -34,6 +34,9 @@
 #include "status_dialog.h"
 #include "ui_status_dialog.h"
 
+#include <QStandardItemModel>
+#include <QStandardItem>
+
 namespace ReconstructMeGUI {
 
   status_dialog::status_dialog(QWidget *parent, Qt::WindowFlags f) : 
@@ -54,8 +57,11 @@ namespace ReconstructMeGUI {
     ui->statustableView->setModel(_status_model);
     ui->statustableView->horizontalHeader()->setSortIndicator(1, Qt::AscendingOrder);
 
+    setModal(true);
+
     create_content();
   }
+
 
   void status_dialog::create_content() {
     QList< QStandardItem *> sensor_items;
@@ -114,7 +120,8 @@ namespace ReconstructMeGUI {
   }
 
   void status_dialog::initializing(init_t what) {
-    QIcon icon(style()->standardIcon(QStyle::SP_DialogResetButton));
+    QIcon icon(style()->standardIcon(QStyle::SP_BrowserReload));
+
     QString message("Initializing, please wait...");
 
     switch (what) {
@@ -143,7 +150,7 @@ namespace ReconstructMeGUI {
       message = "Successfully initialized";
     }
     else {
-      icon = style()->standardIcon(QStyle::SP_MessageBoxCritical);
+      icon = style()->standardIcon(QStyle::SP_MessageBoxWarning);
       message = "Error occured";
     }
 
@@ -158,7 +165,10 @@ namespace ReconstructMeGUI {
         break;
       case LICENSE:
         _lic_status_item->setIcon(icon);
-        _lic_message_item->setText(message);
+        if (success)
+          _lic_message_item->setText("Commercial mode");
+        else
+          _lic_message_item->setText("Non commercial mode");
         break;
     }
     

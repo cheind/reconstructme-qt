@@ -37,11 +37,11 @@
 #include "types.h"
 #include "window_dialog.h"
 
-#include <QStandardItemModel>
-
 #include <reconstructmesdk/types.h>
 
 // Forward declarations
+class QStandardItemModel;
+class QStandardItem;
 namespace Ui {
   class status_dialog;
 }
@@ -84,7 +84,6 @@ namespace ReconstructMeGUI {
     QStandardItem *_dev_obj_item;
     QStandardItem *_dev_status_item;
     QStandardItem *_dev_message_item;
-
   };
 } 
 

@@ -43,6 +43,7 @@
 
 #include <QCoreApplication>
 #include <QSettings>
+#include <qthread.h>
 #include <QImage>
 
 #include <reconstructmesdk/reme.h>
@@ -57,14 +58,14 @@ namespace ReconstructMeGUI {
     _i = initializer;
     
     connect(_i, SIGNAL(sdk_initialized()), SLOT(start()));
-    connect(_i, SIGNAL(initializing_sdk()), SLOT(stop()));
+    connect(_i, SIGNAL(initializing_sdk()), SLOT(stop()), Qt::BlockingQueuedConnection);
   }
 
   scan::~scan() {
   }
 
   void scan::start() {
-    // no recursion!
+    // avoid recursion!
     if (_mode != NOT_RUN) return;
     
     // Get ready
@@ -100,6 +101,7 @@ namespace ReconstructMeGUI {
       
       if (_mode != PLAY) {
         QCoreApplication::instance()->processEvents(); // check if something changed
+        std::cout << _mode;
         continue;
       }
 
@@ -140,6 +142,7 @@ namespace ReconstructMeGUI {
       }
       
       QCoreApplication::instance()->processEvents(); // this has to be the last command in run
+      std::cout << _mode;
     } // while
 
     _mode = NOT_RUN;

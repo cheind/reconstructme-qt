@@ -100,8 +100,6 @@ namespace ReconstructMeGUI {
     void action_log_toggled(bool checked);
     /** Show/Hide log dialog */
     void action_status_toggled(bool checked);
-    /** Show hardware key dialog */
-    void action_hardware_key_clicked();
 
     /** Handle save button clicked event. Trigger scanner to save current mesh */
     void save_button_clicked();
@@ -149,9 +147,6 @@ namespace ReconstructMeGUI {
     scan *scanner;
     reme_sdk_initializer *initializer;
     QThread* scanner_thread;
-
-    // Context
-    reme_context_t c;
 
     // Images & Widget
     QImage *rgb_image;
