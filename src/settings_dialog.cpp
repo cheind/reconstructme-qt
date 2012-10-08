@@ -238,11 +238,12 @@ namespace ReconstructMeGUI {
   }
 
   void settings_dialog::trigger_scanner_with_file(const QString &file_path) {
-    if (QMessageBox::No == QMessageBox::information(this, file_changed_tag, apply_changes_tag + file_path + "?", QMessageBox::Yes, QMessageBox::No)) return;
+    bool do_reload = QMessageBox::Yes == QMessageBox::information(this, file_changed_tag, apply_changes_tag + file_path + "?", QMessageBox::Yes, QMessageBox::No);
 
-    if ((file_path == cfg_path)     ||
+    if (do_reload && (
+        (file_path == cfg_path)     ||
         (file_path == license_file) ||
-        (file_path == sens_path)      )
+        (file_path == sens_path)   )  )
       emit initialize();
   }
 }

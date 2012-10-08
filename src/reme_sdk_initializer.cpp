@@ -55,6 +55,8 @@ namespace ReconstructMeGUI {
 
   reme_sdk_initializer::reme_sdk_initializer() {
     _c = 0;
+    _initializing = false;
+    connect(&_fw, SIGNAL(finished()), this, SLOT(finished_initialize()));
   }
 
   reme_sdk_initializer::~reme_sdk_initializer() {
@@ -97,7 +99,15 @@ namespace ReconstructMeGUI {
   }
 
   void reme_sdk_initializer::initialize() {
-    QtConcurrent::run(_init, this);
+    if (_initializing) return;
+
+    _initializing = true;
+    _future = QtConcurrent::run(_init, this);
+    _fw.setFuture(_future);
+  }
+
+  void reme_sdk_initializer::finished_initialize() {
+    _initializing = false;
   }
 
   bool reme_sdk_initializer::open_sensor() {

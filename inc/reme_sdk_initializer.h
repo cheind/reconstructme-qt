@@ -82,6 +82,9 @@ namespace ReconstructMeGUI {
     /** Getter for correct sized Depth QImage */
     QSize *depth_size();
 
+  private slots:
+    void finished_initialize();
+
   signals:
     void initializing(init_t what);
     void initialized(init_t what, bool success);
@@ -107,6 +110,10 @@ namespace ReconstructMeGUI {
     bool _has_compiled_context;
     bool _has_sensor;
     bool _has_volume;
+
+    QFutureWatcher<void> _fw;
+    QFuture<void> _future;
+    bool _initializing;
   };
 }
 

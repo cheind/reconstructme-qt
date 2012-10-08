@@ -101,7 +101,6 @@ namespace ReconstructMeGUI {
       
       if (_mode != PLAY) {
         QCoreApplication::instance()->processEvents(); // check if something changed
-        std::cout << _mode;
         continue;
       }
 
@@ -142,7 +141,6 @@ namespace ReconstructMeGUI {
       }
       
       QCoreApplication::instance()->processEvents(); // this has to be the last command in run
-      std::cout << _mode;
     } // while
 
     _mode = NOT_RUN;
