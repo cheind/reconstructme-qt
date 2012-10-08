@@ -59,6 +59,10 @@ namespace ReconstructMeGUI {
     scan(reme_sdk_initializer *initializer);
     ~scan();
 
+    void set_rgb_image(QImage* rgb);
+    void set_phong_image(QImage* phong);
+    void set_depth_image(QImage* depth);
+
   public slots:
     /** Main loop. Retrieve Images, update volume */
     void start();
@@ -87,7 +91,11 @@ namespace ReconstructMeGUI {
 
   private:
     void initialize_images();
-    
+
+    QImage* _rgb_image;
+    QImage* _phong_image;
+    QImage* _depth_image;
+
     const reme_sdk_initializer *_i;
     
     mode_t _mode;

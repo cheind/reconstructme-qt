@@ -69,18 +69,18 @@ namespace ReconstructMeGUI {
     const reme_volume_t volume() const;
 
     /** Getter for correct sized RGB QImage */
-    const QImage *rgb_image() const;
+    const QSize *rgb_size() const;
     /** Getter for correct sized Phong QImage */
-    const QImage *phong_image() const;
+    const QSize *phong_size() const;
     /** Getter for correct sized Depth QImage */
-    const QImage *depth_image() const;
+    const QSize *depth_size() const;
 
     /** Getter for correct sized RGB QImage */
-    QImage *rgb_image();
+    QSize *rgb_size();
     /** Getter for correct sized Phong QImage */
-    QImage *phong_image();
+    QSize *phong_size();
     /** Getter for correct sized Depth QImage */
-    QImage *depth_image();
+    QSize *depth_size();
 
   signals:
     void initializing(init_t what);
@@ -99,9 +99,9 @@ namespace ReconstructMeGUI {
     reme_sensor_t _s;
     reme_volume_t _v;
 
-    QImage* _rgb_image;
-    QImage* _phong_image;
-    QImage* _depth_image;
+    QSize* _rgb_size;
+    QSize* _phong_size;
+    QSize* _depth_size;
 
     bool _has_compiled_context;
     bool _has_sensor;

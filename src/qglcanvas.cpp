@@ -39,16 +39,18 @@
 #include "qglcanvas.h"
 #include "mutex.h"
 
-#include <iostream>
-
 namespace ReconstructMeGUI {
 
   QGLCanvas::QGLCanvas(QWidget* parent) : QGLWidget(parent) {
-    img = 0;
+    img = new QImage(":/images/no_image_available.png");
   }
 
-  void QGLCanvas::setImage(QImage* image) {
-    img = image;
+  void QGLCanvas::set_image_size(QSize* size) {
+    img = new QImage(*size, QImage::Format_RGB888);
+  }
+
+  QImage* QGLCanvas::image() {
+    return img;
   }
 
   void QGLCanvas::paintEvent(QPaintEvent* ev) {

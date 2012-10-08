@@ -66,7 +66,6 @@ namespace ReconstructMeGUI {
   scan::~scan() {
   }
 
-
   void scan::start() {
     // no recursion!
     if (_mode != NOT_RUN) return;
@@ -92,13 +91,13 @@ namespace ReconstructMeGUI {
       success = success && REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_AUX, &image_bytes));
       if (success) {
         QMutexLocker lock(&image_mutex);
-        memcpy((void*)_i->rgb_image()->bits(), image_bytes, _i->rgb_image()->byteCount());
+        memcpy((void*)_rgb_image->bits(), image_bytes, _rgb_image->byteCount());
         emit new_rgb_image_bits();
       }
       success = success && REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_DEPTH, &image_bytes));
       if (success) {
         QMutexLocker lock(&image_mutex);
-        memcpy((void*)_i->depth_image()->bits(), image_bytes, _i->depth_image()->byteCount());
+        memcpy((void*)_depth_image->bits(), image_bytes, _depth_image->byteCount());
         emit new_depth_image_bits();
       }
       
@@ -110,7 +109,7 @@ namespace ReconstructMeGUI {
       success = success && REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME, &image_bytes));
       if (success) {
         QMutexLocker lock(&image_mutex);
-        memcpy((void*)_i->phong_image()->bits(), image_bytes, _i->phong_image()->byteCount());
+        memcpy((void*)_phong_image->bits(), image_bytes, _phong_image->byteCount());
         emit new_phong_image_bits();
       }
       
@@ -178,4 +177,17 @@ namespace ReconstructMeGUI {
   void scan::stop() {
     _mode = NOT_RUN;
   }
+
+  void scan::set_rgb_image(QImage* rgb) {
+    _rgb_image = rgb;
+  }
+
+  void scan::set_phong_image(QImage* phong) {
+    _phong_image = phong;
+  }
+
+  void scan::set_depth_image(QImage* depth) {
+    _depth_image = depth;
+  }
+
 }

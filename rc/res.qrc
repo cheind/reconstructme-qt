@@ -50,6 +50,7 @@
         <file>images/splash_screen.png</file>
         <file>images/reme_typo.png</file>
         <file>images/wait_splash.png</file>
+		<file>images/no_image_available.png</file>
     </qresource>
     <qresource prefix="/styles">
         <file>stylesheet.qss</file>

@@ -143,7 +143,7 @@ namespace ReconstructMeGUI {
     scanner->connect(this, SIGNAL(save_mesh_to_file(const QString &)), SLOT(save(const QString &)));
     
     // views update
-    connect(initializer, SIGNAL(initialized_images()), SLOT(set_image_references()));
+    connect(initializer, SIGNAL(initialized_images()), SLOT(set_image_references()), Qt::BlockingQueuedConnection);
     rgb_canvas->connect(scanner, SIGNAL(new_rgb_image_bits()), SLOT(update()));
     depth_canvas->connect(scanner, SIGNAL(new_depth_image_bits()), SLOT(update()));
     phong_canvas->connect(scanner, SIGNAL(new_phong_image_bits()), SLOT(update()));
@@ -182,9 +182,13 @@ namespace ReconstructMeGUI {
   }
 
   void reconstructme::set_image_references() {
-    rgb_canvas->setImage(initializer->rgb_image());
-    phong_canvas->setImage(initializer->phong_image());
-    depth_canvas->setImage(initializer->depth_image());
+    rgb_canvas->set_image_size(initializer->rgb_size());
+    phong_canvas->set_image_size(initializer->phong_size());
+    depth_canvas->set_image_size(initializer->depth_size());
+
+    scanner->set_rgb_image  (rgb_canvas->image());
+    scanner->set_phong_image(phong_canvas->image());
+    scanner->set_depth_image(depth_canvas->image());
   }
 
   void reconstructme::create_scanner() {
@@ -194,7 +198,7 @@ namespace ReconstructMeGUI {
     scanner = new scan(initializer);
     // scan thread
     scanner_thread = new QThread(this);
-    scanner->moveToThread(scanner_thread);    
+    scanner->moveToThread(scanner_thread);
     scanner_thread->start();
   }
 
