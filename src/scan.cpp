@@ -57,16 +57,16 @@ namespace ReconstructMeGUI {
     _mode = NOT_RUN;
     _i = initializer;
     
-    connect(_i, SIGNAL(sdk_initialized()), SLOT(start()));
+    connect(_i, SIGNAL(sdk_initialized(bool)), SLOT(start(bool)));
     connect(_i, SIGNAL(initializing_sdk()), SLOT(stop()), Qt::BlockingQueuedConnection);
   }
 
   scan::~scan() {
   }
 
-  void scan::start() {
+  void scan::start(bool do_start) {
     // avoid recursion!
-    if (_mode != NOT_RUN) return;
+    if (!do_start || _mode != NOT_RUN) return;
     
     // Get ready
     _mode = PAUSE;

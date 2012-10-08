@@ -90,7 +90,7 @@ namespace ReconstructMeGUI {
   signals:
     void initializing(init_t what);
     void initialized(init_t what, bool success);
-    void sdk_initialized();
+    void sdk_initialized(bool success);
     void initialized_images();
     void initializing_sdk();
     void log_message(reme_log_severity_t sev, const QString &log);

@@ -35,6 +35,8 @@
 
 #include <QtOpenGL/QGLWidget>
 
+#include <QImage>
+
 namespace ReconstructMeGUI {
 
   /** Provides a fast drawing widget, for an QImage */
@@ -55,6 +57,7 @@ namespace ReconstructMeGUI {
 
     private:
       QImage *img;
+      QImage default_img;
   };
 
 }

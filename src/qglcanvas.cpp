@@ -41,13 +41,16 @@
 
 namespace ReconstructMeGUI {
 
-  QGLCanvas::QGLCanvas(QWidget* parent) : QGLWidget(parent) {
-    img = new QImage(":/images/no_image_available.png");
+  
+  QGLCanvas::QGLCanvas(QWidget* parent) : QGLWidget(parent), default_img(":/images/no_image_available.png") {
+    img = &default_img;
   }
 
   void QGLCanvas::set_image_size(QSize* size) {
     if (size != 0)
       img = new QImage(*size, QImage::Format_RGB888);
+    else 
+      img = &default_img;
   }
 
   QImage* QGLCanvas::image() {
@@ -56,8 +59,7 @@ namespace ReconstructMeGUI {
 
   void QGLCanvas::paintEvent(QPaintEvent* ev) {
     QMutexLocker lock(&image_mutex);
-    if (img == 0) return;
-
+    
     QPainter p(this);
     //Set the painter to use a smooth scaling algorithm.
     p.setRenderHint(QPainter::SmoothPixmapTransform, 1);

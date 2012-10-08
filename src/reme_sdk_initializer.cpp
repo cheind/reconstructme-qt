@@ -100,9 +100,8 @@ namespace ReconstructMeGUI {
     success = open_sensor();
     emit initialized(SENSOR, success);
     
-    if (_has_compiled_context && _has_sensor && _has_volume) {
-      emit sdk_initialized();
-    }
+    success = _has_compiled_context && _has_sensor && _has_volume;
+    emit sdk_initialized(success);
   }
 
   void _init(reme_sdk_initializer *initializer) {

@@ -150,7 +150,7 @@ namespace ReconstructMeGUI {
     init_status_dialog->connect(init_status_dialog->closeBtn(), SIGNAL(clicked()), SLOT(hide()));
     init_status_dialog->connect(initializer, SIGNAL(initializing_sdk()), SLOT(show()));
     init_status_dialog->closeBtn()->connect(initializer, SIGNAL(initializing_sdk()), SLOT(hide()));
-    init_status_dialog->closeBtn()->connect(initializer, SIGNAL(sdk_initialized()), SLOT(show()));
+    init_status_dialog->closeBtn()->connect(initializer, SIGNAL(sdk_initialized(bool)), SLOT(show()));
 
     initializer->connect(dialog_settings, SIGNAL(initialize()), SLOT(initialize()));
     

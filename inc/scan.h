@@ -65,7 +65,7 @@ namespace ReconstructMeGUI {
 
   public slots:
     /** Main loop. Retrieve Images, update volume */
-    void start();
+    void start(bool);
     /** Exit run(bool) */
     void stop();
     /** Toggles current mode */
