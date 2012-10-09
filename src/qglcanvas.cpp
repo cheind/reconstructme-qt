@@ -51,6 +51,7 @@ namespace ReconstructMeGUI {
       img = new QImage(*size, QImage::Format_RGB888);
     else 
       img = &default_img;
+    update();
   }
 
   QImage* QGLCanvas::image() {
