@@ -72,9 +72,6 @@ namespace ReconstructMeGUI {
     // Get ready
     _mode = PAUSE;
     bool success = true;
-    bool aux_success;
-    bool depth_success;
-    bool volume_success;
     bool lost_track_prev;
     const void *image_bytes;
 
@@ -90,16 +87,17 @@ namespace ReconstructMeGUI {
 
       // Prepare image and depth data
       success = success && REME_SUCCESS(reme_sensor_grab(_i->context(), _i->sensor()));
+      //reme_sensor_s
       success = success && REME_SUCCESS(reme_sensor_prepare_images(_i->context(), _i->sensor()));
 
-      aux_success = success && REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_AUX, &image_bytes));
-      if (aux_success) {
+      
+      if (_i->rgb_size() != 0 && success && REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_AUX, &image_bytes))) {
         QMutexLocker lock(&image_mutex);
         memcpy((void*)_rgb_image->bits(), image_bytes, _rgb_image->byteCount());
         emit new_rgb_image_bits();
       }
-      depth_success = success && REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_DEPTH, &image_bytes));
-      if (depth_success) {
+
+      if (_i->depth_size() != 0 && success && REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_DEPTH, &image_bytes))) {
         QMutexLocker lock(&image_mutex);
         memcpy((void*)_depth_image->bits(), image_bytes, _depth_image->byteCount());
         emit new_depth_image_bits();
@@ -110,21 +108,19 @@ namespace ReconstructMeGUI {
         continue;
       }
 
-      volume_success = success && REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME, &image_bytes));
-      if (volume_success) {
+      if (_i->depth_size() != 0 && success && REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME, &image_bytes))) {
         QMutexLocker lock(&image_mutex);
         memcpy((void*)_phong_image->bits(), image_bytes, _phong_image->byteCount());
         emit new_phong_image_bits();
       }
       
-
       reme_error_t track_error = reme_sensor_track_position(_i->context(), _i->sensor());
       if (REME_SUCCESS(track_error)) {
         // Track camera success (engine step)
         if (lost_track_prev) {
           // track found
           lost_track_prev = false;
-          // camera_track_found_tag
+          emit status_bar_msg(camera_track_found_tag, STATUS_MSG_DURATION);
         }
         // Update volume with depth data from the current sensor perspective
         success = success && REME_SUCCESS(reme_sensor_update_volume(_i->context(), _i->sensor()));
@@ -132,18 +128,18 @@ namespace ReconstructMeGUI {
       else if (track_error == REME_ERROR_INVALID_LICENSE) {
         // lost track
         if (!lost_track_prev) {
-          // camera_track_lost_license_tag
+          emit status_bar_msg(camera_track_lost_license_tag);
         }
         lost_track_prev = true;
       }
       else if (!lost_track_prev) {
         // track lost
         lost_track_prev = true;
-        // camera_track_lost_tag
+        emit status_bar_msg(camera_track_lost_tag);
       }
       
       if (!success) {
-        //something_went_wrong_tag
+        emit status_bar_msg(something_went_wrong_tag, STATUS_MSG_DURATION);
       }
       
       QCoreApplication::instance()->processEvents(); // this has to be the last command in run

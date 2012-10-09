@@ -81,7 +81,7 @@ namespace ReconstructMeGUI {
 
   private slots:
     /** Write a message to the status bar */
-    void write_to_status_bar(const QString &msg, const int msecs = 0);
+    void status_bar_msg(const QString &msg, const int msecs = 0);
 
     /** Set image references from scanner */
     void set_image_references();

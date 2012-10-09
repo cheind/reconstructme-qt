@@ -80,6 +80,9 @@ namespace ReconstructMeGUI {
     /** Emit log information */
     void log_message(reme_log_severity_t sev, const QString &msg);
 
+    /** Provide status information */
+    void status_bar_msg(const QString &msg, const int msecs = 0);
+
     /** Is emitted, when a new RGB image is available */
     void new_rgb_image_bits();
     /** Is emitted, when a new Phong image is available */

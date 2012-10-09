@@ -126,7 +126,7 @@ namespace ReconstructMeGUI {
     connect(ui->actionLog, SIGNAL(toggled(bool)), SLOT(action_log_toggled(bool)));
     ui->actionLog->connect(log_dialog, SIGNAL(close_clicked()), SLOT(toggle()));
     
-    // button handler
+    // interaction with scanner
     qRegisterMetaType<init_t>( "mode_t" );
     scanner->connect(ui->play_button, SIGNAL(clicked()), SLOT(toggle_play_pause()));
     connect(scanner, SIGNAL(mode_changed(mode_t)), SLOT(apply_mode(mode_t)));
@@ -135,6 +135,8 @@ namespace ReconstructMeGUI {
     scanner->connect(this, SIGNAL(save_mesh_to_file(const QString &)), SLOT(save(const QString &)));
     connect(ui->save_button, SIGNAL(clicked()), SLOT(save_button_clicked()));
     connect(ui->actionSave, SIGNAL(triggered()), SLOT(save_button_clicked()));
+    connect(scanner, SIGNAL(status_bar_msg(const QString&, const int)), SLOT(status_bar_msg(const QString &, const int)));
+
 
     // views update
     connect(initializer, SIGNAL(initialized_images()), SLOT(set_image_references()), Qt::BlockingQueuedConnection);
@@ -334,7 +336,7 @@ namespace ReconstructMeGUI {
     ui->reconstruct_satus_bar->showMessage(msg, STATUSBAR_TIME);
   }
 
-  void reconstructme::write_to_status_bar(const QString &msg, const int msecs) {
+  void reconstructme::status_bar_msg(const QString &msg, const int msecs) {
     statusBar()->showMessage(msg, msecs);
   }
 }
