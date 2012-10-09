@@ -148,9 +148,14 @@ namespace ReconstructMeGUI {
     init_status_dialog->connect(initializer, SIGNAL(initialized(init_t, bool)), SLOT(initialized(init_t, bool)), Qt::BlockingQueuedConnection);
 
     init_status_dialog->connect(init_status_dialog->closeBtn(), SIGNAL(clicked()), SLOT(hide()));
+    init_status_dialog->connect(init_status_dialog->logBtn(), SIGNAL(clicked()), SLOT(hide()));
+    log_dialog->connect(init_status_dialog->logBtn(), SIGNAL(clicked()), SLOT(show()));
+    init_status_dialog->connect(initializer, SIGNAL(initializing_sdk()), SLOT(reset()));
     init_status_dialog->connect(initializer, SIGNAL(initializing_sdk()), SLOT(show()));
     init_status_dialog->closeBtn()->connect(initializer, SIGNAL(initializing_sdk()), SLOT(hide()));
     init_status_dialog->closeBtn()->connect(initializer, SIGNAL(sdk_initialized(bool)), SLOT(show()));
+    init_status_dialog->logBtn()->connect(initializer, SIGNAL(initializing_sdk()), SLOT(hide()));
+    init_status_dialog->logBtn()->connect(initializer, SIGNAL(sdk_initialized(bool)), SLOT(show()));
 
     initializer->connect(dialog_settings, SIGNAL(initialize()), SLOT(initialize()));
     

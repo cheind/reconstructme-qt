@@ -43,6 +43,7 @@
 // Forward declarations
 class QStandardItemModel;
 class QStandardItem;
+class QPushButton;
 namespace Ui {
   class status_dialog;
 }
@@ -59,8 +60,10 @@ namespace ReconstructMeGUI {
     ~status_dialog();
     
     QPushButton *closeBtn();
+    QPushButton *logBtn();
 
   public slots:
+    void reset();
     void initializing(init_t what);
     void initialized(init_t what, bool success);
 

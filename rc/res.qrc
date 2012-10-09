@@ -53,6 +53,7 @@
 		<file>images/status_ok.png</file>
 		<file>images/status_refresh.png</file>
 		<file>images/status_error.png</file>
+		<file>images/status_unknown.png</file>
 		<file>images/no_image_available.png</file>
     </qresource>
     <qresource prefix="/styles">

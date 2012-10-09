@@ -36,7 +36,7 @@
 
 #include <QStandardItemModel>
 #include <QStandardItem>
-#include <QTimer> 
+#include <QPushButton>
 
 namespace ReconstructMeGUI {
 
@@ -61,6 +61,7 @@ namespace ReconstructMeGUI {
     setModal(true);
 
     create_content();
+    reset();
   }
 
 
@@ -68,8 +69,8 @@ namespace ReconstructMeGUI {
     QList< QStandardItem *> sensor_items;
     
     _sen_obj_item = new QStandardItem("Sensor");
-    _sen_status_item = new QStandardItem(style()->standardIcon(QStyle::SP_MessageBoxQuestion),"");
-    _sen_message_item = new QStandardItem("");
+    _sen_status_item = new QStandardItem();
+    _sen_message_item = new QStandardItem();
 
     _sen_obj_item->setEditable(false);
     _sen_status_item->setEditable(false);
@@ -83,8 +84,8 @@ namespace ReconstructMeGUI {
     QList< QStandardItem *> device_items;
     
     _dev_obj_item = new QStandardItem("Device");
-    _dev_status_item = new QStandardItem(style()->standardIcon(QStyle::SP_DialogOkButton), QString());
-    _dev_message_item = new QStandardItem("");
+    _dev_status_item = new QStandardItem();
+    _dev_message_item = new QStandardItem();
 
     _dev_obj_item->setEditable(false);
     _dev_status_item->setEditable(false);
@@ -98,8 +99,8 @@ namespace ReconstructMeGUI {
     QList< QStandardItem *> license_items;
     
     _lic_obj_item = new QStandardItem("License");
-    _lic_status_item = new QStandardItem(style()->standardIcon(QStyle::SP_MessageBoxWarning),"");
-    _lic_message_item = new QStandardItem("");
+    _lic_status_item = new QStandardItem();
+    _lic_message_item = new QStandardItem();
 
     _lic_obj_item->setEditable(false);
     _lic_status_item->setEditable(false);
@@ -117,6 +118,18 @@ namespace ReconstructMeGUI {
 
   status_dialog::~status_dialog() {
     delete ui;
+  }
+
+  void status_dialog::reset() {
+    QIcon icon(":/images/status_unknown.png");
+    QString message("Waiting for initialization...");
+
+    _dev_status_item->setIcon(icon);
+    _dev_message_item->setText(message);
+    _sen_status_item->setIcon(icon);
+    _sen_message_item->setText(message);
+    _lic_status_item->setIcon(icon);
+    _lic_message_item->setText(message);
   }
 
   void status_dialog::initializing(init_t what) {
@@ -175,5 +188,9 @@ namespace ReconstructMeGUI {
 
   QPushButton *status_dialog::closeBtn() {
     return ui->closeBtn;
+  }
+
+  QPushButton *status_dialog::logBtn() {
+    return ui->logBtn;
   }
 }
