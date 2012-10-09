@@ -85,7 +85,7 @@ namespace ReconstructMeGUI {
   
   private:
     /** Private helper function for easy file_dialog interaction */
-    QString get_file_from_dialog(QString &current_path);
+    QString get_file_from_dialog(QString &current_path, QString &filter);
 
     // Members
     Ui::settings_dialog *ui;

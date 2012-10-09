@@ -198,32 +198,32 @@ namespace ReconstructMeGUI {
     ui->ocl_device_auto_cb->setChecked(true);
   }
 
-  QString settings_dialog::get_file_from_dialog(QString &current_path) {
+  QString settings_dialog::get_file_from_dialog(QString &current_path, QString &filter) {
 
     QFileInfo fi(current_path);
     QString file_name = QFileDialog::getOpenFileName(this, tr("Open File"),
                                                      fi.absolutePath(),
-                                                     tr("Text files (*.txt);; All files (*.*)"));
+                                                     filter);
 
     return file_name;
   }
 
   void settings_dialog::browse_config_button_clicked() {
-    QString selected_file = get_file_from_dialog(cfg_path);
+    QString selected_file = get_file_from_dialog(cfg_path, QString("Configruation files (*.txt);; All files (*.*)"));
     if (selected_file == "") return;
 
     ui->config_path_tb->setText(selected_file); 
   }
 
   void settings_dialog::browse_sensor_button_clicked() {
-    QString selected_file = get_file_from_dialog(sens_path);
+    QString selected_file = get_file_from_dialog(sens_path, QString("Sensor files (*.txt);; All files (*.*)"));
     if (selected_file == "") return;
 
     ui->sensor_path_tb->setText(selected_file);
   }
 
   void settings_dialog::browse_license_file_clicked() {
-    QString selected_file = get_file_from_dialog(sens_path);
+    QString selected_file = get_file_from_dialog(license_file, QString("License files (*.txtsgn);; All files (*.*)"));
     if (selected_file == "") return;
 
     ui->license_file_tb->setText(selected_file);
