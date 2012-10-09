@@ -39,7 +39,6 @@
 #include <reconstructmesdk\reme.h>
 
 // Forward declarations
-class QFileDialog;
 namespace Ui {
   class hardware_key_dialog;
 }
@@ -63,8 +62,6 @@ namespace ReconstructMeGUI {
 
   private:
     Ui::hardware_key_dialog *ui;
-    
-    QFileDialog *file_dialog;
   };
 
 } 

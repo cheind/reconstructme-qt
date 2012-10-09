@@ -73,14 +73,6 @@ namespace ReconstructMeGUI {
     
     ui->hw_key_te->append(QString(ss.str().c_str()));
 
-    // file dialog
-    file_dialog = new QFileDialog(this);
-
-    file_dialog->setAcceptMode(QFileDialog::AcceptSave);
-    file_dialog->setFileMode(QFileDialog::AnyFile);
-    file_dialog->setDirectory(QDir::currentPath());
-    file_dialog->setFilter("*txt");
-    file_dialog->setNameFilter(".txt");
 
     // connections
     connect(ui->cp_clipboard_btn, SIGNAL(clicked()), SLOT(copy_keys_to_clipboard()));
@@ -88,19 +80,12 @@ namespace ReconstructMeGUI {
   }
 
   void hardware_key_dialog::save_keys() {
-    QStringList selected_files;
-    if(file_dialog->exec()) {
-      selected_files = file_dialog->selectedFiles();
-    }
-
-    if (selected_files.empty()) {
+    QString file_name = QFileDialog::getSaveFileName(this, tr("Save hardware keys"),
+                                                 QDir::currentPath(),
+                                                 tr("Text File (*.txt)"),
+                                                 0);
+    if (file_name.isEmpty())
       return;
-    }
-
-    QString file_name = selected_files[0];
-    if(!file_name.endsWith(file_dialog->selectedFilter())){
-      file_name += file_dialog->selectedFilter();
-    }
 
     std::ofstream myfile;
     myfile.open(file_name.toStdString());
