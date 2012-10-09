@@ -146,7 +146,7 @@ Austria
          <item>
           <widget class="QLabel" name="label_4">
            <property name="text">
-            <string>&lt;a href ='http://reconstructme.net' style='color:#d0d0d0'&gt;http://reconstructme.net&lt;/a&gt;</string>
+            <string>&lt;a href ='http://reconstructme.net' style='color:#d0d0d0'&gt;http://reconstructme.net/projects/reconstructmeqt&lt;/a&gt;</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

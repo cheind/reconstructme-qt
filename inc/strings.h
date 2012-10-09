@@ -80,7 +80,7 @@ namespace ReconstructMeGUI {
   const char* const url_device_matrix_tag = "https://docs.google.com/spreadsheet/ccc?key=0AjYhEvwkxrJOdHBGaTMyWVVBNVFjRHFzbU5RQU81TWc#gid=0" ;
   const char* const url_usage_tag = "http://reconstructme.net/usage/";
   const char* const url_faq_tag = "http://reconstructme.net/faq/";
-  const char* const url_forum_tag = "https://groups.google.com/forum/?fromgroups=#!forum/reconstructmesdk";
+  const char* const url_forum_tag = "https://groups.google.com/forum/?fromgroups=#!forum/reconstructme";
   const char* const url_sdk_doku_tag = "http://reconstructme.net/wp-content/uploads/ReconstructMe/1.0/doc/html/index.html";
-  const char* const url_reconstructme_qt = "http://code.google.com/p/reconstructme-qt/";
+  const char* const url_reconstructme_qt = "http://reconstructme.net/projects/reconstructmeqt/";
 }
