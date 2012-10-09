@@ -156,10 +156,10 @@ namespace ReconstructMeGUI {
   }
 
   bool reme_sdk_initializer::apply_license() {
-    bool success = false;
+    bool success;
 
     reme_license_t l;
-    reme_license_create(_c, &l);
+    success = REME_SUCCESS(reme_license_create(_c, &l));
     
     // Set licence
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);

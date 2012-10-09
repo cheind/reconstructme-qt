@@ -121,7 +121,7 @@ namespace ReconstructMeGUI {
   }
 
   void status_dialog::reset() {
-    QIcon icon(":/images/status_unknown.png");
+    QIcon icon("");
     QString message("Waiting for initialization...");
 
     _dev_status_item->setIcon(icon);

@@ -34,8 +34,13 @@
 #include "logging_dialog.h"
 #include "ui_logging_dialog.h"
 
+#include "log.pb.h"
+
 #include <QDateTime>
 #include <QFile>
+#include <QFileDialog>
+
+#include <fstream>
 
 namespace ReconstructMeGUI {
 
@@ -118,6 +123,37 @@ namespace ReconstructMeGUI {
   }
   
   void logging_dialog::save_log() {
-    // Not implemented yet
+    QString file_name = QFileDialog::getSaveFileName(this, tr("Save log"),
+                                                 QDir::currentPath(),
+                                                 tr("Text File (*.log)"),
+                                                 0);
+    if (file_name.isEmpty())
+      return;
+
+    logging_info log;
+    logging_info_log_entry *log_entry;
+    
+    for(int row = 0; row < _log_model->rowCount(); row++) {
+      log_entry = log.add_logs();
+
+      logging_info::severity sev;
+
+      QString txt = _log_model->item(row, 0)->text();
+      if (txt == "Info")
+        sev = logging_info::INFO;
+      else if (txt == "Warning")
+        sev = logging_info::WARNING;
+      else 
+        sev = logging_info::ERROR;
+
+      log_entry->set_sev(sev);
+      log_entry->set_date(_log_model->item(row, 1)->text().toStdString());
+      log_entry->set_log(_log_model->item(row, 2)->text().toStdString());
+    }
+
+    std::ofstream ost;
+    ost.open(file_name.toStdString());
+    ost << log.SerializePartialAsString();
+    ost.close();
   }
 }

@@ -43,7 +43,7 @@ QT4_WRAP_UI(QT_UI_GENERATED ${QT_UI})
 QT4_ADD_RESOURCES(QT_RC_GENERATED ${QT_RC})
 QT4_AUTOMOC(${SOURCES})
 
-PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS proto/opencl_info.proto proto/hardware.proto)
+PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS proto/opencl_info.proto proto/hardware.proto proto/log.proto)
 
 SOURCE_GROUP("generated files" FILES ${QT_HEADERS_GENERATED})
 SOURCE_GROUP("generated files" FILES ${QT_SOURCES_GENERATED})
@@ -51,6 +51,9 @@ SOURCE_GROUP("generated files" FILES ${QT_RC_GENERATED})
 SOURCE_GROUP("generated files" FILES ${QT_UI_GENERATED})
 SOURCE_GROUP("generated files" FILES ${WIN_RC_GENERATED})
 SOURCE_GROUP("generated files" FILES ${CMAKE_CURRENT_BINARY_DIR}/defines.h)
+SOURCE_GROUP("generated files" FILES ${PROTO_SRCS})
+SOURCE_GROUP("generated files" FILES ${PROTO_HDRS})
+
 
 INCLUDE(${QT_USE_FILE})
 INCLUDE_DIRECTORIES(

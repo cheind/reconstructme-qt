@@ -223,7 +223,7 @@ namespace ReconstructMeGUI {
   }
 
   void settings_dialog::browse_license_file_clicked() {
-    QString selected_file = get_file_from_dialog(license_file, QString("License files (*.txtsgn);; All files (*.*)"));
+    QString selected_file = get_file_from_dialog(license_file, QString("License files (*.txt.sgn);; All files (*.*)"));
     if (selected_file == "") return;
 
     ui->license_file_tb->setText(selected_file);

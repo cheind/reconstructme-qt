@@ -69,10 +69,9 @@ namespace ReconstructMeGUI {
     ::google::protobuf::RepeatedPtrField< ::std::string>::const_iterator it;
 
     for (it = hardware.hashes().begin(); it < hardware.hashes().end(); it++) 
-      ss << *it << "\n";
+      ss << "hashes: \"" << *it << "\"\n";
     
     ui->hw_key_te->append(QString(ss.str().c_str()));
-
 
     // connections
     connect(ui->cp_clipboard_btn, SIGNAL(clicked()), SLOT(copy_keys_to_clipboard()));
@@ -91,8 +90,6 @@ namespace ReconstructMeGUI {
     myfile.open(file_name.toStdString());
     myfile << ui->hw_key_te->toPlainText().toStdString();
     myfile.close();
-
-    QMessageBox::information(this, "Save", "Saved hardware keys to " + file_name, QMessageBox::Ok);
   }
 
   void hardware_key_dialog::copy_keys_to_clipboard() {
