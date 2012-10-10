@@ -24,6 +24,7 @@
     <MajorUpgrade DowngradeErrorMessage='A later version of [ProductName] is already installed. Setup will now exit' />
 
     <Directory Id='TARGETDIR' Name='SourceDir'>
+      <Directory Id="DesktopFolder" Name="Desktop"/>
       <Directory Id='ProgramFilesFolder' Name='PFiles'>
         <Directory Id='INSTALLDIR' Name='ReconstructMeQt'>
         </Directory>
@@ -34,8 +35,9 @@
 
       <Feature Id='MainProgram' Title='ReconstructMe Qt' Description='ReconstructMe Qt fronted.' Level='1'>
         <ComponentGroupRef Id='ReconstructMeSDKRuntimeFiles' />
+        <ComponentGroupRef Id='ReconstructMeSDKConfigFiles' />
         <ComponentGroupRef Id='QtRuntimeFiles' />
-        <ComponentGroupRef Id='ReconstructMeQtRuntimeFiles' />
+        <ComponentGroupRef Id='ReconstructMeQtRuntimeFiles' />        
       </Feature>
 
       <Feature Id='AsusXtionDriver' Title='Driver For ASUS Xtion' Description='Driver For ASUS Xtion' Level='1000'>

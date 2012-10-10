@@ -45,24 +45,38 @@ include(${ROBVIS_CMAKE_DIRECTORY}/functions/util_creators.cmake)
 robvis_create_wix_installer(ReconstructMeQtInstaller)
 add_dependencies(ReconstructMeQtInstaller ReconstructMeQt)
 
+set(REME_SDK_ROOT "${RECONSTRUCTMESDK_BIN}/../")	
+
 # Collect necessary ReconstructMe SDK binaries
 set(HEAT_OPTS -dr INSTALLDIR 
 			  -cg ReconstructMeSDKRuntimeFiles 
 			  -var var.SDKRuntimeFilesDirectory
 			  -gg -scom -sreg -sfrag -srd)
-			  
-set(REME_SDK_ROOT "${RECONSTRUCTMESDK_BIN}/../")			  
 	
 robvis_wix_installer_heat_directory(
 	ReconstructMeQtInstaller 
 	"${REME_SDK_ROOT}/bin"
 	CANDLE_SOURCES
 	HEAT_OPTS)
+	
+	
+	
+# Collect configurations that are shipped with the SDK
+set(HEAT_OPTS -dr INSTALLDIR 
+			  -cg ReconstructMeSDKConfigFiles 
+			  -var var.SDKConfigFilesDirectory
+			  -gg -scom -sreg -sfrag)
+	
+robvis_wix_installer_heat_directory(
+	ReconstructMeQtInstaller 
+	"${REME_SDK_ROOT}/cfg"
+	CANDLE_SOURCES
+	HEAT_OPTS)
 
 # Compile relevant files	
-set(CANDLE_OPTS -dSDKRuntimeFilesDirectory="${REME_SDK_ROOT}/bin")
+set(CANDLE_OPTS -dSDKRuntimeFilesDirectory="${REME_SDK_ROOT}/bin" -dSDKConfigFilesDirectory="${REME_SDK_ROOT}/cfg")
 GET_TARGET_PROPERTY(RECONSTRUCTMEQT_EXE ReconstructMeQt RELEASE_LOCATION)
-set(CANDLE_SOURCES ${CANDLE_SOURCES} Main.wxs QtRuntimes.wxs ReconstructMeQtRuntimes.wxs RegistryEntriesDrivers.wxs)
+list(APPEND CANDLE_SOURCES Main.wxs QtRuntimes.wxs ReconstructMeQtRuntimes.wxs RegistryEntriesDrivers.wxs)
 
 robvis_wix_installer_compile(
 	ReconstructMeQtInstaller
@@ -72,7 +86,7 @@ robvis_wix_installer_compile(
 	
 # Generate final .msi
 set(LIGHT_OPTS -ext WixUIExtension)
-set(RECONSTRUCTMEQTINSTALLER_OUTPUT_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/ReconstructMeQt-${RECONSTRUCTMEQT_VERSION_MAJOR}.${RECONSTRUCTMEQT_VERSION_MINOR}.${RECONSTRUCTMEQT_VERSION_BUILD}.msi")
+set(RECONSTRUCTMEQTINSTALLER_OUTPUT_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/ReconstructMeQt Setup-${RECONSTRUCTMEQT_VERSION_MAJOR}.${RECONSTRUCTMEQT_VERSION_MINOR}.${RECONSTRUCTMEQT_VERSION_BUILD}.msi")
 robvis_wix_installer_link(
 	ReconstructMeQtInstaller
 	CANDLE_OBJS
@@ -97,7 +111,7 @@ robvis_wix_installer_compile(
 
 set(LIGHT_OPTS)
 list(APPEND LIGHT_OPTS -ext WixBalExtension)
-set(RECONSTRUCTMEQTBOOTSTRAPPER_OUTPUT_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/ReconstructMeQt-${RECONSTRUCTMEQT_VERSION_MAJOR}.${RECONSTRUCTMEQT_VERSION_MINOR}.${RECONSTRUCTMEQT_VERSION_BUILD}.exe")
+set(RECONSTRUCTMEQTBOOTSTRAPPER_OUTPUT_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/ReconstructMeQt Setup-${RECONSTRUCTMEQT_VERSION_MAJOR}.${RECONSTRUCTMEQT_VERSION_MINOR}.${RECONSTRUCTMEQT_VERSION_BUILD}.exe")
 robvis_wix_installer_link(
 	ReconstructMeQtBootstrapper
 	CANDLE_OBJS
