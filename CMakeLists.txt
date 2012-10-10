@@ -12,7 +12,7 @@ SET(RECONSTRUCTMEQT_ENABLE_CONSOLE OFF CACHE BOOL "When enabled shows a console 
 FIND_PACKAGE(Qt4 COMPONENTS QtCore QtGUI QtOpenGL QUIET)
 
 # Find ReconstructMe SDK
-FIND_PACKAGE(ReconstructMeSDK 1.0)
+FIND_PACKAGE(ReconstructMeSDK)
 
 # include protobuf and set paths manually
 INCLUDE(FindProtobuf QUIET)
