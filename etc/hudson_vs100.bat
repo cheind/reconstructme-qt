@@ -18,11 +18,12 @@ cmake.exe -G "Visual Studio 10" ^
 -DRECONSTRUCTMEQT_VERSION_MAJOR=%GUI_VERSION_MAJOR% ^
 -DRECONSTRUCTMEQT_VERSION_MINOR=%GUI_VERSION_MINOR% ^
 -DRECONSTRUCTMEQT_VERSION_BUILD=%GUI_VERSION_BUILD% ^
+-DROBVIS_CMAKE_DIRECTORY=%WS%/source_cmake/
 %WS%\source\
 
 cd %WS%
 
-"%VS100COMNTOOLS%\..\IDE\devenv.com" "build/reconstructme-qt.sln" /out build.log /build "Release" /project ReconstructMeQt
+"%VS100COMNTOOLS%\..\IDE\devenv.com" "build/reconstructme-qt.sln" /out build.log /build "Release" /project ReconstructMeQtBootstrapper
 if %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 :ERROR

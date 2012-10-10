@@ -81,7 +81,7 @@ robvis_wix_installer_link(
 	
 # Bootstrapper Installer bundled with current drivers.
 robvis_create_wix_installer(ReconstructMeQtBoostrapper)
-#add_dependencies(ReconstructMeQtBoostrapper ReconstructMeQtInstaller)
+add_dependencies(ReconstructMeQtBoostrapper ReconstructMeQtInstaller)
 
 set(CANDLE_SOURCES)
 set(CANDLE_OBJS)
