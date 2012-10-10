@@ -80,8 +80,8 @@ robvis_wix_installer_link(
 	LIGHT_OPTS)
 	
 # Bootstrapper Installer bundled with current drivers.
-robvis_create_wix_installer(ReconstructMeQtBoostrapper)
-add_dependencies(ReconstructMeQtBoostrapper ReconstructMeQtInstaller)
+robvis_create_wix_installer(ReconstructMeQtBootstrapper)
+add_dependencies(ReconstructMeQtBootstrapper ReconstructMeQtInstaller)
 
 set(CANDLE_SOURCES)
 set(CANDLE_OBJS)
@@ -90,7 +90,7 @@ set(CANDLE_OPTS)
 list(APPEND CANDLE_SOURCES Bootstrapper.wxs)
 list(APPEND CANDLE_OPTS -ext WixBalExtension)
 robvis_wix_installer_compile(
-	ReconstructMeQtBoostrapper
+	ReconstructMeQtBootstrapper
 	CANDLE_SOURCES
 	CANDLE_OBJS
 	CANDLE_OPTS)
@@ -99,7 +99,7 @@ set(LIGHT_OPTS)
 list(APPEND LIGHT_OPTS -ext WixBalExtension)
 set(RECONSTRUCTMEQTBOOTSTRAPPER_OUTPUT_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/ReconstructMeQt-${RECONSTRUCTMEQT_VERSION_MAJOR}.${RECONSTRUCTMEQT_VERSION_MINOR}.${RECONSTRUCTMEQT_VERSION_BUILD}.exe")
 robvis_wix_installer_link(
-	ReconstructMeQtBoostrapper
+	ReconstructMeQtBootstrapper
 	CANDLE_OBJS
 	${RECONSTRUCTMEQTBOOTSTRAPPER_OUTPUT_LOCATION}	
 	LIGHT_OPTS)
