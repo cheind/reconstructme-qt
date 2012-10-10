@@ -48,8 +48,8 @@ macro(get_env_path var name)
 endmacro(get_env_path var name)
 
 # Create installer target
-robvis_create_wix_installer(WiXInstaller)
-add_dependencies(WiXInstaller ReconstructMeQt)
+robvis_create_wix_installer(ReconstructMeQtInstaller)
+add_dependencies(ReconstructMeQtInstaller ReconstructMeQt)
 
 # Collect necessary ReconstructMe SDK binaries
 set(HEAT_OPTS -dr INSTALLDIR 
@@ -60,7 +60,7 @@ set(HEAT_OPTS -dr INSTALLDIR
 get_env_path(REME_ROOT_FIXED REME_ROOT_DIRECTORY)			  
 	
 robvis_wix_installer_heat_directory(
-	WiXInstaller 
+	ReconstructMeQtInstaller 
 	"${REME_ROOT_FIXED}/bin"
 	CANDLE_SOURCES
 	HEAT_OPTS)
@@ -71,7 +71,7 @@ GET_TARGET_PROPERTY(RECONSTRUCTMEQT_EXE ReconstructMeQt RELEASE_LOCATION)
 set(CANDLE_SOURCES ${CANDLE_SOURCES} Main.wxs QtRuntimes.wxs ReconstructMeQtRuntimes.wxs)
 
 robvis_wix_installer_compile(
-	WiXInstaller
+	ReconstructMeQtInstaller
 	CANDLE_SOURCES
 	CANDLE_OBJS
 	CANDLE_OPTS)
@@ -79,7 +79,7 @@ robvis_wix_installer_compile(
 # Generate final .msi
 set(LIGHT_OPTS -ext WixUIExtension)
 robvis_wix_installer_link(
-	WiXInstaller
+	ReconstructMeQtInstaller
 	CANDLE_OBJS
 	"${CMAKE_CURRENT_BINARY_DIR}/ReconstructMeQt-${RECONSTRUCTMEQT_VERSION_MAJOR}.${RECONSTRUCTMEQT_VERSION_MINOR}.${RECONSTRUCTMEQT_VERSION_BUILD}.msi"
 	LIGHT_OPTS)
