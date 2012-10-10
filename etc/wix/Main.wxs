@@ -17,7 +17,7 @@
 
     <Package Id='*' Keywords='Installer' Description="ReconstructMe Qt Installer - $(var.ProductVersion)"
 		  Comments='Add your comments here' Manufacturer='$(var.ManufacturerName)'
-		  InstallerVersion='100' Languages='1033' Compressed='yes' />
+		  InstallerVersion='300' Languages='1033' Compressed='yes' />
 
     <Media Id='1' Cabinet='ReconstructMeQt.cab' EmbedCab='yes'/>
 
@@ -27,9 +27,12 @@
       <Directory Id="DesktopFolder" Name="Desktop"/>
       <Directory Id='ProgramFilesFolder' Name='PFiles'>
         <Directory Id='INSTALLDIR' Name='ReconstructMeQt'>
+          <Merge Id="VCRedist" SourceFile="@PROJECT_SOURCE_DIR@/etc/wix/Microsoft_VC100_CRT_x86.msm" DiskId="1" Language="0"/>
         </Directory>
       </Directory>
     </Directory>
+    
+    
 
     <Feature Id='Complete' Title='ReconstructMe 1.0' Description='ReconstructMe Complete' Display='expand' Level='1' ConfigurableDirectory='INSTALLDIR'>
 
@@ -37,7 +40,8 @@
         <ComponentGroupRef Id='ReconstructMeSDKRuntimeFiles' />
         <ComponentGroupRef Id='ReconstructMeSDKConfigFiles' />
         <ComponentGroupRef Id='QtRuntimeFiles' />
-        <ComponentGroupRef Id='ReconstructMeQtRuntimeFiles' />        
+        <ComponentGroupRef Id='ReconstructMeQtRuntimeFiles' />
+        <MergeRef Id="VCRedist"/>
       </Feature>
 
       <Feature Id='AsusXtionDriver' Title='Driver For ASUS Xtion' Description='Driver For ASUS Xtion' Level='1000'>
