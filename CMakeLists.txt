@@ -15,7 +15,7 @@ FIND_PACKAGE(Qt4 COMPONENTS QtCore QtGUI QtOpenGL QUIET)
 FIND_PACKAGE(ReconstructMeSDK 1.0)
 
 # include protobuf and set paths manually
-INCLUDE(FindProtobuf)
+INCLUDE(FindProtobuf QUIET)
 MESSAGE(STATUS "Overriding Protobuf Finder")
 SET(PROTOBUF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rd_party/protobuf-2.4.1/src" CACHE PATH "" FORCE)
 SET(PROTOBUF_LITE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/3rd_party/protobuf-2.4.1/bin/libprotobuf-lite.lib" CACHE FILEPATH "" FORCE)
