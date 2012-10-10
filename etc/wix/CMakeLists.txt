@@ -41,12 +41,6 @@ if (NOT IS_DIRECTORY ${ROBVIS_CMAKE_DIRECTORY})
 endif ()
 include(${ROBVIS_CMAKE_DIRECTORY}/functions/util_creators.cmake)
 
-# Retrieve a path from an environment variable and fix backslash problems
-macro(get_env_path var name)
-   set(${var} $ENV{${name}})
-   string( REGEX REPLACE "\\\\" "/" ${var} ${${var}} )
-endmacro(get_env_path var name)
-
 # Create installer target
 robvis_create_wix_installer(ReconstructMeQtInstaller)
 add_dependencies(ReconstructMeQtInstaller ReconstructMeQt)
@@ -57,16 +51,16 @@ set(HEAT_OPTS -dr INSTALLDIR
 			  -var var.SDKRuntimeFilesDirectory
 			  -gg -scom -sreg -sfrag -srd)
 			  
-get_env_path(REME_ROOT_FIXED REME_ROOT_DIRECTORY)			  
+set(REME_SDK_ROOT "${RECONSTRUCTMESDK_BIN}/../")			  
 	
 robvis_wix_installer_heat_directory(
 	ReconstructMeQtInstaller 
-	"${REME_ROOT_FIXED}/bin"
+	"${REME_SDK_ROOT}/bin"
 	CANDLE_SOURCES
 	HEAT_OPTS)
 
 # Compile relevant files	
-set(CANDLE_OPTS -dSDKRuntimeFilesDirectory="${REME_ROOT_FIXED}/bin")
+set(CANDLE_OPTS -dSDKRuntimeFilesDirectory="${REME_SDK_ROOT}/bin")
 GET_TARGET_PROPERTY(RECONSTRUCTMEQT_EXE ReconstructMeQt RELEASE_LOCATION)
 set(CANDLE_SOURCES ${CANDLE_SOURCES} Main.wxs QtRuntimes.wxs ReconstructMeQtRuntimes.wxs)
 
@@ -78,12 +72,14 @@ robvis_wix_installer_compile(
 	
 # Generate final .msi
 set(LIGHT_OPTS -ext WixUIExtension)
+set(QTINSTALLER_OUTPUT_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/ReconstructMeQt-${RECONSTRUCTMEQT_VERSION_MAJOR}.${RECONSTRUCTMEQT_VERSION_MINOR}.${RECONSTRUCTMEQT_VERSION_BUILD}.msi")
 robvis_wix_installer_link(
 	ReconstructMeQtInstaller
 	CANDLE_OBJS
-	"${CMAKE_CURRENT_BINARY_DIR}/ReconstructMeQt-${RECONSTRUCTMEQT_VERSION_MAJOR}.${RECONSTRUCTMEQT_VERSION_MINOR}.${RECONSTRUCTMEQT_VERSION_BUILD}.msi"
+	${QTINSTALLER_OUTPUT_LOCATION}	
 	LIGHT_OPTS)
 	
+# Bundle with 
 	
 
 
