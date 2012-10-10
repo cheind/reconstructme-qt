@@ -77,6 +77,13 @@ QCheckBox::indicator:checked
     image:url(:/images/checkbox.png);
 }
 
+/** Specific controls */
+
+QLabel#lblStatusDialogHeader 
+{
+    font: bold;
+}
+
 /** -------------------------------
     * Scrollbar
     * ------------------------------ */
