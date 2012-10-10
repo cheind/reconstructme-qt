@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <DirectoryRef Id="INSTALLDIR">
+      
+      <Component Id='AsusXtionDriver' Guid='*'>
+        <RegistryKey Id='AsusDriver'
+          Root='HKCU'
+          Key='SOFTWARE\Profactor\ReconstructMe\AsusDriver'
+          ForceCreateOnInstall='yes'
+          ForceDeleteOnUninstall='yes'>
+          <RegistryValue Type='integer' Name='AsusXtion' Value='1' KeyPath='yes' />
+          <RegistryValue Type='string' Value='AsusXtion'/>
+        </RegistryKey>
+      </Component>
+
+      <Component Id='KinectWindows' Guid='*'>
+        <RegistryKey Id='KinectForWindowsDriver'
+          Root='HKCU'
+          Key='SOFTWARE\Profactor\ReconstructMe\KinectMicrosoftDriver'
+          ForceCreateOnInstall='yes'
+          ForceDeleteOnUninstall='yes'>
+          <RegistryValue Type='integer' Name='MicrosoftKinect' Value='1' KeyPath='yes' />
+          <RegistryValue Type='string' Value='MicrosoftKinect'/>
+        </RegistryKey>
+      </Component>
+
+      <Component Id='KinectXBox' Guid='*'>
+        <RegistryKey Id='KinectForXBoxDriver'
+          Root='HKCU'
+          Key='SOFTWARE\Profactor\ReconstructMe\KinectXBoxDriver'
+          ForceCreateOnInstall='yes'
+          ForceDeleteOnUninstall='yes'>
+          <RegistryValue Type='integer' Name='MicrosoftXBox' Value='1' KeyPath='yes' />
+          <RegistryValue Type='string' Value='MicrosoftXBox'/>
+        </RegistryKey>
+      </Component>
+
+      <Component Id='RemoveAsusXtionDriver' Guid='b493136a-dde3-4da3-8249-35a471d5747c' KeyPath='yes'>
+      <RemoveRegistryKey Id='RemoveAsusDriver'
+        Root='HKCU'
+        Key='SOFTWARE\Profactor\ReconstructMe\AsusDriver'
+        Action='removeOnInstall' />
+      </Component>
+
+      <Component Id='RemoveKinectWindows' Guid='8b30b2da-cb12-4bc6-8537-f3acef199c55' KeyPath='yes'>
+        <RemoveRegistryKey Id='RemoveKinectForWindowsDriver'
+          Root='HKCU'
+          Key='SOFTWARE\Profactor\ReconstructMe\KinectMicrosoftDriver'
+          Action='removeOnInstall' />
+      </Component>
+
+      <Component Id='RemoveKinectXBox' Guid='505b3128-fad2-4b78-80eb-d48e0bbd1c06' KeyPath='yes'>
+        <RemoveRegistryKey Id='KinectForXBoxDriver'
+          Root='HKCU'
+          Key='SOFTWARE\Profactor\ReconstructMe\KinectXBoxDriver'
+          Action='removeOnInstall'/>
+      </Component>
+
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="AsusXtionDriverRegistry">
+      <ComponentRef Id="AsusXtionDriver" />
+      <ComponentRef Id="RemoveAsusXtionDriver" />
+    </ComponentGroup>
+
+    <ComponentGroup Id="KinectWindowsRegistry">
+      <ComponentRef Id="KinectWindows" />
+      <ComponentRef Id="RemoveKinectWindows" />
+    </ComponentGroup>
+
+    <ComponentGroup Id="KinectXBoxRegistry">
+      <ComponentRef Id="KinectXBox" />
+      <ComponentRef Id="RemoveKinectXBox" />
+    </ComponentGroup>
+  </Fragment>
+</Wix>

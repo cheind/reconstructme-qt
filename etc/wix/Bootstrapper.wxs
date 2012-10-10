@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'
+     xmlns:util='http://schemas.microsoft.com/wix/UtilExtension'
+     xmlns:bal='http://schemas.microsoft.com/wix/BalExtension'>
+     
+     <!-- Note about bundle upgrade codes
+	        I need to write the blog entry about this. Bundles are registered on the 
+	        machine. Bundles can be uninstalled, manage the package cache and they 
+	        reference count their packages. Basically, they do everything in their 
+	        power to help create a "unified installation experience for a set of 
+	        packages". Looking back (and this is the part I want to reflect on in the 
+	        to-be-written blog entry) "bootstrapper" probably oversimplifies what Burn 
+	        provides. 
+
+	        As such, a higher version Bundle upgrades lower version Bundles with the 
+	        same UpgradeCode or RelatedBundle of type "upgrade". UpgradeCode is really 
+	        just a (required) shortcut to define a RelatedBundle. RelatedBundles are 
+	        wicked cool concepts that are not at all well documented yet... another 
+	        blog post or three. 
+	   -->
+
+  <?define ProductName = 'ReconstructMeQt Installer'?>
+  <?define ProductCode = '*' ?>
+  <?define UpgradeCode = '43C2956F-9741-4DE1-83A8-26917FA4CAEE'?>
+  <?define ManufacturerName = 'Profactor GmbH' ?>
+  <?define ProductVersion = '@RECONSTRUCTMEQT_VERSION_MAJOR@.@RECONSTRUCTMEQT_VERSION_MINOR@.@RECONSTRUCTMEQT_VERSION_BUILD@'?>
+     
+  <Bundle Name='$(var.ProductName) $(var.ProductVersion)' 
+          Version='$(var.ProductVersion)' 
+          Manufacturer='$(var.ManufacturerName)' 
+          UpgradeCode='$(var.UpgradeCode)'>
+		
+    <BootstrapperApplicationRef Id='WixStandardBootstrapperApplication.HyperlinkLicense' >
+	    <bal:WixStandardBootstrapperApplication
+	      LicenseUrl=''
+        LogoFile='@PROJECT_SOURCE_DIR@/etc/wix/images/BootstrapperIcon.bmp'
+		    ThemeFile='@PROJECT_SOURCE_DIR@/etc/wix/bootstrapper_theme/HyperlinkTheme.xml'
+		    LocalizationFile='@PROJECT_SOURCE_DIR@/etc/wix/bootstrapper_theme/HyperlinkTheme.wxl'
+		    SuppressOptionsUI='yes'
+		  />
+	  </BootstrapperApplicationRef>
+	
+    <Chain>     
+		  <MsiPackage
+			  Id='ReconstructMeQtInstaller'
+			  Cache='yes'
+			  DisplayInternalUI='yes'
+			  Compressed='yes'
+			  SourceFile='@RECONSTRUCTMEQTINSTALLER_OUTPUT_LOCATION@'
+			  Vital='yes'
+			  ForcePerMachine='yes'
+			  EnableFeatureSelection='yes'
+		  /> 
+	  		
+		<ExePackage Id='DriverSetup'
+					After='ReconstructMeQtInstaller'
+					Cache='yes'
+					Compressed='yes'
+					SourceFile='@PROJECT_SOURCE_DIR@/etc/wix/ReconstructMe_Drivers.exe'	
+					Permanent= 'no'
+					InstallCommand='/silent'
+					Vital='yes'>
+		</ExePackage>
+    </Chain>
+  </Bundle>
+</Wix>

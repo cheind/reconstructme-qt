@@ -14,7 +14,7 @@
 		</DirectoryRef>
 	</Fragment>
 	<Fragment>
-        <ComponentGroup Id="QtRuntimeFiles">
+    <ComponentGroup Id="QtRuntimeFiles">
 			<ComponentRef Id="QtCore4" />
 			<ComponentRef Id="QtGUI4" />
 			<ComponentRef Id="QtOpenGL4" />
