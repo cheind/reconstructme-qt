@@ -197,7 +197,7 @@ namespace ReconstructMeGUI {
     phong_canvas->set_image_size(initializer->phong_size());
     depth_canvas->set_image_size(initializer->depth_size());
 
-    scanner->set_rgb_image  (rgb_canvas->image());
+    scanner->set_rgb_image(rgb_canvas->image());
     scanner->set_phong_image(phong_canvas->image());
     scanner->set_depth_image(depth_canvas->image());
   }

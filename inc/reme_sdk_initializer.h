@@ -69,18 +69,18 @@ namespace ReconstructMeGUI {
     const reme_volume_t volume() const;
 
     /** Getter for correct sized RGB QImage */
+    const reme_image_t rgb() const;
+    /** Getter for correct sized Phong QImage */
+    const reme_image_t phong() const;
+    /** Getter for correct sized Depth QImage */
+    const reme_image_t depth() const;
+
+    /** Getter for correct sized RGB QImage */
     const QSize *rgb_size() const;
     /** Getter for correct sized Phong QImage */
     const QSize *phong_size() const;
     /** Getter for correct sized Depth QImage */
     const QSize *depth_size() const;
-
-    /** Getter for correct sized RGB QImage */
-    QSize *rgb_size();
-    /** Getter for correct sized Phong QImage */
-    QSize *phong_size();
-    /** Getter for correct sized Depth QImage */
-    QSize *depth_size();
 
     void new_log_message(reme_log_severity_t sev, const QString &log);
 
@@ -106,9 +106,13 @@ namespace ReconstructMeGUI {
     reme_sensor_t _s;
     reme_volume_t _v;
 
-    QSize* _rgb_size;
-    QSize* _phong_size;
-    QSize* _depth_size;
+    reme_image_t _rgb;
+    reme_image_t _phong;
+    reme_image_t _depth;
+
+    QSize *_rgb_size;
+    QSize *_phong_size;
+    QSize *_depth_size;
 
     bool _has_compiled_context;
     bool _has_sensor;
