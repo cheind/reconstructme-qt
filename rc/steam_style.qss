@@ -33,7 +33,7 @@
   */
   
 
-QWidget, QAbstractItemView::item, QMenuBar::item, QComboBox::drop-down, QHeaderView, QHeaderView::section 
+QWidget, QAbstractItemView::item, QMenuBar::item, QComboBox::drop-down, QHeaderView, QHeaderView::section, QStatusBar::item
 {
 	border: 0px;
 	font: 8pt;

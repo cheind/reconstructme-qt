@@ -82,6 +82,7 @@ namespace ReconstructMeGUI {
   private slots:
     /** Write a message to the status bar */
     void status_bar_msg(const QString &msg, const int msecs = 0);
+    void show_fps(const float fps);
 
     /** Set image references from scanner */
     void set_image_references();
@@ -128,6 +129,8 @@ namespace ReconstructMeGUI {
 
     // Members
     Ui::reconstructme_mw *ui;
+    QLabel *fps_label;
+    QLabel *fps_color_label;
 
     // Dialogs
     settings_dialog *dialog_settings;

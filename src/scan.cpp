@@ -34,6 +34,7 @@
 #pragma once
 
 #define STATUS_MSG_DURATION 2000
+#define FPS_MODULO 10
 
 #include "scan.h"
 #include "settings.h"
@@ -50,6 +51,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <ctime>
 
 namespace ReconstructMeGUI {
 
@@ -75,6 +77,8 @@ namespace ReconstructMeGUI {
     bool lost_track_prev;
     const void *image_bytes;
     int length;
+    int cnt = 1;
+    clock_t c0 = clock();
 
     success = success && REME_SUCCESS(reme_sensor_update_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME, _i->volume())); 
     success = success && REME_SUCCESS(reme_image_get_bytes(_i->context(), _i->volume(), &image_bytes, &length));
@@ -85,6 +89,14 @@ namespace ReconstructMeGUI {
     }
 
     while (_mode != NOT_RUN && success) {
+      // frames per second
+      cnt++;
+      if (cnt % FPS_MODULO == 0) {
+        emit current_fps((float)cnt/(((float)(clock()-c0))/CLOCKS_PER_SEC));
+        c0 = clock();
+        cnt = 0;
+      }
+
       success = true;
 
       // Prepare image and depth data
@@ -194,10 +206,12 @@ namespace ReconstructMeGUI {
 
     _mode = (_mode == PLAY) ? PAUSE : PLAY; // toggle mode
 
+    emit current_fps(0);
     emit mode_changed(_mode);
   }
 
   void scan::stop() {
+    emit current_fps(0);
     _mode = NOT_RUN;
   }
 

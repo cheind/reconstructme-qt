@@ -92,6 +92,8 @@ namespace ReconstructMeGUI {
     
     void mode_changed(mode_t);
 
+    void current_fps(const float);
+
   private:
     void initialize_images();
 

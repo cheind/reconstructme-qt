@@ -88,6 +88,19 @@ namespace ReconstructMeGUI {
 
     ui->setupUi(this);
     
+    fps_label = new QLabel();
+    fps_label->setStyleSheet("qproperty-alignment: AlignRight; margin-right: 0px; padding-right: 0px;");
+    fps_label->setMaximumWidth(100);
+    
+    fps_color_label = new QLabel();
+    fps_color_label->setMinimumWidth(10);
+    fps_color_label->setMaximumWidth(10);
+    fps_color_label->setStyleSheet("margin-left: 0px; padding-left: 0px;");
+    fps_color_label->setAutoFillBackground(true);
+
+    statusBar()->addPermanentWidget(fps_label, 0);
+    statusBar()->addPermanentWidget(fps_color_label, 0);
+
     // move to center
     QRect r = geometry();
     r.moveCenter(QApplication::desktop()->availableGeometry().center());
@@ -136,7 +149,7 @@ namespace ReconstructMeGUI {
     connect(ui->save_button, SIGNAL(clicked()), SLOT(save_button_clicked()));
     connect(ui->actionSave, SIGNAL(triggered()), SLOT(save_button_clicked()));
     connect(scanner, SIGNAL(status_bar_msg(const QString&, const int)), SLOT(status_bar_msg(const QString &, const int)));
-
+    connect(scanner, SIGNAL(current_fps(const float)), SLOT(show_fps(const float)));
 
     // views update
     connect(initializer, SIGNAL(initialized_images()), SLOT(set_image_references()), Qt::BlockingQueuedConnection);
@@ -338,5 +351,16 @@ namespace ReconstructMeGUI {
 
   void reconstructme::status_bar_msg(const QString &msg, const int msecs) {
     statusBar()->showMessage(msg, msecs);
+  }
+
+  void reconstructme::show_fps(const float fps) {
+    if (fps > 20) 
+      fps_color_label->setStyleSheet("background-color: green;");
+    else if (fps > 10)
+      fps_color_label->setStyleSheet("background-color: orange;");
+    else
+      fps_color_label->setStyleSheet("background-color: #FF4848;");
+    
+    fps_label->setText(QString().sprintf("%.2f fps", fps));
   }
 }
