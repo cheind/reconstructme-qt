@@ -121,6 +121,7 @@ namespace ReconstructMeGUI {
   }
 
 
+
   bool reme_sdk_initializer::open_sensor() {
     bool success = true;
     
@@ -136,20 +137,17 @@ namespace ReconstructMeGUI {
     if (success)
     {
       int width, height;
-      bool img_succ = true;
-
-      img_succ = REME_SUCCESS(reme_image_create(_c, &_rgb));
-      img_succ = img_succ && REME_SUCCESS(reme_sensor_get_image_size(_c, _s, REME_IMAGE_AUX, &width, &height));
-      _rgb_size = img_succ ? new QSize(width, height) : 0;
-
-      img_succ = REME_SUCCESS(reme_image_create(_c, &_depth));
-      img_succ = img_succ && REME_SUCCESS(reme_sensor_get_image_size(_c, _s, REME_IMAGE_DEPTH, &width, &height));
-      _depth_size = img_succ ? new QSize(width, height) : 0;
-
-      img_succ = REME_SUCCESS(reme_image_create(_c, &_phong));
-      img_succ = img_succ && REME_SUCCESS(reme_sensor_get_image_size(_c, _s, REME_IMAGE_VOLUME, &width, &height));
-      _phong_size = img_succ ? new QSize(width, height) : 0;
+      reme_error_t error;
       
+      error = reme_sensor_get_image_size(_c, _s, REME_IMAGE_AUX, &width, &height);
+      _rgb_size = REME_SUCCESS(error) ? new QSize(width, height) : 0;
+ 
+      error = reme_sensor_get_image_size(_c, _s, REME_IMAGE_VOLUME, &width, &height);
+      _phong_size = REME_SUCCESS(error) ? new QSize(width, height) : 0;
+ 
+      error = reme_sensor_get_image_size(_c, _s, REME_IMAGE_DEPTH, &width, &height);
+      _depth_size = REME_SUCCESS(error) ? new QSize(width, height) : 0;
+
       emit initialized_images();
     }
 
@@ -223,18 +221,6 @@ namespace ReconstructMeGUI {
     return _v;
   }
 
-  const reme_image_t reme_sdk_initializer::rgb() const {
-    return _rgb;
-  }
-
-  const reme_image_t reme_sdk_initializer::phong() const {
-    return _phong;
-  }
-
-  const reme_image_t reme_sdk_initializer::depth() const {
-    return _depth;
-  }
-
   const QSize *reme_sdk_initializer::rgb_size() const {
     return _rgb_size;
   }
@@ -244,6 +230,18 @@ namespace ReconstructMeGUI {
   }
 
   const QSize *reme_sdk_initializer::depth_size() const {
+    return _depth_size;
+  }
+
+  QSize *reme_sdk_initializer::rgb_size() {
+    return _rgb_size;
+  }
+
+  QSize *reme_sdk_initializer::phong_size() {
+    return _phong_size;
+  }
+
+  QSize *reme_sdk_initializer::depth_size() {
     return _depth_size;
   }
 }
