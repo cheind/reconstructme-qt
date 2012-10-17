@@ -74,6 +74,8 @@ namespace ReconstructMeGUI {
   const char* const application_about_tag = "This is a software for realtime \n3D surface reconstruction.";
   const char* const license_info_tag = "License Information";
   const char* const license_unspecified_tag = "Unspecified error when license was applied.\nSwitching to non commercial mode.";
+  const char* const tool_tip_fps_color_label_tag = "Color indicates the quality of the reconstruction experience";
+  const char* const tool_tip_fps_label_tag = "Frames per second";
  
   // urls
   const char* const url_install_tag = "http://reconstructme.net/installation/";

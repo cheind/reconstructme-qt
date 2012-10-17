@@ -91,12 +91,14 @@ namespace ReconstructMeGUI {
     fps_label = new QLabel();
     fps_label->setStyleSheet("qproperty-alignment: AlignRight; margin-right: 0px; padding-right: 0px;");
     fps_label->setMaximumWidth(100);
+    fps_label->setToolTip(tool_tip_fps_label_tag);
     
     fps_color_label = new QLabel();
     fps_color_label->setMinimumWidth(10);
     fps_color_label->setMaximumWidth(10);
     fps_color_label->setStyleSheet("margin-left: 0px; padding-left: 0px;");
     fps_color_label->setAutoFillBackground(true);
+    fps_color_label->setToolTip(tool_tip_fps_color_label_tag);
 
     statusBar()->addPermanentWidget(fps_label, 0);
     statusBar()->addPermanentWidget(fps_color_label, 0);

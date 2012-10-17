@@ -84,6 +84,9 @@
           <height>50</height>
          </size>
         </property>
+        <property name="toolTip">
+         <string>Toggle Play/Pause</string>
+        </property>
         <property name="statusTip">
          <string/>
         </property>
@@ -126,7 +129,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Reset the Volume</string>
+         <string>Reset</string>
         </property>
         <property name="statusTip">
          <string/>
@@ -170,7 +173,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>save the reconstruction</string>
+         <string>Save</string>
         </property>
         <property name="statusTip">
          <string/>
