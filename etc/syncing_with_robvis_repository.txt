@@ -1,0 +1,11 @@
+To import the current state of the open-source project into robvis repository (or vice versa) 
+we use vendor branches.
+
+Assume that the latest open-source release 1.0.40 and our current internal trunk reflects 1.0.35. 
+Then proceed as follows to update the robvis internal to 1.0.40
+
+ - export 1.0.40 from googlecode to local directory <EXPORT>
+ - use robvis/svn_helpers/svn_load_dirs.pl to match the changes (requires perl interpreter)
+   exectute: perl svn_load_dirs.pl <BASE_DIRECTORY> <CURRENT> <EXPORT> 
+   where <BASE_DIRECTORY> is the path to robvis repository containing the subdirectory <CURRENT> 
+   that holds version 1.0.35 to be upgraded.
