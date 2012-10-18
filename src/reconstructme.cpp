@@ -195,9 +195,10 @@ namespace ReconstructMeGUI {
 
   void reconstructme::create_views() {
     // Create viewes and add to layout
-    rgb_canvas   = new QGLCanvas();
-    phong_canvas = new QGLCanvas();
-    depth_canvas = new QGLCanvas();
+    QString def_img(":/images/no_image_available.png");
+    rgb_canvas   = new QGLCanvas(def_img);
+    phong_canvas = new QGLCanvas(def_img);
+    depth_canvas = new QGLCanvas(def_img);
 
     //                                       r  c rs cs
     ui->view_layout->addWidget(phong_canvas, 0, 0, 2, 1);
