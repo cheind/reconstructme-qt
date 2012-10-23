@@ -82,11 +82,6 @@ namespace ReconstructMeGUI {
   {
     _ui->setupUi(this);
 
-    // application icon
-    QPixmap titleBarPix (":/images/icon.ico");
-    QIcon titleBarIcon(titleBarPix);
-    setWindowIcon(titleBarIcon);
-
     // Create 
     create_views();    // three views
     create_scanner();  // init _scanner -> called by slot

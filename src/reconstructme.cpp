@@ -37,6 +37,7 @@
 #include "ui_reconstructmeqt.h"
 
 #include "scan_widget.h"
+#include "calibration_widget.h"
 
 #include "scan.h"
 #include "reme_sdk_initializer.h"
@@ -93,12 +94,19 @@ namespace ReconstructMeGUI {
     _splash->showMessage(welcome_tag, _splash_MSG_ALIGNMENT);
     _splash->show();
 
+
+    // ui's setup
     _ui->setupUi(this);
     _scan_ui = new scan_widget(_initializer, this);
+    _calibration_ui = new calibration_widget(_initializer, this);
 
-    _ui->stackedWidget->insertWidget(0, _scan_ui);
-    _ui->stackedWidget->setCurrentIndex(0);
+    _ui->scan_page = _scan_ui;
+    _ui->calibration_page = _calibration_ui;
+    _ui->stackedWidget->insertWidget(0, _ui->scan_page);
+    _ui->stackedWidget->insertWidget(1, _ui->calibration_page);
+    _ui->stackedWidget->setCurrentWidget(_ui->scan_page);
 
+    // Status bar
     _fps_label = new QLabel();
     _fps_label->setStyleSheet("qproperty-alignment: AlignRight; margin-right: 0px; padding-right: 0px;");
     _fps_label->setMaximumWidth(100);
@@ -113,6 +121,21 @@ namespace ReconstructMeGUI {
 
     statusBar()->addPermanentWidget(_fps_label, 0);
     statusBar()->addPermanentWidget(_fps_color_label, 0);
+
+    // action views
+    QActionGroup *view_ag = new QActionGroup(this);
+    view_ag->addAction(_ui->actionScan);
+    view_ag->addAction(_ui->actionCalibration);
+    _ui->actionScan->setChecked(true);
+
+    QSignalMapper *view_sm = new QSignalMapper(this);
+    view_sm->setMapping(_ui->actionScan, _ui->scan_page);
+    view_sm->setMapping(_ui->actionCalibration, _ui->calibration_page);
+    
+    view_sm->connect(_ui->actionScan, SIGNAL(triggered()), SLOT(map()));
+    view_sm->connect(_ui->actionCalibration, SIGNAL(triggered()), SLOT(map()));
+
+    _ui->stackedWidget->connect(view_sm, SIGNAL(mapped(QWidget *)), SLOT(setCurrentWidget(QWidget *)));
 
     // move to center
     QRect r = geometry();
@@ -210,7 +233,6 @@ namespace ReconstructMeGUI {
   reconstructme::~reconstructme()
   {
     delete _ui;
-    //delete _initializer;
   }
 
   void reconstructme::action_log_toggled(bool checked) {

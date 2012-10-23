@@ -55,6 +55,7 @@ namespace Ui {
 }
 namespace ReconstructMeGUI {
   class scan_widget;
+  class calibration_widget;
   class scan;
   class QGLCanvas;
   class about_dialog;
@@ -115,6 +116,7 @@ namespace ReconstructMeGUI {
     // Members
     Ui::reconstructmeqt *_ui;
     scan_widget *_scan_ui;
+    calibration_widget *_calibration_ui;
 
     QLabel *_fps_label;
     QLabel *_fps_color_label;
