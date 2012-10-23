@@ -31,8 +31,12 @@
   *          florian.eckerstorfer@profactor.at
   */
 
+#pragma once
+
 #include "reconstructme.h"
-#include "ui_reconstructme.h"
+#include "ui_reconstructmeqt.h"
+
+#include "scan_widget.h"
 
 #include "scan.h"
 #include "reme_sdk_initializer.h"
@@ -66,42 +70,49 @@
 #include <QProgressBar>
 #include <QProgressDialog>
 #include <QMetaType>
+#include <QPushButton>
 #include <QSignalMapper>
+#include <QWidget>
 
 #include <iostream>
 
 #define STATUSBAR_TIME 1500
-#define SPLASH_MSG_ALIGNMENT Qt::AlignBottom | Qt::AlignLeft
+#define _splash_MSG_ALIGNMENT Qt::AlignBottom | Qt::AlignLeft
 
 namespace ReconstructMeGUI {
   
   reconstructme::reconstructme(QWidget *parent) : 
-    QMainWindow(parent),  
-    ui(new Ui::reconstructme_mw)
+    QMainWindow(parent),
+    _ui(new Ui::reconstructmeqt),
+    _initializer(new reme_sdk_initializer())
   {
-    // Splashscreen
-    QPixmap splashPix(":/images/splash_screen.png");
-    splash = new QSplashScreen(this, splashPix);
-    splash->setAutoFillBackground(false);
-    splash->showMessage(welcome_tag, SPLASH_MSG_ALIGNMENT);
-    splash->show();
+    // _splashscreen
+    QPixmap splashPix(":/images/_splash_screen.png");
+    _splash = new QSplashScreen(this, splashPix);
+    _splash->setAutoFillBackground(false);
+    _splash->showMessage(welcome_tag, _splash_MSG_ALIGNMENT);
+    _splash->show();
 
-    ui->setupUi(this);
-    
-    fps_label = new QLabel();
-    fps_label->setStyleSheet("qproperty-alignment: AlignRight; margin-right: 0px; padding-right: 0px;");
-    fps_label->setMaximumWidth(100);
-    fps_label->setToolTip(tool_tip_fps_label_tag);
-    
-    fps_color_label = new QLabel();
-    fps_color_label->setMinimumWidth(10);
-    fps_color_label->setMaximumWidth(10);
-    fps_color_label->setStyleSheet("margin-left: 0px; padding-left: 0px;");
-    fps_color_label->setAutoFillBackground(true);
-    fps_color_label->setToolTip(tool_tip_fps_color_label_tag);
+    _ui->setupUi(this);
+    _scan_ui = new scan_widget(_initializer, this);
 
-    statusBar()->addPermanentWidget(fps_label, 0);
-    statusBar()->addPermanentWidget(fps_color_label, 0);
+    _ui->stackedWidget->insertWidget(0, _scan_ui);
+    _ui->stackedWidget->setCurrentIndex(0);
+
+    _fps_label = new QLabel();
+    _fps_label->setStyleSheet("qproperty-alignment: AlignRight; margin-right: 0px; padding-right: 0px;");
+    _fps_label->setMaximumWidth(100);
+    _fps_label->setToolTip(tool_tip_fps_label_tag);
+    
+    _fps_color_label = new QLabel();
+    _fps_color_label->setMinimumWidth(10);
+    _fps_color_label->setMaximumWidth(10);
+    _fps_color_label->setStyleSheet("margin-left: 0px; padding-left: 0px;");
+    _fps_color_label->setAutoFillBackground(true);
+    _fps_color_label->setToolTip(tool_tip_fps_color_label_tag);
+
+    statusBar()->addPermanentWidget(_fps_label, 0);
+    statusBar()->addPermanentWidget(_fps_color_label, 0);
 
     // move to center
     QRect r = geometry();
@@ -112,11 +123,11 @@ namespace ReconstructMeGUI {
     reme_context_create(&c);
     
      // Create dialogs
-    log_dialog = new logging_dialog(this, Qt::Dialog);
-    dialog_settings = new settings_dialog(c, this);
-    hw_key_dialog = new hardware_key_dialog(c, this);
-    app_about_dialog = new about_dialog(c, this);
-    init_status_dialog = new status_dialog(this);
+    _logging_dialog = new logging_dialog(this, Qt::Dialog);
+    _settings_dialog = new settings_dialog(c, this);
+    _hardware_key_dialog = new hardware_key_dialog(c, this);
+    _about_dialog = new about_dialog(c, this);
+    _status_dialog = new status_dialog(this);
 
     reme_context_destroy(&c);
 
@@ -126,197 +137,94 @@ namespace ReconstructMeGUI {
     setWindowIcon(titleBarIcon);
 
     // Create 
-    splash->showMessage(create_views_tag, SPLASH_MSG_ALIGNMENT);
-    create_views();    // three views
-    splash->showMessage(init_scanner_tag, SPLASH_MSG_ALIGNMENT);
-    create_scanner();  // init scanner -> called by slot
     create_mappings();
 
+    // ui connections
+    connect(_scan_ui, SIGNAL(status_bar_msg(const QString&, const int)), SLOT(status_bar_msg(const QString&, const int)));
+    connect(_scan_ui, SIGNAL(status_bar_msg(const QString&, const int)), SLOT(status_bar_msg(const QString&, const int)));
+    connect(_scan_ui->scanner(), SIGNAL(current_fps(const float)), SLOT(show_fps(const float)));
+    connect(_scan_ui->scanner(), SIGNAL(current_fps(const float)), SLOT(show_fps(const float)));
+
     // Dialog connections
-    dialog_settings->connect(ui->actionSettings, SIGNAL(triggered()),SLOT(show()));
-    app_about_dialog->connect(ui->actionAbout, SIGNAL(triggered()), SLOT(show()));
-    hw_key_dialog->connect(ui->actionGenerate_hardware_key, SIGNAL(triggered()), SLOT(show()));
+    _settings_dialog->connect(_ui->actionSettings, SIGNAL(triggered()),SLOT(show()));
+    _about_dialog->connect(_ui->actionAbout, SIGNAL(triggered()), SLOT(show()));
+    _hardware_key_dialog->connect(_ui->actionGenerate_hardware_key, SIGNAL(triggered()), SLOT(show()));
     
     
-    connect(ui->actionLog, SIGNAL(toggled(bool)), SLOT(action_log_toggled(bool)));
-    ui->actionLog->connect(log_dialog, SIGNAL(close_clicked()), SLOT(toggle()));
-    
-    // interaction with scanner
-    qRegisterMetaType<init_t>( "mode_t" );
-    scanner->connect(ui->play_button, SIGNAL(clicked()), SLOT(toggle_play_pause()));
-    connect(scanner, SIGNAL(mode_changed(mode_t)), SLOT(apply_mode(mode_t)));
-    scanner->connect(ui->reset_button, SIGNAL(clicked()), SLOT(reset_volume()));
-    connect(ui->reset_button, SIGNAL(clicked()), SLOT(reset_button_clicked()));
-    scanner->connect(this, SIGNAL(save_mesh_to_file(const QString &)), SLOT(save(const QString &)));
-    connect(ui->save_button, SIGNAL(clicked()), SLOT(save_button_clicked()));
-    connect(ui->actionSave, SIGNAL(triggered()), SLOT(save_button_clicked()));
-    connect(scanner, SIGNAL(status_bar_msg(const QString&, const int)), SLOT(status_bar_msg(const QString &, const int)));
-    connect(scanner, SIGNAL(current_fps(const float)), SLOT(show_fps(const float)));
+    connect(_ui->actionLog, SIGNAL(toggled(bool)), SLOT(action_log_toggled(bool)));
+    _ui->actionLog->connect(_logging_dialog, SIGNAL(close_clicked()), SLOT(toggle()));
 
-    // views update
-    connect(initializer, SIGNAL(initialized_images()), SLOT(set_image_references()), Qt::BlockingQueuedConnection);
-    rgb_canvas->connect(scanner, SIGNAL(new_rgb_image_bits()), SLOT(update()));
-    depth_canvas->connect(scanner, SIGNAL(new_depth_image_bits()), SLOT(update()));
-    phong_canvas->connect(scanner, SIGNAL(new_phong_image_bits()), SLOT(update()));
-
-    // sdk initializer
+    // sdk _initializer
     qRegisterMetaType<init_t>( "init_t" );
-    init_status_dialog->connect(initializer, SIGNAL(initializing(init_t)), SLOT(initializing(init_t)), Qt::BlockingQueuedConnection);
-    init_status_dialog->connect(initializer, SIGNAL(initialized(init_t, bool)), SLOT(initialized(init_t, bool)), Qt::BlockingQueuedConnection);
+    _status_dialog->connect(_initializer.get(), SIGNAL(initializing(init_t)), SLOT(initializing(init_t)), Qt::BlockingQueuedConnection);
+    _status_dialog->connect(_initializer.get(), SIGNAL(initialized(init_t, bool)), SLOT(initialized(init_t, bool)), Qt::BlockingQueuedConnection);
 
-    init_status_dialog->connect(init_status_dialog->closeBtn(), SIGNAL(clicked()), SLOT(hide()));
-    init_status_dialog->connect(init_status_dialog->logBtn(), SIGNAL(clicked()), SLOT(hide()));
-    log_dialog->connect(init_status_dialog->logBtn(), SIGNAL(clicked()), SLOT(show()));
-    init_status_dialog->connect(initializer, SIGNAL(initializing_sdk()), SLOT(reset()));
-    init_status_dialog->connect(initializer, SIGNAL(initializing_sdk()), SLOT(show()));
-    init_status_dialog->closeBtn()->connect(initializer, SIGNAL(initializing_sdk()), SLOT(hide()));
-    init_status_dialog->closeBtn()->connect(initializer, SIGNAL(sdk_initialized(bool)), SLOT(show()));
-    init_status_dialog->logBtn()->connect(initializer, SIGNAL(initializing_sdk()), SLOT(hide()));
-    init_status_dialog->logBtn()->connect(initializer, SIGNAL(sdk_initialized(bool)), SLOT(show()));
+    _status_dialog->connect(_status_dialog->closeBtn(), SIGNAL(clicked()), SLOT(hide()));
+    _status_dialog->connect(_status_dialog->logBtn(), SIGNAL(clicked()), SLOT(hide()));
+    _logging_dialog->connect(_status_dialog->logBtn(), SIGNAL(clicked()), SLOT(show()));
+    _status_dialog->connect(_initializer.get(), SIGNAL(initializing_sdk()), SLOT(reset()));
+    _status_dialog->connect(_initializer.get(), SIGNAL(initializing_sdk()), SLOT(show()));
+    _status_dialog->closeBtn()->connect(_initializer.get(), SIGNAL(initializing_sdk()), SLOT(hide()));
+    _status_dialog->closeBtn()->connect(_initializer.get(), SIGNAL(sdk_initialized(bool)), SLOT(show()));
+    _status_dialog->logBtn()->connect(_initializer.get(), SIGNAL(initializing_sdk()), SLOT(hide()));
+    _status_dialog->logBtn()->connect(_initializer.get(), SIGNAL(sdk_initialized(bool)), SLOT(show()));
 
-    initializer->connect(dialog_settings, SIGNAL(initialize()), SLOT(initialize()));
+    _initializer->connect(_settings_dialog, SIGNAL(initialize()), SLOT(initialize()));
     
     qRegisterMetaType<init_t>( "reme_log_severity_t" );
-    log_dialog->connect(initializer, SIGNAL(log_message(reme_log_severity_t, const QString &)), SLOT(add_log_message(reme_log_severity_t, const QString &)));
+    _logging_dialog->connect(_initializer.get(), SIGNAL(log_message(reme_log_severity_t, const QString &)), SLOT(add_log_message(reme_log_severity_t, const QString &)));
 
     // Trigger concurrent initialization
-    initializer->initialize();
+    _initializer->initialize();
 
     // Shortcuts
-    ui->play_button->setShortcut(QKeySequence("Ctrl+P"));
-    ui->reset_button->setShortcut(QKeySequence("Ctrl+R"));
-    ui->actionSave->setShortcut(QKeySequence("Ctrl+S"));
-    ui->actionLog->setShortcut(QKeySequence("Ctrl+L"));
-    ui->actionSettings->setShortcut(QKeySequence("Ctrl+E"));
+    _ui->actionSave->setShortcut(QKeySequence("Ctrl+S"));
+    _ui->actionLog->setShortcut(QKeySequence("Ctrl+L"));
+    _ui->actionSettings->setShortcut(QKeySequence("Ctrl+E"));
 
-    // CLose Splashscreen
-    splash->finish(this);
-  }
-
-  void reconstructme::create_views() {
-    // Create viewes and add to layout
-    QString def_img(":/images/no_image_available.png");
-    rgb_canvas   = new QGLCanvas(def_img);
-    phong_canvas = new QGLCanvas(def_img);
-    depth_canvas = new QGLCanvas(def_img);
-
-    //                                       r  c rs cs
-    ui->view_layout->addWidget(phong_canvas, 0, 0, 2, 1);
-    ui->view_layout->addWidget(rgb_canvas,   0, 1, 1, 1);
-    ui->view_layout->addWidget(depth_canvas, 1, 1, 1, 1);
-    ui->view_layout->setColumnStretch(0, 2);
-    ui->view_layout->setColumnStretch(1, 1);
-  }
-
-  void reconstructme::set_image_references() {
-    rgb_canvas->set_image_size(initializer->rgb_size());
-    phong_canvas->set_image_size(initializer->phong_size());
-    depth_canvas->set_image_size(initializer->depth_size());
-
-    scanner->set_rgb_image(rgb_canvas->image());
-    scanner->set_phong_image(phong_canvas->image());
-    scanner->set_depth_image(depth_canvas->image());
-  }
-
-  void reconstructme::create_scanner() {
-    // do not change order, due to a connect in the scan constructor
-    initializer = new reme_sdk_initializer();
-    
-    scanner = new scan(initializer);
-    // scan thread
-    scanner_thread = new QThread(this);
-    scanner->moveToThread(scanner_thread);
-    scanner_thread->start();
+    // CLose _splashscreen
+    _splash->finish(this);
   }
 
   void reconstructme::create_mappings() {
-    url_mapper = new QSignalMapper(this);
-    url_mapper->setMapping(ui->actionDevice, QString(url_device_matrix_tag));
-    url_mapper->setMapping(ui->actionFAQ, QString(url_faq_tag));
-    url_mapper->setMapping(ui->actionForum, QString(url_forum_tag));
-    url_mapper->setMapping(ui->actionInstallation, QString(url_install_tag));
-    url_mapper->setMapping(ui->actionProjectHome, QString(url_reconstructme_qt));
-    url_mapper->setMapping(ui->actionSDKDocumentation, QString(url_sdk_doku_tag));
-    url_mapper->setMapping(ui->actionUsage, QString(url_usage_tag));
+    _url_mapper = new QSignalMapper(this);
+    _url_mapper->setMapping(_ui->actionDevice, QString(url_device_matrix_tag));
+    _url_mapper->setMapping(_ui->actionFAQ, QString(url_faq_tag));
+    _url_mapper->setMapping(_ui->actionForum, QString(url_forum_tag));
+    _url_mapper->setMapping(_ui->actionInstallation, QString(url_install_tag));
+    _url_mapper->setMapping(_ui->actionProjectHome, QString(url_reconstructme_qt));
+    _url_mapper->setMapping(_ui->actionSDKDocumentation, QString(url_sdk_doku_tag));
+    _url_mapper->setMapping(_ui->actionUsage, QString(url_usage_tag));
     
-    url_mapper->connect(ui->actionDevice, SIGNAL(triggered()), SLOT(map()));
-    url_mapper->connect(ui->actionFAQ, SIGNAL(triggered()), SLOT(map()));
-    url_mapper->connect(ui->actionForum, SIGNAL(triggered()), SLOT(map()));
-    url_mapper->connect(ui->actionInstallation, SIGNAL(triggered()), SLOT(map()));
-    url_mapper->connect(ui->actionProjectHome, SIGNAL(triggered()), SLOT(map()));
-    url_mapper->connect(ui->actionSDKDocumentation, SIGNAL(triggered()), SLOT(map()));
-    url_mapper->connect(ui->actionUsage, SIGNAL(triggered()), SLOT(map()));
+    _url_mapper->connect(_ui->actionDevice, SIGNAL(triggered()), SLOT(map()));
+    _url_mapper->connect(_ui->actionFAQ, SIGNAL(triggered()), SLOT(map()));
+    _url_mapper->connect(_ui->actionForum, SIGNAL(triggered()), SLOT(map()));
+    _url_mapper->connect(_ui->actionInstallation, SIGNAL(triggered()), SLOT(map()));
+    _url_mapper->connect(_ui->actionProjectHome, SIGNAL(triggered()), SLOT(map()));
+    _url_mapper->connect(_ui->actionSDKDocumentation, SIGNAL(triggered()), SLOT(map()));
+    _url_mapper->connect(_ui->actionUsage, SIGNAL(triggered()), SLOT(map()));
 
-    connect(url_mapper, SIGNAL(mapped(const QString&)), SLOT(open_url(const QString&)));
+    connect(_url_mapper, SIGNAL(mapped(const QString&)), SLOT(open_url(const QString&)));
   }
 
   reconstructme::~reconstructme()
   {
-    scanner->stop();
-    scanner_thread->quit();
-    scanner_thread->wait();
-    
-    delete scanner;
-    delete scanner_thread;
-    delete initializer;
-
-    delete ui;
-  }
-
-  void reconstructme::save_button_clicked()
-  {
-    QString file_name = QFileDialog::getSaveFileName(this, tr("Save 3D Model"),
-                                                 QDir::currentPath(),
-                                                 tr("PLY files (*.ply);;OBJ files (*.obj);;3DS files (*.3ds);;STL files (*.stl)"),
-                                                 0);
-    if (file_name.isEmpty())
-      return;
-
-    emit save_mesh_to_file(file_name);
-    ui->reconstruct_satus_bar->showMessage(saving_to_tag + file_name, STATUSBAR_TIME);
-  }
-
-  void reconstructme::apply_mode(mode_t current_scanner_mode) {
-    QPushButton* playPause_b = ui->play_button;
-    QPixmap pixmap;
-    if (current_scanner_mode != PLAY) {
-      ui->save_button->setEnabled(true);
-      ui->actionSave->setEnabled(true);
-      pixmap.load(":/images/record-button.png");
-      ui->reconstruct_satus_bar->showMessage(mode_pause_tag, STATUSBAR_TIME);
-    }
-    else {
-      ui->save_button->setDisabled(true);
-      ui->actionSave->setDisabled(true);
-      pixmap.load(":/images/pause-button.png");
-      ui->reconstruct_satus_bar->showMessage(mode_play_tag, STATUSBAR_TIME);
-    }
-    QIcon icon(pixmap);
-    playPause_b->setIcon(icon);
-  }
-
-  void reconstructme::reset_button_clicked() {
-    ui->reconstruct_satus_bar->showMessage(volume_resetted_tag, STATUSBAR_TIME);
-  }
-
-  void reconstructme::action_settings_clicked() {
-    dialog_settings->show();
-    dialog_settings->raise();
-    dialog_settings->activateWindow();
+    delete _ui;
+    //delete _initializer;
   }
 
   void reconstructme::action_log_toggled(bool checked) {
     if (checked) 
-      log_dialog->show();
+      _logging_dialog->show();
     else
-      log_dialog->hide();
+      _logging_dialog->hide();
   }
 
   void reconstructme::action_status_toggled(bool checked) {
     if (checked) 
-      init_status_dialog->show();
+      _status_dialog->show();
     else
-      init_status_dialog->hide();
+      _status_dialog->hide();
   }
 
   void reconstructme::show_message_box(
@@ -341,15 +249,21 @@ namespace ReconstructMeGUI {
     }
   }
 
+  void reconstructme::action_settings_clicked() {
+    _settings_dialog->show();
+    _settings_dialog->raise();
+    _settings_dialog->activateWindow();
+  }
+
   void reconstructme::action_about_clicked() {
-    app_about_dialog->show();
+    _about_dialog->show();
   }
 
   void reconstructme::open_url(const QString &url_string) {
     QUrl url (url_string);
     QDesktopServices::openUrl(url);
     QString msg = open_url_tag + url_string;
-    ui->reconstruct_satus_bar->showMessage(msg, STATUSBAR_TIME);
+    _ui->reconstruct_satus_bar->showMessage(msg, STATUSBAR_TIME);
   }
 
   void reconstructme::status_bar_msg(const QString &msg, const int msecs) {
@@ -358,12 +272,12 @@ namespace ReconstructMeGUI {
 
   void reconstructme::show_fps(const float fps) {
     if (fps > 20) 
-      fps_color_label->setStyleSheet("background-color: green;");
+      _fps_color_label->setStyleSheet("background-color: green;");
     else if (fps > 10)
-      fps_color_label->setStyleSheet("background-color: orange;");
+      _fps_color_label->setStyleSheet("background-color: orange;");
     else
-      fps_color_label->setStyleSheet("background-color: #FF4848;");
+      _fps_color_label->setStyleSheet("background-color: #FF4848;");
     
-    fps_label->setText(QString().sprintf("%.2f fps", fps));
+    _fps_label->setText(QString().sprintf("%.2f fps", fps));
   }
 }

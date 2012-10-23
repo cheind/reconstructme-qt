@@ -55,12 +55,13 @@
 
 namespace ReconstructMeGUI {
 
-  scan::scan(reme_sdk_initializer *initializer) {
+  scan::scan(std::shared_ptr<reme_sdk_initializer> initializer) :
+    _i(initializer)
+  {
     _mode = NOT_RUN;
-    _i = initializer;
     
-    connect(_i, SIGNAL(sdk_initialized(bool)), SLOT(start(bool)));
-    connect(_i, SIGNAL(initializing_sdk()), SLOT(stop()), Qt::BlockingQueuedConnection);
+    connect(_i.get(), SIGNAL(sdk_initialized(bool)), SLOT(start(bool)));
+    connect(_i.get(), SIGNAL(initializing_sdk()), SLOT(stop()), Qt::BlockingQueuedConnection);
   }
 
   scan::~scan() {
@@ -79,7 +80,6 @@ namespace ReconstructMeGUI {
     int length;
     int cnt = 1;
     clock_t c0 = clock();
-
     success = success && REME_SUCCESS(reme_sensor_update_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME, _i->volume())); 
     success = success && REME_SUCCESS(reme_image_get_bytes(_i->context(), _i->volume(), &image_bytes, &length));
     if (success) {

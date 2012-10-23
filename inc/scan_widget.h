@@ -31,12 +31,12 @@
   *          florian.eckerstorfer@profactor.at
   */
   
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef SCANWIDGET_H
+#define SCANWIDGET_H
 
 #pragma once
 
-#include <QMainWindow>
+#include <QWidget>
 
 #include "types.h"
 
@@ -46,22 +46,13 @@
 class QImage;
 class QThread;
 class QLabel;
-class QSplashScreen;
 class QFileDialog;
-class QProgressDialog;
-class QSignalMapper;
 namespace Ui {
-  class reconstructmeqt;
+  class scan_widget;
 }
 namespace ReconstructMeGUI {
-  class scan_widget;
   class scan;
   class QGLCanvas;
-  class about_dialog;
-  class settings_dialog;
-  class logging_dialog;
-  class status_dialog;
-  class hardware_key_dialog;
   class reme_sdk_initializer;
 }
 
@@ -72,67 +63,59 @@ namespace ReconstructMeGUI {
   * \note This is the topmost element of the UI-tree. It holds references to 
   *       all other UI elements, such as the necessary dialogs.
   */
-  class reconstructme : public QMainWindow
+  class scan_widget : public QWidget
   {
     Q_OBJECT
     
   public:
-    explicit reconstructme(QWidget *parent = 0);
-    ~reconstructme();
+
+    scan_widget(std::shared_ptr<reme_sdk_initializer>, QWidget *parent = 0);
+    ~scan_widget();
+
+    const scan *scanner() const;
 
   private slots:
-    /** Write a message to the status bar */
-    void status_bar_msg(const QString &msg, const int msecs = 0);
-    void show_fps(const float fps);
+    /** Set image references from scanner */
+    void set_image_references();
 
-    // Online help
-    void open_url(const QString &url_string);
+    /** Handle save button clicked event. Trigger scanner to save current mesh */
+    void save_button_clicked();
+    
+    /** Handle reset button clicked event. Trigger scanner to reset current volume */
+    void reset_button_clicked();
 
-    /** Settings dialog */
-    void action_settings_clicked();
-    /** About dialog */
-    void action_about_clicked();
-    /** Show/Hide log dialog */
-    void action_log_toggled(bool checked);
-    /** Show/Hide log dialog */
-    void action_status_toggled(bool checked);
+    /** Handle play button clicked event. Trigger scanner to toggle PLAY/PAUSE */
+    void apply_mode(mode_t mode);
 
-    /** show message box */
-    void show_message_box(
-      int icon,
-      QString message, 
-      int btn_1 = 1024, // QMessageBox::Ok
-      int btn_2 = 0);   // QMessageBox::NoButton
   signals:
+    /** Trigger scanner to save current mesh */
+    void save_mesh_to_file(const QString &s);
     /** This signal is emited when this objects constructor finished */
     void initialize();
 
+    /** Provide status information */
+    void status_bar_msg(const QString &msg, const int msecs = 0);
+
   private:
-    void create_mappings();
+    void create_views();
+    void create_scanner();
 
-    QSignalMapper *_url_mapper;
-
-    // Members
-    Ui::reconstructmeqt *_ui;
-    scan_widget *_scan_ui;
-
-    QLabel *_fps_label;
-    QLabel *_fps_color_label;
-
-    // Dialogs
-    settings_dialog *_settings_dialog;
-    logging_dialog *_logging_dialog;
-    hardware_key_dialog *_hardware_key_dialog;
-    about_dialog *_about_dialog;
-    status_dialog *_status_dialog;
-
-    // Splash screens
-    QSplashScreen *_splash;
+    Ui::scan_widget *_ui;
 
     // Scanner utils
+    scan *_scanner;
     std::shared_ptr<reme_sdk_initializer> _initializer;
+    QThread* _scanner_thread;
+
+    // Images & Widget
+    QImage *_rgb_image;
+    QImage *_phong_image;
+    QImage *_depth_image;
+    QGLCanvas *_rgb_canvas;
+    QGLCanvas *_phong_canvas;
+    QGLCanvas *_depth_canvas;
   };
 
 }
 
-#endif // MAINWINDOW_H
+#endif // SCANWIDGET_H

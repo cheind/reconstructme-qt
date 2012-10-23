@@ -66,7 +66,7 @@ namespace ReconstructMeGUI {
 
   reme_sdk_initializer::~reme_sdk_initializer() {
     if (_c != 0)
-      reme_context_destroy(&_c); 
+      reme_context_destroy(&_c);
   }
 
   void reme_sdk_initializer::new_log_message(reme_log_severity_t sev, const QString &log) {

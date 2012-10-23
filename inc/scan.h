@@ -56,7 +56,7 @@ namespace ReconstructMeGUI {
     Q_OBJECT;
     
   public:
-    scan(reme_sdk_initializer *initializer);
+    scan(std::shared_ptr<reme_sdk_initializer> initializer);
     ~scan();
 
     void set_rgb_image(QImage* rgb);
@@ -101,7 +101,7 @@ namespace ReconstructMeGUI {
     QImage* _phong_image;
     QImage* _depth_image;
 
-    const reme_sdk_initializer *_i;
+    std::shared_ptr<reme_sdk_initializer> _i;
     
     mode_t _mode;
   };
