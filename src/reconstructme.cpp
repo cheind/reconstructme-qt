@@ -201,7 +201,6 @@ namespace ReconstructMeGUI {
     _initializer->initialize();
 
     // Shortcuts
-    _ui->actionSave->setShortcut(QKeySequence("Ctrl+S"));
     _ui->actionLog->setShortcut(QKeySequence("Ctrl+L"));
     _ui->actionSettings->setShortcut(QKeySequence("Ctrl+E"));
 

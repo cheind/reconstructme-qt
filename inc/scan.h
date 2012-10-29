@@ -59,10 +59,6 @@ namespace ReconstructMeGUI {
     scan(std::shared_ptr<reme_sdk_initializer> initializer);
     ~scan();
 
-    void set_rgb_image(QImage* rgb);
-    void set_phong_image(QImage* phong);
-    void set_depth_image(QImage* depth);
-
   public slots:
     /** Main loop. Retrieve Images, update volume */
     void start(bool);
@@ -84,11 +80,11 @@ namespace ReconstructMeGUI {
     void status_bar_msg(const QString &msg, const int msecs = 0);
 
     /** Is emitted, when a new RGB image is available */
-    void new_rgb_image_bits();
+    void new_rgb_image_bits(const void *);
     /** Is emitted, when a new Phong image is available */
-    void new_phong_image_bits();
+    void new_phong_image_bits(const void *);
     /** Is emitted, when a new Depth image is available */
-    void new_depth_image_bits();
+    void new_depth_image_bits(const void *);
     
     void mode_changed(mode_t);
 

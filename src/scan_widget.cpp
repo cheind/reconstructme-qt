@@ -95,16 +95,19 @@ namespace ReconstructMeGUI {
     _scanner->connect(this, SIGNAL(save_mesh_to_file(const QString &)), SLOT(save(const QString &)));
     connect(_ui->save_button, SIGNAL(clicked()), SLOT(save_button_clicked()));
 
-    // views update
-    connect(initializer.get(), SIGNAL(initialized_images()), SLOT(set_image_references()), Qt::BlockingQueuedConnection);
-    _rgb_canvas->connect(_scanner, SIGNAL(new_rgb_image_bits()), SLOT(update()));
-    _depth_canvas->connect(_scanner, SIGNAL(new_depth_image_bits()), SLOT(update()));
-    _phong_canvas->connect(_scanner, SIGNAL(new_phong_image_bits()), SLOT(update()));
+    // views
+    _rgb_canvas->connect(_initializer.get(),   SIGNAL(rgb_size(const QSize*)),   SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
+    _depth_canvas->connect(_initializer.get(), SIGNAL(depth_size(const QSize*)), SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
+    _phong_canvas->connect(_initializer.get(), SIGNAL(phong_size(const QSize*)), SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
+
+    _rgb_canvas->connect(_scanner,   SIGNAL(new_rgb_image_bits(const void*)),   SLOT(set_image_data(const void*)));
+    _depth_canvas->connect(_scanner, SIGNAL(new_depth_image_bits(const void*)), SLOT(set_image_data(const void*)));
+    _phong_canvas->connect(_scanner, SIGNAL(new_phong_image_bits(const void*)), SLOT(set_image_data(const void*)));
 
     // Shortcuts
     _ui->play_button->setShortcut(QKeySequence("Ctrl+P"));
     _ui->reset_button->setShortcut(QKeySequence("Ctrl+R"));
-
+    _ui->save_button->setShortcut(QKeySequence("Ctrl+S"));
   }
 
   void scan_widget::create_views() {
@@ -114,22 +117,12 @@ namespace ReconstructMeGUI {
     _phong_canvas = new QGLCanvas(def_img);
     _depth_canvas = new QGLCanvas(def_img);
 
-    //                                       r  c rs cs
+    //                                         r  c rs cs
     _ui->view_layout->addWidget(_phong_canvas, 0, 0, 2, 1);
     _ui->view_layout->addWidget(_rgb_canvas,   0, 1, 1, 1);
     _ui->view_layout->addWidget(_depth_canvas, 1, 1, 1, 1);
     _ui->view_layout->setColumnStretch(0, 2);
     _ui->view_layout->setColumnStretch(1, 1);
-  }
-
-  void scan_widget::set_image_references() {
-    _rgb_canvas->set_image_size(_initializer->rgb_size());
-    _phong_canvas->set_image_size(_initializer->phong_size());
-    _depth_canvas->set_image_size(_initializer->depth_size());
-
-    _scanner->set_rgb_image(_rgb_canvas->image());
-    _scanner->set_phong_image(_phong_canvas->image());
-    _scanner->set_depth_image(_depth_canvas->image());
   }
 
   void scan_widget::create_scanner() {
@@ -171,13 +164,11 @@ namespace ReconstructMeGUI {
     QPixmap pixmap;
     if (current__scanner_mode != PLAY) {
       _ui->save_button->setEnabled(true);
-      //ui->actionSave->setEnabled(true);
       pixmap.load(":/images/record-button.png");
       status_bar_msg(mode_pause_tag, STATUSBAR_TIME);
     }
     else {
       _ui->save_button->setDisabled(true);
-      //ui->actionSave->setDisabled(true);
       pixmap.load(":/images/pause-button.png");
       status_bar_msg(mode_play_tag, STATUSBAR_TIME);
     }

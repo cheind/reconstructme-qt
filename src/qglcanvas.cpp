@@ -58,8 +58,9 @@ namespace ReconstructMeGUI {
     repaint();
   }
 
-  QImage* QGLCanvas::image() {
-    return img;
+  void QGLCanvas::set_image_data(const void *data) {
+    memcpy((void*)img->bits(), data, img->byteCount());
+    repaint();
   }
 
   void QGLCanvas::resizeEvent(QResizeEvent*event) {
@@ -69,9 +70,7 @@ namespace ReconstructMeGUI {
     
     img_rect.setLeft(img_rect.left() + ((img_rect.width()  - s.width ()) /2));
     img_rect.setTop(img_rect.top()   + ((img_rect.height() - s.height()) /2));
-    
     img_rect.setSize(s);
-    
     
     logo_rect = img_rect;
     s = logo.size();

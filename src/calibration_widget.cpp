@@ -41,7 +41,7 @@
 namespace ReconstructMeGUI {
 
   calibration_widget::calibration_widget(std::shared_ptr<reme_sdk_initializer> initializer, QWidget *parent) : 
-    QWidget(parent),  
+    QWidget(parent),
     _ui(new Ui::calibration_widget),
     _initializer(initializer)
   {

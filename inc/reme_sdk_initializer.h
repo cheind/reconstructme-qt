@@ -91,10 +91,13 @@ namespace ReconstructMeGUI {
     void initializing(init_t what);
     void initialized(init_t what, bool success);
     void sdk_initialized(bool success);
-    void initialized_images();
     void initializing_sdk();
     void log_message(reme_log_severity_t sev, const QString &log);
 
+    void depth_size(const QSize*);
+    void rgb_size(const QSize*);
+    void phong_size(const QSize*);
+   
   private:
     bool try_open_sensor(const char *driver);
     

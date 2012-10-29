@@ -68,22 +68,16 @@ namespace ReconstructMeGUI {
     Q_OBJECT
     
   public:
-
     scan_widget(std::shared_ptr<reme_sdk_initializer>, QWidget *parent = 0);
     ~scan_widget();
 
     const scan *scanner() const;
 
   private slots:
-    /** Set image references from scanner */
-    void set_image_references();
-
     /** Handle save button clicked event. Trigger scanner to save current mesh */
     void save_button_clicked();
-    
     /** Handle reset button clicked event. Trigger scanner to reset current volume */
     void reset_button_clicked();
-
     /** Handle play button clicked event. Trigger scanner to toggle PLAY/PAUSE */
     void apply_mode(mode_t mode);
 
@@ -92,7 +86,6 @@ namespace ReconstructMeGUI {
     void save_mesh_to_file(const QString &s);
     /** This signal is emited when this objects constructor finished */
     void initialize();
-
     /** Provide status information */
     void status_bar_msg(const QString &msg, const int msecs = 0);
 
