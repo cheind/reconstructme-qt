@@ -31,66 +31,55 @@
   *          florian.eckerstorfer@profactor.at
   */
   
-#ifndef SCAN_H
-#define SCAN_H
+#ifndef FRAMEGRABBER_H
+#define FRAMEGRABBER_H
 
 #pragma once
 
-#include <QObject>
-
-#include "types.h"
-
-#include <ctime>
+#include <QObject>  
+#include <QSet>
 
 #include <reconstructmesdk/types.h>
 
 // Forward declarations
-class QImage;
 namespace ReconstructMeGUI {
   class reme_sdk_initializer;
+  class frame_consumer;
 }
 
 namespace ReconstructMeGUI {
 
-  /** This class provides scanning utilities */
-  class scan : public QObject
-  {  
-    Q_OBJECT;
+  /** Main UI element of the ReconstructMeQT application 
+  *
+  * \note This is the topmost element of the UI-tree. It holds references to 
+  *       all other UI elements, such as the necessary dialogs.
+  */
+  class frame_grabber : public QObject
+  {
+    Q_OBJECT
     
   public:
-    scan(std::shared_ptr<reme_sdk_initializer> initializer);
-    ~scan();
+    frame_grabber(std::shared_ptr<reme_sdk_initializer> initializer);
+    ~frame_grabber();
 
+  private slots:
+    void start(bool);
+  
   public slots:
-    void process_frame();
-    /** Toggles current mode */
-    void toggle_play_pause();
-    /** Sets the volume to empty */
-    void reset_volume();
-    
-    /** Save current volume content as polygonzied 3D model to file_name */
-    void save(const QString &file_name);
+    void stop();
 
   signals:
-    /** Emit log information */
-    void log_message(reme_log_severity_t sev, const QString &msg);
-
-    /** Provide status information */
-    void status_bar_msg(const QString &msg, const int msecs = 0);
-    
-    void mode_changed(mode_t);
-
-    void current_fps(const float);
+    void frame(reme_sensor_image_t type, reme_image_t image); 
+    void frames_updated();
 
   private:
-    void initialize_images();
-
     std::shared_ptr<reme_sdk_initializer> _i;
-    mode_t _mode;
-    bool lost_track_prev;
-    int cnt;
-    clock_t c0;
+    bool _do_grab;
+
+    reme_image_t _rgb;
+    reme_image_t _phong;
+    reme_image_t _depth;
   };
 }
 
-#endif // SCAN_H
+#endif // FRAMEGRABBER_H

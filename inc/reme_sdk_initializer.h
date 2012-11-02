@@ -69,13 +69,6 @@ namespace ReconstructMeGUI {
     const reme_volume_t volume() const;
 
     /** Getter for correct sized RGB QImage */
-    const reme_image_t rgb() const;
-    /** Getter for correct sized Phong QImage */
-    const reme_image_t phong() const;
-    /** Getter for correct sized Depth QImage */
-    const reme_image_t depth() const;
-
-    /** Getter for correct sized RGB QImage */
     const QSize *rgb_size() const;
     /** Getter for correct sized Phong QImage */
     const QSize *phong_size() const;
@@ -108,10 +101,6 @@ namespace ReconstructMeGUI {
     reme_context_t _c;
     reme_sensor_t _s;
     reme_volume_t _v;
-
-    reme_image_t _rgb;
-    reme_image_t _phong;
-    reme_image_t _depth;
 
     QSize *_rgb_size;
     QSize *_phong_size;

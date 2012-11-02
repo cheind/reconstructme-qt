@@ -64,6 +64,7 @@ namespace ReconstructMeGUI {
   class status_dialog;
   class hardware_key_dialog;
   class reme_sdk_initializer;
+  class frame_grabber;
 }
 
 namespace ReconstructMeGUI {
@@ -107,6 +108,7 @@ namespace ReconstructMeGUI {
   signals:
     /** This signal is emited when this objects constructor finished */
     void initialize();
+    void closing();
 
   private:
     void create_mappings();
@@ -131,10 +133,11 @@ namespace ReconstructMeGUI {
     // Splash screens
     QSplashScreen *_splash;
 
-    // Scanner utils
+    // utils
     std::shared_ptr<reme_sdk_initializer> _initializer;
+    frame_grabber* _frame_grabber;
+    QThread* _frame_grabber_thread;
   };
-
 }
 
 #endif // MAINWINDOW_H

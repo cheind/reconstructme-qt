@@ -37,6 +37,7 @@
 #pragma once
 
 #include <QWidget>
+#include <QMap>
 
 #include "types.h"
 
@@ -73,6 +74,9 @@ namespace ReconstructMeGUI {
 
     const scan *scanner() const;
 
+  public slots:
+    void process_frame(reme_sensor_image_t, reme_image_t);
+
   private slots:
     /** Handle save button clicked event. Trigger scanner to save current mesh */
     void save_button_clicked();
@@ -97,16 +101,14 @@ namespace ReconstructMeGUI {
 
     // Scanner utils
     scan *_scanner;
-    std::shared_ptr<reme_sdk_initializer> _initializer;
     QThread* _scanner_thread;
 
     // Images & Widget
     QImage *_rgb_image;
     QImage *_phong_image;
     QImage *_depth_image;
-    QGLCanvas *_rgb_canvas;
-    QGLCanvas *_phong_canvas;
-    QGLCanvas *_depth_canvas;
+    QMap<reme_sensor_image_t, QGLCanvas*> _canvas_map; 
+    std::shared_ptr<reme_sdk_initializer> _i;
   };
 
 }

@@ -51,126 +51,64 @@
 
 #include <sstream>
 #include <iostream>
-#include <ctime>
 
 namespace ReconstructMeGUI {
 
-  scan::scan(std::shared_ptr<reme_sdk_initializer> initializer) :
+  scan::scan(std::shared_ptr<reme_sdk_initializer> initializer) : 
     _i(initializer)
   {
-    _mode = NOT_RUN;
-    
-    connect(_i.get(), SIGNAL(sdk_initialized(bool)), SLOT(start(bool)));
-    connect(_i.get(), SIGNAL(initializing_sdk()), SLOT(stop()), Qt::BlockingQueuedConnection);
+    _mode = PAUSE;
+    lost_track_prev = false;
   }
 
   scan::~scan() {
   }
 
-  void scan::start(bool do_start) {
-    
-    // avoid recursion!
-    if (!do_start || _mode != NOT_RUN) return;
-    
-    // Get ready
-    _mode = PAUSE;
+  void scan::process_frame() {
+    if (_mode == PAUSE) return;
+
     bool success = true;
-    bool lost_track_prev;
-    const void *image_bytes;
-    int length;
-    int cnt = 1;
-    clock_t c0 = clock();
-    success = success && REME_SUCCESS(reme_sensor_update_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME, _i->volume())); 
-    success = success && REME_SUCCESS(reme_image_get_bytes(_i->context(), _i->volume(), &image_bytes, &length));
-    if (_i->phong_size() != 0 && success) {
-      emit new_phong_image_bits(image_bytes);
+
+    cnt++;
+    if (cnt % FPS_MODULO == 0) {
+      emit current_fps((float)cnt/(((float)(clock()-c0))/CLOCKS_PER_SEC));
+      c0 = clock();
+      cnt = 0;
     }
 
-    while (_mode != NOT_RUN && success) {
-      // frames per second
-      cnt++;
-      if (cnt % FPS_MODULO == 0) {
-        emit current_fps((float)cnt/(((float)(clock()-c0))/CLOCKS_PER_SEC));
-        c0 = clock();
-        cnt = 0;
+    reme_error_t track_error = reme_sensor_track_position(_i->context(), _i->sensor());
+    if (REME_SUCCESS(track_error)) {
+      // Track camera success (engine step)
+      if (lost_track_prev) {
+        // track found
+        lost_track_prev = false;
+        emit status_bar_msg(camera_track_found_tag, STATUS_MSG_DURATION);
       }
+      // Update volume with depth data from the current sensor perspective
+      success = success && REME_SUCCESS(reme_sensor_update_volume(_i->context(), _i->sensor()));
+    }
+    else if (track_error == REME_ERROR_INVALID_LICENSE) {
+      // lost track
+      if (!lost_track_prev) {
+        emit status_bar_msg(camera_track_lost_license_tag);
+      }
+      lost_track_prev = true;
+    }
+    else if (!lost_track_prev) {
+      // track lost
+      lost_track_prev = true;
+      emit status_bar_msg(camera_track_lost_tag);
+    }
 
-      success = true;
-
-      // Prepare image and depth data
-      success = success && REME_SUCCESS(reme_sensor_grab(_i->context(), _i->sensor()));
-      //reme_sensor_s
-      success = success && REME_SUCCESS(reme_sensor_prepare_images(_i->context(), _i->sensor()));
-
-      success = success && REME_SUCCESS(reme_sensor_update_image(_i->context(), _i->sensor(), REME_IMAGE_AUX, _i->rgb()));
-      if (_i->rgb_size() != 0 && success && REME_SUCCESS(reme_image_get_bytes(_i->context(), _i->rgb(), &image_bytes, &length))) {
-        emit new_rgb_image_bits(image_bytes);
-      }
-
-      success = success && REME_SUCCESS(reme_sensor_update_image(_i->context(), _i->sensor(), REME_IMAGE_DEPTH, _i->depth()));
-      if (_i->depth_size() != 0 && success && REME_SUCCESS(reme_image_get_bytes(_i->context(), _i->depth(), &image_bytes, &length))) {
-        emit new_depth_image_bits(image_bytes);
-      }
-      
-      if (_mode != PLAY) {
-        QCoreApplication::instance()->processEvents(); // check if something changed
-        continue;
-      }
-
-      success = success && REME_SUCCESS(reme_sensor_update_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME, _i->volume()));
-      if (_i->depth_size() != 0 && success && REME_SUCCESS(reme_image_get_bytes(_i->context(), _i->volume(), &image_bytes, &length))) {
-        emit new_phong_image_bits(image_bytes);
-      }
-      
-      reme_error_t track_error = reme_sensor_track_position(_i->context(), _i->sensor());
-      if (REME_SUCCESS(track_error)) {
-        // Track camera success (engine step)
-        if (lost_track_prev) {
-          // track found
-          lost_track_prev = false;
-          emit status_bar_msg(camera_track_found_tag, STATUS_MSG_DURATION);
-        }
-        // Update volume with depth data from the current sensor perspective
-        success = success && REME_SUCCESS(reme_sensor_update_volume(_i->context(), _i->sensor()));
-      }
-      else if (track_error == REME_ERROR_INVALID_LICENSE) {
-        // lost track
-        if (!lost_track_prev) {
-          emit status_bar_msg(camera_track_lost_license_tag);
-        }
-        lost_track_prev = true;
-      }
-      else if (!lost_track_prev) {
-        // track lost
-        lost_track_prev = true;
-        emit status_bar_msg(camera_track_lost_tag);
-      }
-      
-      if (!success) {
-        emit status_bar_msg(something_went_wrong_tag, STATUS_MSG_DURATION);
-      }
-      
-      QCoreApplication::instance()->processEvents(); // this has to be the last command in run
-    } // while
-
-    _mode = NOT_RUN;
+    if (!success) {
+      emit status_bar_msg(something_went_wrong_tag, STATUS_MSG_DURATION);
+    }
   }
 
   void scan::reset_volume() {
-    if (_mode == NOT_RUN) return;
-
     bool success = true;
     success = success && REME_SUCCESS(reme_volume_reset(_i->context(), _i->volume()));
     success = success && REME_SUCCESS(reme_sensor_reset(_i->context(), _i->sensor()));
-    
-    const void* image_bytes;
-    int length;
-
-    success = success && REME_SUCCESS(reme_sensor_update_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME, _i->volume()));
-    success = success && REME_SUCCESS(reme_image_get_bytes(_i->context(), _i->volume(), &image_bytes, &length));
-    if (success) {
-      emit new_phong_image_bits(image_bytes);
-    }
   }
 
   void scan::save(const QString &file_name) {
@@ -196,13 +134,10 @@ namespace ReconstructMeGUI {
 
     _mode = (_mode == PLAY) ? PAUSE : PLAY; // toggle mode
 
+    int cnt = 0;
+    clock_t c0 = clock();
+    
     emit current_fps(0);
     emit mode_changed(_mode);
   }
-
-  void scan::stop() {
-    emit current_fps(0);
-    _mode = NOT_RUN;
-  }
-
 }

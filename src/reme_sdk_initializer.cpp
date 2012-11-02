@@ -138,18 +138,16 @@ namespace ReconstructMeGUI {
       int width, height;
       bool img_succ = true;
 
-      img_succ = REME_SUCCESS(reme_image_create(_c, &_rgb));
-      img_succ = img_succ && REME_SUCCESS(reme_sensor_get_image_size(_c, _s, REME_IMAGE_AUX, &width, &height));
+      img_succ = REME_SUCCESS(reme_sensor_get_image_size(_c, _s, REME_IMAGE_AUX, &width, &height));
       _rgb_size = img_succ ? new QSize(width, height) : 0;
       emit rgb_size(_rgb_size);
 
-      img_succ = REME_SUCCESS(reme_image_create(_c, &_depth));
-      img_succ = img_succ && REME_SUCCESS(reme_sensor_get_image_size(_c, _s, REME_IMAGE_DEPTH, &width, &height));
+
+      img_succ = REME_SUCCESS(reme_sensor_get_image_size(_c, _s, REME_IMAGE_DEPTH, &width, &height));
       _depth_size = img_succ ? new QSize(width, height) : 0;
       emit depth_size(_depth_size);
 
-      img_succ = REME_SUCCESS(reme_image_create(_c, &_phong));
-      img_succ = img_succ && REME_SUCCESS(reme_sensor_get_image_size(_c, _s, REME_IMAGE_VOLUME, &width, &height));
+      img_succ = REME_SUCCESS(reme_sensor_get_image_size(_c, _s, REME_IMAGE_VOLUME, &width, &height));
       _phong_size = img_succ ? new QSize(width, height) : 0;
       emit phong_size(_phong_size);
     }
@@ -222,18 +220,6 @@ namespace ReconstructMeGUI {
 
   const reme_volume_t reme_sdk_initializer::volume() const{
     return _v;
-  }
-
-  const reme_image_t reme_sdk_initializer::rgb() const {
-    return _rgb;
-  }
-
-  const reme_image_t reme_sdk_initializer::phong() const {
-    return _phong;
-  }
-
-  const reme_image_t reme_sdk_initializer::depth() const {
-    return _depth;
   }
 
   const QSize *reme_sdk_initializer::rgb_size() const {

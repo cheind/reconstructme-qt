@@ -41,6 +41,7 @@
 
 #include "scan.h"
 #include "reme_sdk_initializer.h"
+#include "frame_grabber.h"
 
 #include "settings.h"
 #include "strings.h"
@@ -94,6 +95,10 @@ namespace ReconstructMeGUI {
     _splash->showMessage(welcome_tag, _splash_MSG_ALIGNMENT);
     _splash->show();
 
+    _frame_grabber = new frame_grabber(_initializer);
+    _frame_grabber_thread = new QThread(this);
+    _frame_grabber->moveToThread(_frame_grabber_thread);
+    _frame_grabber_thread->start();
 
     // ui's setup
     _ui->setupUi(this);
@@ -165,8 +170,11 @@ namespace ReconstructMeGUI {
     // ui connections
     connect(_scan_ui, SIGNAL(status_bar_msg(const QString&, const int)), SLOT(status_bar_msg(const QString&, const int)));
     connect(_scan_ui, SIGNAL(status_bar_msg(const QString&, const int)), SLOT(status_bar_msg(const QString&, const int)));
+    _scan_ui->connect(_frame_grabber, SIGNAL(frame(reme_sensor_image_t, reme_image_t)), SLOT(process_frame(reme_sensor_image_t, reme_image_t)), Qt::BlockingQueuedConnection);
+    _scan_ui->scanner()->connect(_frame_grabber, SIGNAL(frames_updated()), SLOT(process_frame()), Qt::BlockingQueuedConnection);
     connect(_scan_ui->scanner(), SIGNAL(current_fps(const float)), SLOT(show_fps(const float)));
     connect(_scan_ui->scanner(), SIGNAL(current_fps(const float)), SLOT(show_fps(const float)));
+
 
     // Dialog connections
     _settings_dialog->connect(_ui->actionSettings, SIGNAL(triggered()),SLOT(show()));
@@ -192,6 +200,7 @@ namespace ReconstructMeGUI {
     _status_dialog->logBtn()->connect(_initializer.get(), SIGNAL(initializing_sdk()), SLOT(hide()));
     _status_dialog->logBtn()->connect(_initializer.get(), SIGNAL(sdk_initialized(bool)), SLOT(show()));
 
+    _frame_grabber->connect(this, SIGNAL(closing()), SLOT(stop()), Qt::BlockingQueuedConnection);
     _initializer->connect(_settings_dialog, SIGNAL(initialize()), SLOT(initialize()));
     
     qRegisterMetaType<init_t>( "reme_log_severity_t" );
@@ -231,7 +240,14 @@ namespace ReconstructMeGUI {
 
   reconstructme::~reconstructme()
   {
+    emit closing();
+    _frame_grabber_thread->quit();
+    _frame_grabber_thread->wait();
+    
     delete _ui;
+
+    delete _frame_grabber;
+
   }
 
   void reconstructme::action_log_toggled(bool checked) {

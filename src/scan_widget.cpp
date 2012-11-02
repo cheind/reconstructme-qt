@@ -76,9 +76,8 @@
 namespace ReconstructMeGUI {
   
   scan_widget::scan_widget(std::shared_ptr<reme_sdk_initializer> initializer, QWidget *parent) : 
-    QWidget(parent),  
-    _ui(new Ui::scan_widget),
-    _initializer(initializer)
+    _ui(new Ui::scan_widget), 
+      _i(initializer)
   {
     _ui->setupUi(this);
 
@@ -96,13 +95,9 @@ namespace ReconstructMeGUI {
     connect(_ui->save_button, SIGNAL(clicked()), SLOT(save_button_clicked()));
 
     // views
-    _rgb_canvas->connect(_initializer.get(),   SIGNAL(rgb_size(const QSize*)),   SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
-    _depth_canvas->connect(_initializer.get(), SIGNAL(depth_size(const QSize*)), SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
-    _phong_canvas->connect(_initializer.get(), SIGNAL(phong_size(const QSize*)), SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
-
-    _rgb_canvas->connect(_scanner,   SIGNAL(new_rgb_image_bits(const void*)),   SLOT(set_image_data(const void*)));
-    _depth_canvas->connect(_scanner, SIGNAL(new_depth_image_bits(const void*)), SLOT(set_image_data(const void*)));
-    _phong_canvas->connect(_scanner, SIGNAL(new_phong_image_bits(const void*)), SLOT(set_image_data(const void*)));
+    _canvas_map[REME_IMAGE_AUX]->connect(_i.get(),   SIGNAL(rgb_size(const QSize*)),   SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
+    _canvas_map[REME_IMAGE_DEPTH]->connect(_i.get(), SIGNAL(depth_size(const QSize*)), SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
+    _canvas_map[REME_IMAGE_VOLUME]->connect(_i.get(), SIGNAL(phong_size(const QSize*)), SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
 
     // Shortcuts
     _ui->play_button->setShortcut(QKeySequence("Ctrl+P"));
@@ -113,21 +108,20 @@ namespace ReconstructMeGUI {
   void scan_widget::create_views() {
     // Create viewes and add to layout
     QString def_img(":/images/no_image_available.png");
-    _rgb_canvas   = new QGLCanvas(def_img);
-    _phong_canvas = new QGLCanvas(def_img);
-    _depth_canvas = new QGLCanvas(def_img);
+    _canvas_map[REME_IMAGE_AUX]    = new QGLCanvas(def_img);
+    _canvas_map[REME_IMAGE_DEPTH]  = new QGLCanvas(def_img);
+    _canvas_map[REME_IMAGE_VOLUME] = new QGLCanvas(def_img);
 
-    //                                         r  c rs cs
-    _ui->view_layout->addWidget(_phong_canvas, 0, 0, 2, 1);
-    _ui->view_layout->addWidget(_rgb_canvas,   0, 1, 1, 1);
-    _ui->view_layout->addWidget(_depth_canvas, 1, 1, 1, 1);
+    _ui->view_layout->addWidget(_canvas_map[REME_IMAGE_VOLUME], 0, 0, 2, 1);
+    _ui->view_layout->addWidget(_canvas_map[REME_IMAGE_AUX]   , 0, 1, 1, 1);
+    _ui->view_layout->addWidget(_canvas_map[REME_IMAGE_DEPTH] , 1, 1, 1, 1);
     _ui->view_layout->setColumnStretch(0, 2);
     _ui->view_layout->setColumnStretch(1, 1);
   }
 
   void scan_widget::create_scanner() {
     // do not change order, due to a connect in the scan 
-    _scanner = new scan(_initializer);
+    _scanner = new scan(_i);
     // scan thread
     _scanner_thread = new QThread(this);
     _scanner->moveToThread(_scanner_thread);
@@ -136,7 +130,6 @@ namespace ReconstructMeGUI {
 
   scan_widget::~scan_widget()
   {
-    _scanner->stop();
     _scanner_thread->quit();
     _scanner_thread->wait();
     
@@ -174,6 +167,14 @@ namespace ReconstructMeGUI {
     }
     QIcon icon(pixmap);
     playPause_b->setIcon(icon);
+  }
+
+  void scan_widget::process_frame(reme_sensor_image_t type, reme_image_t img) {
+    const void * data;
+    int length;
+
+    reme_image_get_bytes(_i->context(), img, &data, &length);
+    _canvas_map[type]->set_image_data(data);
   }
 
   void scan_widget::reset_button_clicked() {
