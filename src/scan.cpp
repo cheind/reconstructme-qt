@@ -39,7 +39,7 @@
 #include "scan.h"
 #include "settings.h"
 #include "strings.h"
-#include "reme_sdk_initializer.h"
+#include "reme_resource_manager.h"
 #include "mutex.h"
 
 #include <QCoreApplication>
@@ -54,7 +54,7 @@
 
 namespace ReconstructMeGUI {
 
-  scan::scan(std::shared_ptr<reme_sdk_initializer> initializer) : 
+  scan::scan(std::shared_ptr<reme_resource_manager> initializer) : 
     _i(initializer)
   {
     _mode = PAUSE;
@@ -112,8 +112,6 @@ namespace ReconstructMeGUI {
   }
 
   void scan::save(const QString &file_name) {
-    if (_mode == NOT_RUN) return;
-
     // Create a new surface
     reme_surface_t m;
     bool success = true;
@@ -130,9 +128,17 @@ namespace ReconstructMeGUI {
   }
 
   void scan::toggle_play_pause() {
-    if (_mode == NOT_RUN) return;
-
     _mode = (_mode == PLAY) ? PAUSE : PLAY; // toggle mode
+
+    int cnt = 0;
+    clock_t c0 = clock();
+    
+    emit current_fps(0);
+    emit mode_changed(_mode);
+  }
+
+  void scan::set_mode(mode_t mode) {
+    _mode = mode; // toggle mode
 
     int cnt = 0;
     clock_t c0 = clock();

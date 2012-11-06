@@ -54,7 +54,7 @@ namespace Ui {
 namespace ReconstructMeGUI {
   class scan;
   class QGLCanvas;
-  class reme_sdk_initializer;
+  class reme_resource_manager;
 }
 
 namespace ReconstructMeGUI {
@@ -69,13 +69,17 @@ namespace ReconstructMeGUI {
     Q_OBJECT
     
   public:
-    scan_widget(std::shared_ptr<reme_sdk_initializer>, QWidget *parent = 0);
+    scan_widget(std::shared_ptr<reme_resource_manager>, QWidget *parent = 0);
     ~scan_widget();
 
     const scan *scanner() const;
+    virtual void showEvent(QShowEvent* event);
+    virtual void hideEvent(QHideEvent* event);
 
   public slots:
     void process_frame(reme_sensor_image_t, reme_image_t);
+
+    void reconstruct();
 
   private slots:
     /** Handle save button clicked event. Trigger scanner to save current mesh */
@@ -94,21 +98,14 @@ namespace ReconstructMeGUI {
     void status_bar_msg(const QString &msg, const int msecs = 0);
 
   private:
-    void create_views();
-    void create_scanner();
-
     Ui::scan_widget *_ui;
 
-    // Scanner utils
+    // Scanner
     scan *_scanner;
-    QThread* _scanner_thread;
-
+    
     // Images & Widget
-    QImage *_rgb_image;
-    QImage *_phong_image;
-    QImage *_depth_image;
     QMap<reme_sensor_image_t, QGLCanvas*> _canvas_map; 
-    std::shared_ptr<reme_sdk_initializer> _i;
+    std::shared_ptr<reme_resource_manager> _i;
   };
 
 }

@@ -40,7 +40,7 @@
 #include "calibration_widget.h"
 
 #include "scan.h"
-#include "reme_sdk_initializer.h"
+#include "reme_resource_manager.h"
 #include "frame_grabber.h"
 
 #include "settings.h"
@@ -75,6 +75,7 @@
 #include <QPushButton>
 #include <QSignalMapper>
 #include <QWidget>
+#include <QCloseEvent>
 
 #include <iostream>
 
@@ -86,7 +87,7 @@ namespace ReconstructMeGUI {
   reconstructme::reconstructme(QWidget *parent) : 
     QMainWindow(parent),
     _ui(new Ui::reconstructmeqt),
-    _initializer(new reme_sdk_initializer())
+    _initializer(new reme_resource_manager())
   {
     // _splashscreen
     QPixmap splashPix(":/images/_splash_screen.png");
@@ -136,10 +137,8 @@ namespace ReconstructMeGUI {
     QSignalMapper *view_sm = new QSignalMapper(this);
     view_sm->setMapping(_ui->actionScan, _ui->scan_page);
     view_sm->setMapping(_ui->actionCalibration, _ui->calibration_page);
-    
     view_sm->connect(_ui->actionScan, SIGNAL(triggered()), SLOT(map()));
     view_sm->connect(_ui->actionCalibration, SIGNAL(triggered()), SLOT(map()));
-
     _ui->stackedWidget->connect(view_sm, SIGNAL(mapped(QWidget *)), SLOT(setCurrentWidget(QWidget *)));
 
     // move to center
@@ -169,18 +168,18 @@ namespace ReconstructMeGUI {
 
     // ui connections
     connect(_scan_ui, SIGNAL(status_bar_msg(const QString&, const int)), SLOT(status_bar_msg(const QString&, const int)));
-    connect(_scan_ui, SIGNAL(status_bar_msg(const QString&, const int)), SLOT(status_bar_msg(const QString&, const int)));
+    connect(_calibration_ui, SIGNAL(status_bar_msg(const QString&, const int)), SLOT(status_bar_msg(const QString&, const int)));
     _scan_ui->connect(_frame_grabber, SIGNAL(frame(reme_sensor_image_t, reme_image_t)), SLOT(process_frame(reme_sensor_image_t, reme_image_t)), Qt::BlockingQueuedConnection);
-    _scan_ui->scanner()->connect(_frame_grabber, SIGNAL(frames_updated()), SLOT(process_frame()), Qt::BlockingQueuedConnection);
-    connect(_scan_ui->scanner(), SIGNAL(current_fps(const float)), SLOT(show_fps(const float)));
+    _scan_ui->connect(_frame_grabber, SIGNAL(frames_updated()), SLOT(reconstruct()), Qt::BlockingQueuedConnection);
     connect(_scan_ui->scanner(), SIGNAL(current_fps(const float)), SLOT(show_fps(const float)));
 
+    _calibration_ui->connect(_frame_grabber, SIGNAL(frame(reme_sensor_image_t, reme_image_t)), SLOT(process_frame(reme_sensor_image_t, reme_image_t)), Qt::BlockingQueuedConnection);
+    
 
     // Dialog connections
     _settings_dialog->connect(_ui->actionSettings, SIGNAL(triggered()),SLOT(show()));
     _about_dialog->connect(_ui->actionAbout, SIGNAL(triggered()), SLOT(show()));
     _hardware_key_dialog->connect(_ui->actionGenerate_hardware_key, SIGNAL(triggered()), SLOT(show()));
-    
     
     connect(_ui->actionLog, SIGNAL(toggled(bool)), SLOT(action_log_toggled(bool)));
     _ui->actionLog->connect(_logging_dialog, SIGNAL(close_clicked()), SLOT(toggle()));
@@ -200,7 +199,6 @@ namespace ReconstructMeGUI {
     _status_dialog->logBtn()->connect(_initializer.get(), SIGNAL(initializing_sdk()), SLOT(hide()));
     _status_dialog->logBtn()->connect(_initializer.get(), SIGNAL(sdk_initialized(bool)), SLOT(show()));
 
-    _frame_grabber->connect(this, SIGNAL(closing()), SLOT(stop()), Qt::BlockingQueuedConnection);
     _initializer->connect(_settings_dialog, SIGNAL(initialize()), SLOT(initialize()));
     
     qRegisterMetaType<init_t>( "reme_log_severity_t" );
@@ -238,17 +236,36 @@ namespace ReconstructMeGUI {
     connect(_url_mapper, SIGNAL(mapped(const QString&)), SLOT(open_url(const QString&)));
   }
 
-  reconstructme::~reconstructme()
-  {
-    emit closing();
+  // ==================== closing ====================
+  void reconstructme::closeEvent(QCloseEvent *ev) {
+    if (_frame_grabber->is_grabbing()) {
+      // 1. stop frame grabber before closing
+      _frame_grabber->connect(this, SIGNAL(closing()), SLOT(stop()), Qt::QueuedConnection);
+      this->connect(_frame_grabber, SIGNAL(stopped_grabbing()), SLOT(really_close()), Qt::QueuedConnection);
+      emit closing();
+      ev->ignore();
+    } else {
+      // 3. close QMainWindow
+      ev->accept();
+      QMainWindow::closeEvent(ev);
+    }
+  }
+
+  void reconstructme::really_close() {
+    // 2. frame grabber stopped, so call close event again
+    this->close();
+  }
+
+  reconstructme::~reconstructme() {
+    // 4. Since the close event is accepted, destruct this
     _frame_grabber_thread->quit();
     _frame_grabber_thread->wait();
-    
+
     delete _ui;
-
     delete _frame_grabber;
-
   }
+
+  // ==================== closing ====================
 
   void reconstructme::action_log_toggled(bool checked) {
     if (checked) 

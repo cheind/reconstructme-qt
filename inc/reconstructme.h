@@ -63,7 +63,7 @@ namespace ReconstructMeGUI {
   class logging_dialog;
   class status_dialog;
   class hardware_key_dialog;
-  class reme_sdk_initializer;
+  class reme_resource_manager;
   class frame_grabber;
 }
 
@@ -105,10 +105,16 @@ namespace ReconstructMeGUI {
       QString message, 
       int btn_1 = 1024, // QMessageBox::Ok
       int btn_2 = 0);   // QMessageBox::NoButton
+
+    void really_close();
+
   signals:
     /** This signal is emited when this objects constructor finished */
     void initialize();
     void closing();
+
+  protected:
+     void	closeEvent(QCloseEvent *event);
 
   private:
     void create_mappings();
@@ -134,7 +140,7 @@ namespace ReconstructMeGUI {
     QSplashScreen *_splash;
 
     // utils
-    std::shared_ptr<reme_sdk_initializer> _initializer;
+    std::shared_ptr<reme_resource_manager> _initializer;
     frame_grabber* _frame_grabber;
     QThread* _frame_grabber_thread;
   };

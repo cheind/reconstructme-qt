@@ -186,11 +186,11 @@ namespace ReconstructMeGUI {
     }
   }
 
-  QPushButton *status_dialog::closeBtn() {
+  const QPushButton *status_dialog::closeBtn() {
     return ui->closeBtn;
   }
 
-  QPushButton *status_dialog::logBtn() {
+  const QPushButton *status_dialog::logBtn() {
     return ui->logBtn;
   }
 }

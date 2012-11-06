@@ -43,7 +43,7 @@
 
 // Forward declarations
 namespace ReconstructMeGUI {
-  class reme_sdk_initializer;
+  class reme_resource_manager;
   class frame_consumer;
 }
 
@@ -59,8 +59,10 @@ namespace ReconstructMeGUI {
     Q_OBJECT
     
   public:
-    frame_grabber(std::shared_ptr<reme_sdk_initializer> initializer);
+    frame_grabber(std::shared_ptr<reme_resource_manager> initializer);
     ~frame_grabber();
+
+    bool is_grabbing();
 
   private slots:
     void start(bool);
@@ -71,9 +73,10 @@ namespace ReconstructMeGUI {
   signals:
     void frame(reme_sensor_image_t type, reme_image_t image); 
     void frames_updated();
+    void stopped_grabbing();
 
   private:
-    std::shared_ptr<reme_sdk_initializer> _i;
+    std::shared_ptr<reme_resource_manager> _i;
     bool _do_grab;
 
     reme_image_t _rgb;

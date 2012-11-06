@@ -35,7 +35,7 @@
 #include "ui_scan_widget.h"
 
 #include "scan.h"
-#include "reme_sdk_initializer.h"
+#include "reme_resource_manager.h"
 
 #include "settings.h"
 #include "strings.h"
@@ -75,15 +75,26 @@
 
 namespace ReconstructMeGUI {
   
-  scan_widget::scan_widget(std::shared_ptr<reme_sdk_initializer> initializer, QWidget *parent) : 
+  scan_widget::scan_widget(std::shared_ptr<reme_resource_manager> initializer, QWidget *parent) : 
     _ui(new Ui::scan_widget), 
       _i(initializer)
   {
     _ui->setupUi(this);
 
-    // Create 
-    create_views();    // three views
-    create_scanner();  // init _scanner -> called by slot
+    // Create viewes and add to layout
+    QString def_img(":/images/no_image_available.png");
+    _canvas_map[REME_IMAGE_AUX]    = new QGLCanvas(def_img);
+    _canvas_map[REME_IMAGE_DEPTH]  = new QGLCanvas(def_img);
+    _canvas_map[REME_IMAGE_VOLUME] = new QGLCanvas(def_img);
+
+    _ui->view_layout->addWidget(_canvas_map[REME_IMAGE_VOLUME], 0, 0, 2, 1);
+    _ui->view_layout->addWidget(_canvas_map[REME_IMAGE_AUX]   , 0, 1, 1, 1);
+    _ui->view_layout->addWidget(_canvas_map[REME_IMAGE_DEPTH] , 1, 1, 1, 1);
+    _ui->view_layout->setColumnStretch(0, 2);
+    _ui->view_layout->setColumnStretch(1, 1);
+
+    // scanner
+    _scanner = new scan(_i);
 
     // interaction with _scanner
     qRegisterMetaType<init_t>( "mode_t" );
@@ -105,38 +116,16 @@ namespace ReconstructMeGUI {
     _ui->save_button->setShortcut(QKeySequence("Ctrl+S"));
   }
 
-  void scan_widget::create_views() {
-    // Create viewes and add to layout
-    QString def_img(":/images/no_image_available.png");
-    _canvas_map[REME_IMAGE_AUX]    = new QGLCanvas(def_img);
-    _canvas_map[REME_IMAGE_DEPTH]  = new QGLCanvas(def_img);
-    _canvas_map[REME_IMAGE_VOLUME] = new QGLCanvas(def_img);
-
-    _ui->view_layout->addWidget(_canvas_map[REME_IMAGE_VOLUME], 0, 0, 2, 1);
-    _ui->view_layout->addWidget(_canvas_map[REME_IMAGE_AUX]   , 0, 1, 1, 1);
-    _ui->view_layout->addWidget(_canvas_map[REME_IMAGE_DEPTH] , 1, 1, 1, 1);
-    _ui->view_layout->setColumnStretch(0, 2);
-    _ui->view_layout->setColumnStretch(1, 1);
-  }
-
-  void scan_widget::create_scanner() {
-    // do not change order, due to a connect in the scan 
-    _scanner = new scan(_i);
-    // scan thread
-    _scanner_thread = new QThread(this);
-    _scanner->moveToThread(_scanner_thread);
-    _scanner_thread->start();
-  }
-
+  
   scan_widget::~scan_widget()
   {
-    _scanner_thread->quit();
-    _scanner_thread->wait();
-    
     delete _scanner;
-    delete _scanner_thread;
 
     delete _ui;
+  }
+
+  void scan_widget::reconstruct() {
+    _scanner->process_frame();
   }
 
   void scan_widget::save_button_clicked()
@@ -170,11 +159,13 @@ namespace ReconstructMeGUI {
   }
 
   void scan_widget::process_frame(reme_sensor_image_t type, reme_image_t img) {
-    const void * data;
-    int length;
-
-    reme_image_get_bytes(_i->context(), img, &data, &length);
-    _canvas_map[type]->set_image_data(data);
+    if (isVisible()) {
+      const void * data;
+      int length;
+    
+      reme_image_get_bytes(_i->context(), img, &data, &length);
+      _canvas_map[type]->set_image_data(data);
+    }
   }
 
   void scan_widget::reset_button_clicked() {
@@ -184,4 +175,12 @@ namespace ReconstructMeGUI {
   const scan *scan_widget::scanner() const {
     return _scanner;
   }
+
+  void scan_widget::showEvent(QShowEvent* event) {
+  }
+
+  void scan_widget::hideEvent(QHideEvent* event) {
+    _scanner->set_mode(PAUSE);
+  }
+
 }

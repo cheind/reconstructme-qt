@@ -59,8 +59,8 @@ namespace ReconstructMeGUI {
     status_dialog(QWidget *parent = 0, Qt::WindowFlags f = Qt::FramelessWindowHint);
     ~status_dialog();
     
-    QPushButton *closeBtn();
-    QPushButton *logBtn();
+    const QPushButton *closeBtn();
+    const QPushButton *logBtn();
 
   public slots:
     void reset();

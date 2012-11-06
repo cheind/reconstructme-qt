@@ -41,11 +41,14 @@
 #include <reconstructmesdk/types.h>
 
 // Forward declarations
+class QThread;
 namespace Ui {
   class calibration_widget;
 }
 namespace ReconstructMeGUI {
-  class reme_sdk_initializer;
+  class reme_resource_manager;
+  class QGLCanvas;
+  class calibrate;
 }
 
 namespace ReconstructMeGUI {
@@ -56,14 +59,33 @@ namespace ReconstructMeGUI {
     Q_OBJECT;
 
   public:
-    calibration_widget(std::shared_ptr<reme_sdk_initializer> initializer, QWidget *parent = 0);
+    calibration_widget(std::shared_ptr<reme_resource_manager> initializer, QWidget *parent = 0);
     ~calibration_widget();
 
+    virtual void showEvent(QShowEvent* event);
+    virtual void hideEvent(QHideEvent* event);
+
   public slots:
+    void process_frame(reme_sensor_image_t type, reme_image_t img);
+    void add_next_frame();
+    void calibrate();
+    void initialize(bool success);
+
+  signals:
+    void status_bar_msg(const QString &msg, const int msecs = 0);
 
   private:
     Ui::calibration_widget *_ui;
-    std::shared_ptr<reme_sdk_initializer> _initializer;
+    std::shared_ptr<reme_resource_manager> _i;
+
+    reme_image_t _calibrate_image;
+    reme_calibrator_t _calibrator;
+
+    bool _add_next_frame;
+    int _img_cnt;
+
+    QGLCanvas* _aux_canvas;
+    QGLCanvas* _calib_canvas;
   };
 } 
 

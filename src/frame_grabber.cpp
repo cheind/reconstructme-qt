@@ -32,7 +32,7 @@
   */
 
 #include "frame_grabber.h"
-#include "reme_sdk_initializer.h"
+#include "reme_resource_manager.h"
 
 #include <reconstructmesdk/reme.h>
 
@@ -43,7 +43,7 @@
 
 
 namespace ReconstructMeGUI {
-  frame_grabber::frame_grabber(std::shared_ptr<reme_sdk_initializer> initializer) : 
+  frame_grabber::frame_grabber(std::shared_ptr<reme_resource_manager> initializer) : 
     _i(initializer) 
   {
     qRegisterMetaType<reme_sensor_image_t>("reme_sensor_image_t");
@@ -53,7 +53,10 @@ namespace ReconstructMeGUI {
   }
     
   frame_grabber::~frame_grabber() {
-    std::cout << "~frame_grabber" << std::endl; 
+  }
+
+  bool frame_grabber::is_grabbing() {
+    return _do_grab;
   }
 
 
@@ -69,31 +72,32 @@ namespace ReconstructMeGUI {
     _do_grab = true;
     bool success = true;
 
-    std::cout << "start" << std::endl;
     while (_do_grab && success)
     {
       // Prepare image and depth data
       success = success && REME_SUCCESS(reme_sensor_grab(_i->context(), _i->sensor()));
       success = success && REME_SUCCESS(reme_sensor_prepare_images(_i->context(), _i->sensor()));
       
-      if (_i->rgb_size() && REME_SUCCESS(reme_sensor_update_image(_i->context(), _i->sensor(), REME_IMAGE_AUX, _rgb))) 
+      if (_i->rgb_size() && REME_SUCCESS(reme_sensor_update_image(_i->context(), _i->sensor(), REME_IMAGE_AUX, _rgb))) {
         emit frame(REME_IMAGE_AUX, _rgb);
-      
-      if (_i->depth_size() && REME_SUCCESS(reme_sensor_update_image(_i->context(), _i->sensor(), REME_IMAGE_DEPTH, _depth))) 
+      }
+        
+      if (_i->depth_size() && REME_SUCCESS(reme_sensor_update_image(_i->context(), _i->sensor(), REME_IMAGE_DEPTH, _depth))) {
         emit frame(REME_IMAGE_DEPTH, _depth);
+      }
 
-      if (_i->phong_size() && REME_SUCCESS(reme_sensor_update_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME, _phong))) 
+      if (_i->phong_size() && REME_SUCCESS(reme_sensor_update_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME, _phong))) {
         emit frame(REME_IMAGE_VOLUME, _phong);
+      }
 
       emit frames_updated();
       QCoreApplication::processEvents();
     }
 
-    std::cout << "end_while" << std::endl;
+    emit stopped_grabbing();
   }
 
   void frame_grabber::stop() {
     _do_grab = false;
-    std::cout << "stop" << std::endl;
   }
 }

@@ -31,8 +31,8 @@
   *          florian.eckerstorfer@profactor.at
   */
   
-#ifndef REME_SDK_INITIALIZER_H
-#define REME_SDK_INITIALIZER_H
+#ifndef REME_RESOURCE_MANAGER_H
+#define REME_RESOURCE_MANAGER_H
 
 #pragma once
 
@@ -51,13 +51,13 @@ class QImage;
 namespace ReconstructMeGUI {
 
   /** This class provides scanning utilities */
-  class reme_sdk_initializer : public QObject 
+  class reme_resource_manager : public QObject 
   {  
     Q_OBJECT;
     
   public:
-    reme_sdk_initializer();
-    ~reme_sdk_initializer();
+    reme_resource_manager();
+    ~reme_resource_manager();
 
     void _initialize();
 
@@ -67,6 +67,12 @@ namespace ReconstructMeGUI {
     const reme_context_t context() const;
     const reme_sensor_t sensor() const;
     const reme_volume_t volume() const;
+    
+    reme_calibrator_t new_calibrator() const;
+    void destroy_calibrator(reme_calibrator_t calib);
+
+    reme_image_t new_image() const;
+    void destroy_image(reme_image_t image);
 
     /** Getter for correct sized RGB QImage */
     const QSize *rgb_size() const;
@@ -116,4 +122,4 @@ namespace ReconstructMeGUI {
   };
 }
 
-#endif // REME_SDK_INITIALIZER_H
+#endif // REME_RESOURCE_MANAGER_H

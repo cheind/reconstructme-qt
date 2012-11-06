@@ -47,7 +47,7 @@
 // Forward declarations
 class QImage;
 namespace ReconstructMeGUI {
-  class reme_sdk_initializer;
+  class reme_resource_manager;
 }
 
 namespace ReconstructMeGUI {
@@ -58,8 +58,10 @@ namespace ReconstructMeGUI {
     Q_OBJECT;
     
   public:
-    scan(std::shared_ptr<reme_sdk_initializer> initializer);
+    scan(std::shared_ptr<reme_resource_manager> initializer);
     ~scan();
+
+    void set_mode(mode_t mode);
 
   public slots:
     void process_frame();
@@ -85,7 +87,7 @@ namespace ReconstructMeGUI {
   private:
     void initialize_images();
 
-    std::shared_ptr<reme_sdk_initializer> _i;
+    std::shared_ptr<reme_resource_manager> _i;
     mode_t _mode;
     bool lost_track_prev;
     int cnt;

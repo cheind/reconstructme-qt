@@ -35,7 +35,7 @@
 
 #define STATUS_MSG_DURATION 2000
 
-#include "reme_sdk_initializer.h"
+#include "reme_resource_manager.h"
 #include "settings.h"
 #include "strings.h"
 #include "mutex.h"
@@ -54,26 +54,26 @@
 namespace ReconstructMeGUI {
 
   void reme_log(reme_log_severity_t sev, const char *message, void *user_data)  {
-    reme_sdk_initializer *i = static_cast<reme_sdk_initializer*>(user_data);
+    reme_resource_manager *i = static_cast<reme_resource_manager*>(user_data);
     i->new_log_message(sev, QString(message));
   }
 
-  reme_sdk_initializer::reme_sdk_initializer() {
+  reme_resource_manager::reme_resource_manager() {
     _c = 0;
     _initializing = false;
     connect(&_fw, SIGNAL(finished()), this, SLOT(finished_initialize()));
   }
 
-  reme_sdk_initializer::~reme_sdk_initializer() {
+  reme_resource_manager::~reme_resource_manager() {
     if (_c != 0)
       reme_context_destroy(&_c);
   }
 
-  void reme_sdk_initializer::new_log_message(reme_log_severity_t sev, const QString &log) {
+  void reme_resource_manager::new_log_message(reme_log_severity_t sev, const QString &log) {
     emit log_message(sev, log);
   }
 
-  void reme_sdk_initializer::_initialize() {
+  void reme_resource_manager::_initialize() {
     bool success = false;
 
     _has_sensor = false;
@@ -104,11 +104,11 @@ namespace ReconstructMeGUI {
     emit sdk_initialized(success);
   }
 
-  void _init(reme_sdk_initializer *initializer) {
+  void _init(reme_resource_manager *initializer) {
     return initializer->_initialize();
   }
 
-  void reme_sdk_initializer::initialize() {
+  void reme_resource_manager::initialize() {
     if (_initializing) return;
 
     _initializing = true;
@@ -116,12 +116,12 @@ namespace ReconstructMeGUI {
     _fw.setFuture(_future);
   }
 
-  void reme_sdk_initializer::finished_initialize() {
+  void reme_resource_manager::finished_initialize() {
     _initializing = false;
   }
 
 
-  bool reme_sdk_initializer::open_sensor() {
+  bool reme_resource_manager::open_sensor() {
     bool success = true;
     
     // can not initialize sensor is no compiled context is available
@@ -156,7 +156,7 @@ namespace ReconstructMeGUI {
     return _has_sensor;
   }
 
-  bool reme_sdk_initializer::apply_license() {
+  bool reme_resource_manager::apply_license() {
     bool success;
 
     reme_license_t l;
@@ -174,7 +174,7 @@ namespace ReconstructMeGUI {
     return success;
   }
 
-  bool reme_sdk_initializer::compile_context()
+  bool reme_resource_manager::compile_context()
   {
     bool success = true;
 
@@ -210,27 +210,56 @@ namespace ReconstructMeGUI {
     return _has_compiled_context;
   }
 
-  const reme_context_t reme_sdk_initializer::context() const{
+  reme_calibrator_t reme_resource_manager::new_calibrator() const {
+    if (_has_compiled_context && _has_sensor) {
+      reme_calibrator_t calib;
+      reme_calibrator_create(_c, &calib);
+      return calib;
+    }
+    else 
+      return REME_ERROR_UNSPECIFIED;
+  }
+
+  void reme_resource_manager::destroy_calibrator(reme_calibrator_t calib) {
+    if (_has_compiled_context)
+      reme_calibrator_destroy(_c, &calib);
+  }
+
+  reme_image_t reme_resource_manager::new_image() const {
+    if (_has_compiled_context) {
+      reme_image_t img;
+      reme_image_create(_c, &img);
+      return img;
+    }
+    else 
+      return REME_ERROR_UNSPECIFIED;
+  }
+
+  void reme_resource_manager::destroy_image(reme_image_t img) {
+    reme_image_destroy(_c, &img);
+  }
+
+  const reme_context_t reme_resource_manager::context() const{
     return _c;
   }
 
-  const reme_sensor_t reme_sdk_initializer::sensor() const{
+  const reme_sensor_t reme_resource_manager::sensor() const{
     return _s;
   }
 
-  const reme_volume_t reme_sdk_initializer::volume() const{
+  const reme_volume_t reme_resource_manager::volume() const{
     return _v;
   }
 
-  const QSize *reme_sdk_initializer::rgb_size() const {
+  const QSize *reme_resource_manager::rgb_size() const {
     return _rgb_size;
   }
 
-  const QSize *reme_sdk_initializer::phong_size() const {
+  const QSize *reme_resource_manager::phong_size() const {
     return _phong_size;
   }
 
-  const QSize *reme_sdk_initializer::depth_size() const {
+  const QSize *reme_resource_manager::depth_size() const {
     return _depth_size;
   }
 }
