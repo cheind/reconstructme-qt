@@ -106,9 +106,9 @@ namespace ReconstructMeGUI {
     connect(_ui->save_button, SIGNAL(clicked()), SLOT(save_button_clicked()));
 
     // views
-    _canvas_map[REME_IMAGE_AUX]->connect(_i.get(),   SIGNAL(rgb_size(const QSize*)),   SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
-    _canvas_map[REME_IMAGE_DEPTH]->connect(_i.get(), SIGNAL(depth_size(const QSize*)), SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
-    _canvas_map[REME_IMAGE_VOLUME]->connect(_i.get(), SIGNAL(phong_size(const QSize*)), SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
+    _canvas_map[REME_IMAGE_AUX]->connect(_i.get(),    SIGNAL(rgb_size(const QSize*)),   SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
+    _canvas_map[REME_IMAGE_DEPTH]->connect(_i.get(),  SIGNAL(depth_size(const QSize*)), SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
+    _canvas_map[REME_IMAGE_VOLUME]->connect(_i.get(), SIGNAL(depth_size(const QSize*)), SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
 
     // Shortcuts
     _ui->play_button->setShortcut(QKeySequence("Ctrl+P"));

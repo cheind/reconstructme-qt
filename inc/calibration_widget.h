@@ -69,12 +69,14 @@ namespace ReconstructMeGUI {
     void process_frame(reme_sensor_image_t type, reme_image_t img);
     void add_next_frame();
     void calibrate();
-    void initialize(bool success);
+    void apply_calibration_setting();
+    void apply_camera_settings();
 
   signals:
     void status_bar_msg(const QString &msg, const int msecs = 0);
 
   private:
+
     Ui::calibration_widget *_ui;
     std::shared_ptr<reme_resource_manager> _i;
 

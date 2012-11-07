@@ -61,7 +61,18 @@ QPushButton:hover, QAbstractItemView::item:hover, QAbstractItemView::item:select
     background-color:  rgb(80, 80, 80);
 }
 
-QLineEdit, QTextEdit, QAbstractItemView, QCheckBox::indicator
+QGroupBox { 
+     border: 1px solid rgb(180,180, 180);
+	 padding: 0px;
+     margin: 0px;
+}
+
+QGroupBox::title {
+	subcontrol-origin: margin;
+    subcontrol-position: top center; /* position at the top center */
+} 
+
+QLineEdit, QTextEdit, QAbstractItemView, QCheckBox::indicator, QSpinBox, QDoubleSpinBox, QProgressBar
 {
    background-color:  rgb(50, 50, 50);
 }

@@ -42,9 +42,8 @@
 #include <QSize>
 
 namespace ReconstructMeGUI {
-  QGLCanvas::QGLCanvas(QString &default_img_path, QString &logo_image, QWidget* parent) : QGLWidget(parent), 
-    default_img(default_img_path), 
-    logo(logo_image) {
+  QGLCanvas::QGLCanvas(QString &default_img_path, QWidget* parent) : QGLWidget(parent), 
+    default_img(default_img_path){
     
     set_image_size(0);
   }
@@ -59,36 +58,27 @@ namespace ReconstructMeGUI {
   }
 
   void QGLCanvas::set_image_data(const void *data) {
-    memcpy((void*)img->bits(), data, img->byteCount());
+    _has_data = data != 0;
+    
+    if (_has_data)
+      memcpy((void*)img->bits(), data, img->byteCount());
+    
     repaint();
   }
 
-  void QGLCanvas::resizeEvent(QResizeEvent*event) {
-    img_rect = this->rect();
-    QSize s = img->size();
-    s.scale(img_rect.size(), Qt::KeepAspectRatio);
-    
-    img_rect.setLeft(img_rect.left() + ((img_rect.width()  - s.width ()) /2));
-    img_rect.setTop(img_rect.top()   + ((img_rect.height() - s.height()) /2));
-    img_rect.setSize(s);
-    
-    logo_rect = img_rect;
-    s = logo.size();
-    s.scale(logo_rect.size(), Qt::KeepAspectRatio);
-    logo_rect.setTop(logo_rect.bottom()-s.height());
-    logo_rect.setSize(s);
-  }
-
   void QGLCanvas::paintEvent(QPaintEvent* ev) {
-    QMutexLocker lock(&image_mutex);
-    
     QPainter p(this);
-    p.fillRect(this->rect(), QColor(60, 60, 60));
-    //Set the painter to use a smooth scaling algorithm.
-    p.setRenderHint(QPainter::SmoothPixmapTransform, 1);
-    p.drawImage(img_rect, *img);
-    
-    p.drawImage(logo_rect, logo);
+
+    if (!_has_data) {
+      p.fillRect(this->rect(), QColor(0, 0, 0));
+    } 
+    else {
+      QMutexLocker lock(&image_mutex);
+      
+      //Set the painter to use a smooth scaling algorithm.
+      p.setRenderHint(QPainter::SmoothPixmapTransform, 1);
+      p.drawImage(this->rect(), *img);
+    }
 
     p.end();
   }

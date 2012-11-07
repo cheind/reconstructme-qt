@@ -78,15 +78,15 @@ namespace ReconstructMeGUI {
       success = success && REME_SUCCESS(reme_sensor_grab(_i->context(), _i->sensor()));
       success = success && REME_SUCCESS(reme_sensor_prepare_images(_i->context(), _i->sensor()));
       
-      if (_i->rgb_size() && REME_SUCCESS(reme_sensor_update_image(_i->context(), _i->sensor(), REME_IMAGE_AUX, _rgb))) {
+      if (_i->rgb_size() && REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_AUX, _rgb))) {
         emit frame(REME_IMAGE_AUX, _rgb);
       }
         
-      if (_i->depth_size() && REME_SUCCESS(reme_sensor_update_image(_i->context(), _i->sensor(), REME_IMAGE_DEPTH, _depth))) {
+      if (_i->depth_size() && REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_DEPTH, _depth))) {
         emit frame(REME_IMAGE_DEPTH, _depth);
       }
 
-      if (_i->phong_size() && REME_SUCCESS(reme_sensor_update_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME, _phong))) {
+      if (_i->depth_size() && REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME, _phong))) {
         emit frame(REME_IMAGE_VOLUME, _phong);
       }
 

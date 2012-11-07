@@ -132,24 +132,38 @@ namespace ReconstructMeGUI {
     QString sensor_path = settings.value(sensor_path_tag).toString();
     success = success && REME_SUCCESS(reme_sensor_create(_c, sensor_path.toStdString().c_str(), true, &_s));
     success = success && REME_SUCCESS(reme_sensor_open(_c, _s));
-
+   
     if (success)
     {
-      int width, height;
-      bool img_succ = true;
+      QString w_str, h_str;
+      const char *w_ch, *h_ch, *support;
+      int length;
+      bool supports_depth, supports_aux;
 
-      img_succ = REME_SUCCESS(reme_sensor_get_image_size(_c, _s, REME_IMAGE_AUX, &width, &height));
-      _rgb_size = img_succ ? new QSize(width, height) : 0;
+      reme_options_t o;
+      reme_options_create(_c, &o);
+      reme_sensor_bind_capture_options(_c, _s, o);
+
+      reme_options_get(_c, o, "supports_rgb", &support, &length);
+      supports_aux = QString(support).compare("true") == 0;
+
+      reme_options_get(_c, o, "supports_depth", &support, &length);
+      supports_depth = QString(support).compare("true") == 0;
+
+      reme_options_get(_c, o, "rgb_size.width", &w_ch, &length);
+      reme_options_get(_c, o, "rgb_size.height", &h_ch, &length);
+      w_str = w_ch;
+      h_str = h_ch;
+      _rgb_size = supports_aux ? new QSize(w_str.toInt(), h_str.toInt()) : 0;
+      _rgb_size = supports_aux ? new QSize(640, 480) : 0;
       emit rgb_size(_rgb_size);
 
-
-      img_succ = REME_SUCCESS(reme_sensor_get_image_size(_c, _s, REME_IMAGE_DEPTH, &width, &height));
-      _depth_size = img_succ ? new QSize(width, height) : 0;
+      reme_options_get(_c, o, "depth_size.width", &w_ch, &length);
+      reme_options_get(_c, o, "depth_size.height", &h_ch, &length);
+      w_str = w_ch;
+      h_str = h_ch;
+      _depth_size = supports_depth ? new QSize(640, 480) : 0;
       emit depth_size(_depth_size);
-
-      img_succ = REME_SUCCESS(reme_sensor_get_image_size(_c, _s, REME_IMAGE_VOLUME, &width, &height));
-      _phong_size = img_succ ? new QSize(width, height) : 0;
-      emit phong_size(_phong_size);
     }
 
     _has_sensor = success;
@@ -253,10 +267,6 @@ namespace ReconstructMeGUI {
 
   const QSize *reme_resource_manager::rgb_size() const {
     return _rgb_size;
-  }
-
-  const QSize *reme_resource_manager::phong_size() const {
-    return _phong_size;
   }
 
   const QSize *reme_resource_manager::depth_size() const {

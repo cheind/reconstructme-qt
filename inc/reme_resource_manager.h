@@ -76,8 +76,6 @@ namespace ReconstructMeGUI {
 
     /** Getter for correct sized RGB QImage */
     const QSize *rgb_size() const;
-    /** Getter for correct sized Phong QImage */
-    const QSize *phong_size() const;
     /** Getter for correct sized Depth QImage */
     const QSize *depth_size() const;
 
