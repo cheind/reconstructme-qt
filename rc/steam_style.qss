@@ -63,13 +63,14 @@ QPushButton:hover, QAbstractItemView::item:hover, QAbstractItemView::item:select
 
 QGroupBox { 
      border: 1px solid rgb(180,180, 180);
-	 padding: 0px;
-     margin: 0px;
+	 padding: -4px;
+     margin: 6px;
 }
 
 QGroupBox::title {
+	 padding: 0px 5px;
 	subcontrol-origin: margin;
-    subcontrol-position: top center; /* position at the top center */
+    subcontrol-position: top left; /* position at the top center */
 } 
 
 QLineEdit, QTextEdit, QAbstractItemView, QCheckBox::indicator, QSpinBox, QDoubleSpinBox, QProgressBar
