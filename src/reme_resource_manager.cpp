@@ -135,33 +135,29 @@ namespace ReconstructMeGUI {
    
     if (success)
     {
-      QString w_str, h_str;
-      const char *w_ch, *h_ch, *support;
-      int length;
+      int w, h;
       bool supports_depth, supports_aux;
 
       reme_options_t o;
       reme_options_create(_c, &o);
       reme_sensor_bind_capture_options(_c, _s, o);
 
-      reme_options_get(_c, o, "supports_rgb", &support, &length);
-      supports_aux = QString(support).compare("true") == 0;
-
-      reme_options_get(_c, o, "supports_depth", &support, &length);
-      supports_depth = QString(support).compare("true") == 0;
-
-      reme_options_get(_c, o, "rgb_size.width", &w_ch, &length);
-      w_str = w_ch; // apply immediately, since ReMe SDK uses same memory internally (w_ch, h_ch)
-      reme_options_get(_c, o, "rgb_size.height", &h_ch, &length); 
-      h_str = h_ch;
-      _rgb_size = supports_aux ? new QSize(w_str.toInt(), h_str.toInt()) : 0;
+      // AUXILIARY image
+      reme_options_get_bool(_c, o, "frame_info.supports_aux", &supports_aux);
+      if (supports_aux) {
+        reme_options_get_int(_c, o, "frame_info.aux_size.width", &w);
+        reme_options_get_int(_c, o, "frame_info.aux_size.height", &h);
+      }
+      _rgb_size = supports_aux ? new QSize(w, h) : 0;
       emit rgb_size(_rgb_size);
-
-      reme_options_get(_c, o, "depth_size.width", &w_ch, &length);
-      w_str = w_ch;
-      reme_options_get(_c, o, "depth_size.height", &h_ch, &length);
-      h_str = h_ch;
-      _depth_size = supports_depth ? new QSize(640, 480) : 0;
+      
+      // DEPTH image
+      reme_options_get_bool(_c, o, "frame_info.supports_depth", &supports_depth);
+      if (supports_depth) {
+        reme_options_get_int(_c, o, "frame_info.depth_size.width", &w);
+        reme_options_get_int(_c, o, "frame_info.depth_size.height", &h);
+      }
+      _depth_size = supports_depth ? new QSize(w, h) : 0;
       emit depth_size(_depth_size);
     }
 

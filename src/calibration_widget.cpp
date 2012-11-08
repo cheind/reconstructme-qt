@@ -50,12 +50,14 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QString>
+#include <QShowEvent>
 
 #include <iostream>
 
 #define STATUS_MSG_TIME 2000
 #define MIN_CALIB_IMAGES 10
 #define PROGRESSBAR_LABEL_TEXT "%1/%2 Images"
+#define BUFFER_LENGTH 255
 
 namespace ReconstructMeGUI {
 
@@ -154,14 +156,18 @@ namespace ReconstructMeGUI {
     // Copy over
     success = success && REME_SUCCESS(reme_options_copy(_i->context(), o_intr_new, o_intr));
 
+
+    // Save config file
     if (success) {
       QString sensor_file_name = QFileDialog::getSaveFileName(this, "Choose Save Filename", QDir::current().absolutePath(), QString("*.txt"));
 
-      // Save new config to file
-      success = success && REME_SUCCESS(reme_options_save_to_file(_i->context(), o, sensor_file_name.toStdString().c_str()));
+      if (!sensor_file_name.isEmpty()) {
+        success = success && REME_SUCCESS(reme_options_save_to_file(_i->context(), o, sensor_file_name.toStdString().c_str()));
 
-      if (QMessageBox::Yes == QMessageBox::information(this, "Calibrated Sensor Configuration", "Do you want to use the new sensor configruation?", QMessageBox::Yes, QMessageBox::No)) {
-        emit new_setting_file(sensor_file_name, SENSOR);
+        if (QMessageBox::Yes == QMessageBox::information(this, "Calibrated Sensor Configuration", "Do you want to use the new sensor configruation?", QMessageBox::Yes, QMessageBox::No)) {
+          emit new_setting_file(sensor_file_name, SENSOR);
+          _applied_new_sensor_config = true;
+        }
       }
     }
     else {
@@ -170,32 +176,33 @@ namespace ReconstructMeGUI {
   }
 
   void calibration_widget::apply_camera_settings() {
-    const char *data;
-    int length;
-
     reme_options_t cam_o;
     reme_options_create(_i->context(), &cam_o);
     reme_sensor_bind_camera_options(_i->context(), _i->sensor(), cam_o);
-    reme_options_get(_i->context(), cam_o, "enable_ir", &data, &length);
     
-    if (QString(data).compare("true") == 0) {
-      reme_options_get(_i->context(), cam_o, "driver", &data, &length);
-      
+    bool enable_ir;
+    reme_options_get_bool(_i->context(), cam_o, "enable_ir", &enable_ir);
+     
+    if (enable_ir) {
+      char driver[BUFFER_LENGTH];
+
+      reme_options_get(_i->context(), cam_o, "driver", driver, BUFFER_LENGTH);
+
       reme_options_t cap_o;
       reme_options_create(_i->context(), &cap_o);
       reme_sensor_bind_capture_options(_i->context(), _i->sensor(), cap_o);
-
+      
       // Increase contrast of the image. We've found that good values are 
       //  - Kinect for XBox, Xtion: around 4 with projector covered
       //  - Kinect for Windows: around 40 with projector turned off
-      if (QString(data).compare("openni") == 0)
+      if (QString(driver).compare("openni") == 0)
       {
-        reme_options_set(_i->context(), cap_o, "ir_alpha", "4");
+        reme_options_set_int(_i->context(), cap_o, "ir_alpha", 4);
       }
-      else if (QString(data).compare("mskinect") == 0)
+      else if (QString(driver).compare("mskinect") == 0)
       {
-        reme_options_set(_i->context(), cap_o, "ir_alpha", "40");
-        reme_options_set(_i->context(), cap_o, "enable_ir_projector", "false");
+        reme_options_set_int(_i->context(), cap_o, "ir_alpha", 40);
+        reme_options_set_bool(_i->context(), cap_o, "enable_ir_projector", false);
       }
       reme_sensor_apply_capture_options(_i->context(), _i->sensor(), cap_o);
     }
@@ -211,13 +218,12 @@ namespace ReconstructMeGUI {
     co.set_zero_tangential(_ui->zt_cb->isChecked());
     co.set_zero_k3(_ui->zk_cb->isChecked());
 
-    reme_options_t o;
-    reme_options_create(_i->context(), &o);
-
     if (_calibrator != REME_ERROR_UNSPECIFIED)
       _i->destroy_calibrator(_calibrator);
     _calibrator = _i->new_calibrator();
     
+    reme_options_t o;
+    reme_options_create(_i->context(), &o);    
     reme_calibrator_bind_options(_i->context(), _calibrator, o);
     
     std::string msg;
@@ -232,13 +238,26 @@ namespace ReconstructMeGUI {
     _ui->progressBar_label->setText(QString(PROGRESSBAR_LABEL_TEXT).arg(0).arg(MIN_CALIB_IMAGES));
   }
 
-  void calibration_widget::showEvent(QShowEvent* event) {
+  void calibration_widget::showEvent(QShowEvent* ev) {
+    reme_options_create(_i->context(), &_cap_o);
+    if (!REME_SUCCESS(reme_sensor_bind_capture_options(_i->context(), _i->sensor(), _cap_o))) {
+      ev->ignore();
+      this->hide();
+      return;
+    }
     apply_camera_settings();
     apply_calibration_setting();
     _calibrate_image = _i->new_image();
+
+    _applied_new_sensor_config = false;
   }
 
   void calibration_widget::hideEvent(QHideEvent* event) {
+    if (!_applied_new_sensor_config) {
+      reme_sensor_bind_capture_options(_i->context(), _i->sensor(), _cap_o);
+      reme_sensor_apply_capture_options(_i->context(), _i->sensor(), _cap_o);
+    }
+
     if (_calibrator != REME_ERROR_UNSPECIFIED)
       _i->destroy_calibrator(_calibrator);
     if (_calibrate_image != REME_ERROR_UNSPECIFIED)

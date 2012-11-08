@@ -83,6 +83,9 @@ namespace ReconstructMeGUI {
 
     reme_image_t _calibrate_image;
     reme_calibrator_t _calibrator;
+    reme_options_t _cap_o;
+
+    bool _applied_new_sensor_config;
 
     bool _add_next_frame;
     int _img_cnt;
