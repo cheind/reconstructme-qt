@@ -160,10 +160,9 @@ namespace ReconstructMeGUI {
       // Save new config to file
       success = success && REME_SUCCESS(reme_options_save_to_file(_i->context(), o, sensor_file_name.toStdString().c_str()));
 
-      //if (QMessageBox::Yes == QMessageBox::information(this, "Calibrated Sensor Configuration", "Apply the generated sensor configuration?", QMessageBox::Yes, QMessageBox::No)) {
-      //  QSettings settings(profactor_tag, reme_tag, this);
-      //  settings.setValue(sensor_path_tag, sensor_file_name);
-      //}
+      if (QMessageBox::Yes == QMessageBox::information(this, "Calibrated Sensor Configuration", "Do you want to use the new sensor configruation?", QMessageBox::Yes, QMessageBox::No)) {
+        emit new_setting_file(sensor_file_name, SENSOR);
+      }
     }
     else {
       status_bar_msg("Calibration failed", STATUS_MSG_TIME);
@@ -171,23 +170,38 @@ namespace ReconstructMeGUI {
   }
 
   void calibration_widget::apply_camera_settings() {
-    const char *support;
+    const char *data;
     int length;
 
-    reme_options_t o;
-    reme_options_create(_i->context(), &o);
-    reme_sensor_bind_capture_options(_i->context(), _i->sensor(), o);
+    reme_options_t cam_o;
+    reme_options_create(_i->context(), &cam_o);
+    reme_sensor_bind_camera_options(_i->context(), _i->sensor(), cam_o);
+    reme_options_get(_i->context(), cam_o, "enable_ir", &data, &length);
+    
+    if (QString(data).compare("true") == 0) {
+      reme_options_get(_i->context(), cam_o, "driver", &data, &length);
+      
+      reme_options_t cap_o;
+      reme_options_create(_i->context(), &cap_o);
+      reme_sensor_bind_capture_options(_i->context(), _i->sensor(), cap_o);
 
-    reme_options_set(_i->context(), o, "enable_ir_projector", "false");
-    reme_options_set(_i->context(), o, "ir_alpha", "40");
-    reme_options_set(_i->context(), o, "enable_rgb", "false");
-    reme_options_set(_i->context(), o, "enable_ir", "true");
-
-    reme_sensor_apply_capture_options(_i->context(), _i->sensor(), o);
+      // Increase contrast of the image. We've found that good values are 
+      //  - Kinect for XBox, Xtion: around 4 with projector covered
+      //  - Kinect for Windows: around 40 with projector turned off
+      if (QString(data).compare("openni") == 0)
+      {
+        reme_options_set(_i->context(), cap_o, "ir_alpha", "4");
+      }
+      else if (QString(data).compare("mskinect") == 0)
+      {
+        reme_options_set(_i->context(), cap_o, "ir_alpha", "40");
+        reme_options_set(_i->context(), cap_o, "enable_ir_projector", "false");
+      }
+      reme_sensor_apply_capture_options(_i->context(), _i->sensor(), cap_o);
+    }
   }
 
   void calibration_widget::apply_calibration_setting() {
-
     calibration_options co;
     co.set_inner_count_height(_ui->ich_sb->value());
     co.set_inner_count_width(_ui->icw_sb->value());

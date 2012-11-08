@@ -151,16 +151,15 @@ namespace ReconstructMeGUI {
       supports_depth = QString(support).compare("true") == 0;
 
       reme_options_get(_c, o, "rgb_size.width", &w_ch, &length);
-      reme_options_get(_c, o, "rgb_size.height", &h_ch, &length);
-      w_str = w_ch;
+      w_str = w_ch; // apply immediately, since ReMe SDK uses same memory internally (w_ch, h_ch)
+      reme_options_get(_c, o, "rgb_size.height", &h_ch, &length); 
       h_str = h_ch;
       _rgb_size = supports_aux ? new QSize(w_str.toInt(), h_str.toInt()) : 0;
-      _rgb_size = supports_aux ? new QSize(640, 480) : 0;
       emit rgb_size(_rgb_size);
 
       reme_options_get(_c, o, "depth_size.width", &w_ch, &length);
-      reme_options_get(_c, o, "depth_size.height", &h_ch, &length);
       w_str = w_ch;
+      reme_options_get(_c, o, "depth_size.height", &h_ch, &length);
       h_str = h_ch;
       _depth_size = supports_depth ? new QSize(640, 480) : 0;
       emit depth_size(_depth_size);

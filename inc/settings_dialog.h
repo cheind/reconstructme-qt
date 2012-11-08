@@ -36,6 +36,8 @@
 
 #pragma once
 
+#include "types.h"
+
 #include <QDialog>
 
 #include <reconstructmesdk/reme.h>
@@ -65,6 +67,8 @@ namespace ReconstructMeGUI {
     virtual void accept();
     /** Discard changes */
     virtual void reject();
+    /** Set a specific path */
+    void set_settings_path(const QString &file_path, init_t type);
   private slots:
     /** Open file dialog */
     void browse_config_button_clicked();

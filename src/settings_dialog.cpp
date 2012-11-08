@@ -125,6 +125,23 @@ namespace ReconstructMeGUI {
     delete ui;
   }
 
+  void settings_dialog::set_settings_path(const QString &file_path, init_t type) {
+    switch(type) {
+      case LICENSE:
+        ui->license_file_tb->setText(file_path);
+        accept();
+        break;
+      case OPENCL:
+        ui->config_path_tb->setText(file_path);
+        accept();
+        break;
+      case SENSOR:
+        ui->sensor_path_tb->setText(file_path);
+        accept();
+        break;
+    }
+  }
+
   void settings_dialog::accept() {
     // remove old once from filesystemwatcher
     if (QFile::exists(sens_path))    file_watcher->removePath(sens_path);

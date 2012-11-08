@@ -178,6 +178,7 @@ namespace ReconstructMeGUI {
 
     // Dialog connections
     _settings_dialog->connect(_ui->actionSettings, SIGNAL(triggered()),SLOT(show()));
+    _settings_dialog->connect(_calibration_ui, SIGNAL(new_setting_file(const QString &, init_t)), SLOT(set_settings_path(const QString &, init_t)));
     _about_dialog->connect(_ui->actionAbout, SIGNAL(triggered()), SLOT(show()));
     _hardware_key_dialog->connect(_ui->actionGenerate_hardware_key, SIGNAL(triggered()), SLOT(show()));
     

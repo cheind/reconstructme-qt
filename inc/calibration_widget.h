@@ -74,6 +74,7 @@ namespace ReconstructMeGUI {
 
   signals:
     void status_bar_msg(const QString &msg, const int msecs = 0);
+    void new_setting_file(const QString &file_path, init_t type);
 
   private:
 
