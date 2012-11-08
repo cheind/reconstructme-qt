@@ -44,6 +44,7 @@
 class QStandardItemModel;
 class QStandardItem;
 class QPushButton;
+class QTimer;
 namespace Ui {
   class status_dialog;
 }
@@ -87,6 +88,12 @@ namespace ReconstructMeGUI {
     QStandardItem *_dev_obj_item;
     QStandardItem *_dev_status_item;
     QStandardItem *_dev_message_item;
+
+    bool _has_license;
+    bool _has_sensor ;
+    bool _has_device ;
+
+    QTimer *t;
   };
 } 
 

@@ -37,6 +37,7 @@
 #include <QStandardItemModel>
 #include <QStandardItem>
 #include <QPushButton>
+#include <QTimer>
 
 namespace ReconstructMeGUI {
 
@@ -114,6 +115,10 @@ namespace ReconstructMeGUI {
     _status_model->appendRow(device_items);
     _status_model->appendRow(sensor_items);
     
+    t = new QTimer(this);
+    t->setInterval(1000);
+    t->setSingleShot(true);
+    ui->closeBtn->connect(t, SIGNAL(timeout()), SLOT(click()));
   }
 
   status_dialog::~status_dialog() {
@@ -130,6 +135,10 @@ namespace ReconstructMeGUI {
     _sen_message_item->setText(message);
     _lic_status_item->setIcon(icon);
     _lic_message_item->setText(message);
+
+    _has_license = false;
+    _has_sensor  = false;
+    _has_device  = false;
   }
 
   void status_dialog::initializing(init_t what) {
@@ -171,18 +180,25 @@ namespace ReconstructMeGUI {
       case OPENCL:
         _dev_status_item->setIcon(icon);
         _dev_message_item->setText(message);
+        _has_license = success;
         break;
       case SENSOR:
         _sen_status_item->setIcon(icon);
         _sen_message_item->setText(message);
+        _has_sensor = success;
         break;
       case LICENSE:
         _lic_status_item->setIcon(icon);
+        _has_device = success;
         if (success) 
           _lic_message_item->setText("Commercial mode");
         else 
           _lic_message_item->setText("Non commercial mode");
         break;
+    }
+
+    if (_has_license && _has_sensor && _has_device) {
+      t->start();
     }
   }
 
