@@ -10,14 +10,12 @@
 #include <QtGui/QGridLayout>
 
 #include <osgViewer/ViewerEventHandlers>
-
 #include <osgGA/TrackballManipulator>
-
-#include <osgDB/ReadFile>
 
 namespace ReconstructMeGUI {
 
-  viewer_widget::viewer_widget(QWidget *parent) : QWidget(parent) {
+  viewer_widget::viewer_widget(QWidget *parent) : QWidget(parent) 
+  {
     setThreadingModel(osgViewer::ViewerBase::SingleThreaded);
     grid = new QGridLayout(this);
 
@@ -33,9 +31,13 @@ namespace ReconstructMeGUI {
     traits->samples = ds->getNumMultiSamples();
 
     window = new osgQt::GraphicsWindowQt(traits.get());
+
+    _timer = new QTimer(this);
+    connect(_timer, SIGNAL(timeout()), this, SLOT(update()) );    
   }
 
-  void viewer_widget::set_view(osg::ref_ptr<osgViewer::View> view) {
+  void viewer_widget::view(osg::ref_ptr<osgViewer::View> view) {
+
     osg::ref_ptr<osg::Camera> camera = view->getCamera();
     camera->setGraphicsContext(window);
     camera->setViewport( new osg::Viewport(0, 0, traits->width, traits->height) );
@@ -46,9 +48,19 @@ namespace ReconstructMeGUI {
     setLayout(grid);
   }
    
-  void viewer_widget::paintEvent(QPaintEvent* event) { 
-    std::cout << "test" << std::endl;
-    frame(); // trigger render content
+  void viewer_widget::paintEvent(QPaintEvent* event) 
+  { 
+    frame();
+  }
+
+  void viewer_widget::start_rendering()
+  {
+    _timer->start(10);
+  }
+
+  void viewer_widget::stop_rendering()
+  {
+    _timer->stop();
   }
 
 }

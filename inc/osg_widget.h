@@ -36,7 +36,13 @@
 #include "types.h"
 
 #include <QWidget>
+#include <QTimer>
 
+#include <osg/Geometry>
+#include <osg/Geode>
+#include <osg/Group>
+#include <osgViewer/View>
+#include <osgGA/TrackballManipulator>
 
 // Forward declarations
 namespace Ui {
@@ -62,15 +68,18 @@ namespace ReconstructMeGUI {
     virtual void showEvent(QShowEvent* event);
     virtual void hideEvent(QHideEvent* event);
 
-  public slots:
-
-  signals:
+  protected:
+    void update_surface();
 
   private:
     Ui::osg_widget *_ui;
-    std::shared_ptr<reme_resource_manager> _i;
-
     viewer_widget* _osg;
+    std::shared_ptr<reme_resource_manager> _i;
+    osg::ref_ptr<osgViewer::View> _view;
+    osg::ref_ptr<osg::Group> _root;
+    osg::ref_ptr<osg::Geometry> _geom;
+    osg::ref_ptr<osg::Geode> _geode;
+    osg::ref_ptr<osgGA::TrackballManipulator> _manip;
   };
 } 
 

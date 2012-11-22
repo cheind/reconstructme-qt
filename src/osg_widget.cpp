@@ -33,14 +33,18 @@
 
 #include "osg_widget.h"
 #include "ui_osg_widget.h"
-
 #include "osg_viewer_qt.h"
+#include "reme_resource_manager.h"
 
-#include <osgDB/ReadFile>
+#include <reconstructmesdk/reme.h>
+
+#include <osgViewer/View>
 #include <osg/Node>
 #include <osg/ref_ptr>
-#include <osgViewer/View>
-
+#include <osg/StateSet>
+#include <osg/Geode>
+#include <osg/Material>
+#include <osg/LightModel>
 #include <iostream>
 
 namespace ReconstructMeGUI {
@@ -51,35 +55,44 @@ namespace ReconstructMeGUI {
     _i(initializer)
   {
     _ui->setupUi(this);
-
+    
     _osg = new viewer_widget(this);
     _ui->gridLayout->addWidget(_osg, 0, 0);
 
+    _root = new osg::Group();
+    _geode = new osg::Geode();
+    _geom = new osg::Geometry();
+    _view = new osgViewer::View();
+    _manip = new osgGA::TrackballManipulator();
 
-    osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry();
+    _root->addChild(_geode);
+    _view->setSceneData(_root);
+    _view->setCameraManipulator(_manip);
+    _view->getCamera()->setClearColor(osg::Vec4(50/255.f, 50/255.f, 50/255.f, 1.0));
 
-    osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array;
-    vertices->push_back(osg::Vec3f(0, 0, 0));
-    vertices->push_back(osg::Vec3f(1, 0, 0));
-    vertices->push_back(osg::Vec3f(0, 0, 1));
-    geometry->setVertexArray(vertices);
-
-    osg::ref_ptr<osg::DrawElementsUInt> triangle_def = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
-    triangle_def->push_back(0);
-    triangle_def->push_back(1);
-    triangle_def->push_back(2);
-    geometry->addPrimitiveSet(triangle_def);
-
-    osg::ref_ptr<osg::Group> root = new osg::Group();
-    osg::ref_ptr<osg::Geode> geode = new osg::Geode();
-
-    osg::ref_ptr<osg::Node> cow = osgDB::readNodeFile("D:/reconstruct_me_qt_build/Release/cow.osg");
+    osg::ref_ptr<osg::Material> mat = new osg::Material();
     
-    osg::ref_ptr<osgViewer::View> view = new ::osgViewer::View;
-    view->setSceneData(root);
+    // Front side
+    mat->setDiffuse(osg::Material::FRONT,  osg::Vec4(200/255.f, 214/255.f, 230/255.f, 1.0));
+    mat->setSpecular(osg::Material::FRONT, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0));
+    mat->setAmbient(osg::Material::FRONT,  osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
+    mat->setEmission(osg::Material::FRONT, osg::Vec4(0.0, 0.0, 0.0, 1.0));
+    mat->setShininess(osg::Material::FRONT, 10);
+    
+    // Back side
+    mat->setDiffuse(osg::Material::BACK,  osg::Vec4(255/255.f, 217/255.f, 228/255.f, 1.0));
+    mat->setSpecular(osg::Material::BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0));
+    mat->setAmbient(osg::Material::BACK,  osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
+    mat->setEmission(osg::Material::BACK, osg::Vec4(0.0, 0.0, 0.0, 1.0));
+    mat->setShininess(osg::Material::BACK, 2);
 
-    _osg->set_view(view);
-    _osg->repaint();
+    osg::ref_ptr<osg::LightModel> lightmodel = new osg::LightModel();
+    lightmodel->setTwoSided(true);
+
+    _geode->getOrCreateStateSet()->setAttributeAndModes(mat, osg::StateAttribute::ON);
+    _geode->getOrCreateStateSet()->setAttributeAndModes(lightmodel, osg::StateAttribute::ON);
+    
+    _osg->view(_view);
   }
 
   osg_widget::~osg_widget() {
@@ -87,8 +100,86 @@ namespace ReconstructMeGUI {
   }
 
   void osg_widget::showEvent(QShowEvent* ev) {
+    update_surface();
+    _osg->start_rendering();
   }
 
   void osg_widget::hideEvent(QHideEvent* event) {
+    _osg->stop_rendering();
+  }
+
+  void osg_widget::update_surface()
+  {
+    // Assumes that the timer is stopped.
+
+    // Remove old geometry
+    const unsigned int n = _geode->getNumDrawables();             
+    _geode->removeDrawables(0, _geode->getNumDrawables());
+
+    // Create surface using SDK
+    reme_surface_t s;
+    reme_surface_create(_i->context(), &s);
+    reme_surface_generate(_i->context(), s, _i->volume());
+
+    // Convert to OSG
+    const float *points, *normals;
+    const unsigned *faces;
+    int num_points, num_triangles;
+
+    reme_surface_get_points(_i->context(), s, &points, &num_points);
+    reme_surface_get_normals(_i->context(), s, &normals, &num_points);
+    reme_surface_get_triangles(_i->context(), s, &faces, &num_triangles);
+
+    num_triangles /= 3;
+
+    _geom = new osg::Geometry();
+    _geom->setUseDisplayList(false);
+    _geom->setUseVertexBufferObjects(true);
+
+    typedef osg::TemplateIndexArray<unsigned int, osg::Array::UIntArrayType, 24, 4> index_array_type;
+
+    osg::ref_ptr<osg::Vec3Array> vertex_coords = new osg::Vec3Array();
+    osg::ref_ptr<osg::Vec3Array> vertex_normals = new osg::Vec3Array();
+    osg::ref_ptr<osg::DrawElementsUInt> face_to_vertex = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
+    osg::ref_ptr<index_array_type> normal_to_vertex = new index_array_type();
+
+    /*
+    for (int i = 0; i < num_points; ++i) {
+      vertex_coords->push_back(osg::Vec3(points[i*4+0], points[i*4+1], points[i*4+2]));
+      vertex_normals->push_back(osg::Vec3(normals[i*4+0], normals[i*4+1], normals[i*4+2]));
+      normal_to_vertex->push_back(i);
+    }
+
+    face_to_vertex->insert(face_to_vertex->begin(), faces, faces + num_triangles * 3);
+
+    _geom->setVertexArray(vertex_coords);
+    _geom->setNormalArray(vertex_normals);
+    _geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+    _geom->setNormalIndices(normal_to_vertex);
+    _geom->addPrimitiveSet(face_to_vertex);
+    http://www.openscenegraph.org/projects/osg/browser/OpenSceneGraph/trunk/examples/osgviewerQt/osgviewerQtContext.cpp?rev=12131
+    */
+
+    vertex_coords->push_back(osg::Vec3(-0.5, 0.0, 0.0));
+    vertex_coords->push_back(osg::Vec3(0.5, 0.0, 0.0));
+    vertex_coords->push_back(osg::Vec3(0.0, 0.5, 0.0));
+
+    face_to_vertex->push_back(0);
+    face_to_vertex->push_back(1);
+    face_to_vertex->push_back(2);
+
+    _geom->setVertexArray(vertex_coords);
+    _geom->addPrimitiveSet(face_to_vertex);
+    
+    _geode->addDrawable(_geom);
+    _geode->dirtyBound();
+
+    /*
+    _manip->setNode(_root);
+    _manip->computeHomePosition();
+    _manip->home(0);
+    */
+
+    reme_surface_destroy(_i->context(), &s);
   }
 }
