@@ -14,23 +14,23 @@
 class QTimer;
 class QGridLayout;
 
-namespace ReconstructMeUI {
-  namespace UI {
+namespace ReconstructMeGUI {
 
-    /** Use a OSG view, and render it in a QWidget */
-    class viewer_widget : public QWidget, public osgViewer::CompositeViewer
-    {
-    public:
-        viewer_widget(osgViewer::View *view);
+  /** Use a OSG view, and render it in a QWidget */
+  class viewer_widget : public QWidget, public osgViewer::CompositeViewer {
+  public:
+      viewer_widget(QWidget *parent = 0);
 
-        /** repaint scene, eg. this->frame() */
-        virtual void paintEvent( QPaintEvent* event );
+      /**  */
+      void set_view(osg::ref_ptr<osgViewer::View> view);
 
-    private:
-      struct data;
-      QTimer *timer;
-      QGridLayout *grid;
-    };
+      /** repaint scene, eg. this->frame() */
+      virtual void paintEvent(QPaintEvent* event);
 
-  }
+  private:
+    struct data;
+    QGridLayout *grid;
+    osg::ref_ptr<osgQt::GraphicsWindowQt> window;
+    osg::ref_ptr<osg::GraphicsContext::Traits> traits;
+  };
 }

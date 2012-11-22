@@ -40,6 +40,7 @@
        </property>
       </widget>
       <widget class="QWidget" name="calibration_page"/>
+      <widget class="QWidget" name="osg_page"/>
      </widget>
     </item>
    </layout>
@@ -80,6 +81,7 @@
     </property>
     <addaction name="actionScan"/>
     <addaction name="actionCalibration"/>
+    <addaction name="action3D_Preview"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -184,6 +186,11 @@
    </property>
    <property name="text">
     <string>Calibration</string>
+   </property>
+  </action>
+  <action name="action3D_Preview">
+   <property name="text">
+    <string>3D Preview</string>
    </property>
   </action>
  </widget>

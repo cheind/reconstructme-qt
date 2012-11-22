@@ -65,6 +65,7 @@ namespace ReconstructMeGUI {
   class hardware_key_dialog;
   class reme_resource_manager;
   class frame_grabber;
+  class osg_widget;
 }
 
 namespace ReconstructMeGUI {
@@ -125,6 +126,7 @@ namespace ReconstructMeGUI {
     Ui::reconstructmeqt *_ui;
     scan_widget *_scan_ui;
     calibration_widget *_calibration_ui;
+    osg_widget *_osg_ui;
 
     QLabel *_fps_label;
     QLabel *_fps_color_label;

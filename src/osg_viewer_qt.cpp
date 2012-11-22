@@ -15,49 +15,40 @@
 
 #include <osgDB/ReadFile>
 
-namespace ReconstructMeUI {
-  namespace UI {
+namespace ReconstructMeGUI {
 
-    viewer_widget::viewer_widget(osgViewer::View *view) : QWidget()
-    {
-      timer = new QTimer(this);
-      grid = new QGridLayout(this);
+  viewer_widget::viewer_widget(QWidget *parent) : QWidget(parent) {
+    setThreadingModel(osgViewer::ViewerBase::SingleThreaded);
+    grid = new QGridLayout(this);
 
-      setThreadingModel(osgViewer::ViewerBase::SingleThreaded);
+    osg::ref_ptr<osg::DisplaySettings> ds = osg::DisplaySettings::instance().get();
+    traits = new osg::GraphicsContext::Traits;
+    traits->windowDecoration = false;
+    traits->x = 0;
+    traits->y = 0;
+    traits->doubleBuffer = true;
+    traits->alpha = ds->getMinimumNumAlphaBits();
+    traits->stencil = ds->getMinimumNumStencilBits();
+    traits->sampleBuffers = ds->getMultiSamples();
+    traits->samples = ds->getNumMultiSamples();
 
-      osg::Camera *camera = view->getCamera();
-
-      osg::DisplaySettings* ds = osg::DisplaySettings::instance().get();
-      osg::ref_ptr<osg::GraphicsContext::Traits> traits = new osg::GraphicsContext::Traits;
-      traits->windowDecoration = false;
-      traits->x = 0;
-      traits->y = 0;
-      //traits->width = 640;
-      //traits->height = 480;
-      traits->doubleBuffer = true;
-      traits->alpha = ds->getMinimumNumAlphaBits();
-      traits->stencil = ds->getMinimumNumStencilBits();
-      traits->sampleBuffers = ds->getMultiSamples();
-      traits->samples = ds->getNumMultiSamples();
-
-      osgQt::GraphicsWindowQt *window = new osgQt::GraphicsWindowQt(traits.get());
-      camera->setGraphicsContext(window);
-      camera->setViewport( new osg::Viewport(0, 0, traits->width, traits->height) );
-
-      this->addView(view);
-
-      grid->addWidget(window->getGLWidget(), 0, 0);
-      setLayout(grid);
-        
-      //connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-      //timer->start(10);
-    }
-
-   
-    void viewer_widget::paintEvent( QPaintEvent* event )
-    { 
-      this->frame(); 
-    }
-
+    window = new osgQt::GraphicsWindowQt(traits.get());
   }
+
+  void viewer_widget::set_view(osg::ref_ptr<osgViewer::View> view) {
+    osg::ref_ptr<osg::Camera> camera = view->getCamera();
+    camera->setGraphicsContext(window);
+    camera->setViewport( new osg::Viewport(0, 0, traits->width, traits->height) );
+
+    this->addView(view);
+
+    grid->addWidget(window->getGLWidget(), 0, 0);
+    setLayout(grid);
+  }
+   
+  void viewer_widget::paintEvent(QPaintEvent* event) { 
+    std::cout << "test" << std::endl;
+    frame(); // trigger render content
+  }
+
 }
