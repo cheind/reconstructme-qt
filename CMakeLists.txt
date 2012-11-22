@@ -102,19 +102,19 @@ INSTALL(FILES
 		${QT_BINARY_DIR}/QtGUI4.dll 
 		${QT_BINARY_DIR}/QtOpenGL4.dll
 		${OSG_BINARY_DIR}/ot12-OpenThreads.dll
-        ${BINARY_DIRECTORY}/osg80-osg.dll
-        ${BINARY_DIRECTORY}/osg80-osgGA.dll
-        ${BINARY_DIRECTORY}/osg80-osgViewer.dll
-        ${BINARY_DIRECTORY}/osg80-osgDB.dll
-        ${BINARY_DIRECTORY}/osg80-osgUtil.dll
-        ${BINARY_DIRECTORY}/osg80-osgSim.dll
-        ${BINARY_DIRECTORY}/osg80-osgAnimation.dll
-        ${BINARY_DIRECTORY}/osg80-osgQt.dll
-		${BINARY_DIRECTORY}/zlib1.dll
-		${BINARY_DIRECTORY}/gdal18.dll
-		${BINARY_DIRECTORY}/glut32.dll
-		${BINARY_DIRECTORY}/libexpat.dll
-		${BINARY_DIRECTORY}/libpng13.dll
+        ${OSG_BINARY_DIR}/osg80-osg.dll
+        ${OSG_BINARY_DIR}/osg80-osgGA.dll
+        ${OSG_BINARY_DIR}/osg80-osgViewer.dll
+        ${OSG_BINARY_DIR}/osg80-osgDB.dll
+        ${OSG_BINARY_DIR}/osg80-osgUtil.dll
+        ${OSG_BINARY_DIR}/osg80-osgSim.dll
+        ${OSG_BINARY_DIR}/osg80-osgAnimation.dll
+        ${OSG_BINARY_DIR}/osg80-osgQt.dll
+		${OSG_BINARY_DIR}/zlib1.dll
+		${OSG_BINARY_DIR}/gdal18.dll
+		${OSG_BINARY_DIR}/glut32.dll
+		${OSG_BINARY_DIR}/libexpat.dll
+		${OSG_BINARY_DIR}/libpng13.dll
 	    DESTINATION bin) 
 
 add_subdirectory(etc/wix)
