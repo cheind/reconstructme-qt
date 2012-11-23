@@ -143,7 +143,7 @@ namespace ReconstructMeGUI {
 
     // utils
     std::shared_ptr<reme_resource_manager> _initializer;
-    frame_grabber* _frame_grabber;
+    std::shared_ptr<frame_grabber> _frame_grabber;
     QThread* _frame_grabber_thread;
   };
 }

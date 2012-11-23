@@ -47,6 +47,7 @@ namespace Ui {
 }
 namespace ReconstructMeGUI {
   class reme_resource_manager;
+  class frame_grabber;
   class QGLCanvas;
   class calibrate;
 }
@@ -59,7 +60,7 @@ namespace ReconstructMeGUI {
     Q_OBJECT;
 
   public:
-    calibration_widget(std::shared_ptr<reme_resource_manager> initializer, QWidget *parent = 0);
+    calibration_widget(std::shared_ptr<reme_resource_manager> initializer, std::shared_ptr<frame_grabber> f, QWidget *parent = 0);
     ~calibration_widget();
 
     virtual void showEvent(QShowEvent* event);
@@ -80,12 +81,11 @@ namespace ReconstructMeGUI {
 
     Ui::calibration_widget *_ui;
     std::shared_ptr<reme_resource_manager> _i;
+    std::shared_ptr<frame_grabber> _f;
 
     reme_image_t _calibrate_image;
     reme_calibrator_t _calibrator;
     reme_options_t _cap_o;
-
-    bool _applied_new_sensor_config;
 
     bool _add_next_frame;
     int _img_cnt;

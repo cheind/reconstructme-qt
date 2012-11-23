@@ -63,7 +63,9 @@ namespace ReconstructMeGUI {
     ~frame_grabber();
 
     bool is_grabbing();
-
+    void request(reme_image_t image);
+    void release(reme_image_t image);
+    
   private slots:
     void start(bool);
   
@@ -82,6 +84,8 @@ namespace ReconstructMeGUI {
     reme_image_t _rgb;
     reme_image_t _phong;
     reme_image_t _depth;
+
+    int _req_count[3];    
   };
 }
 

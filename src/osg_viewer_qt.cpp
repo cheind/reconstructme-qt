@@ -11,41 +11,50 @@
 
 #include <osgViewer/ViewerEventHandlers>
 #include <osgGA/TrackballManipulator>
+#include <iostream>
 
 namespace ReconstructMeGUI {
 
   viewer_widget::viewer_widget(QWidget *parent) : QWidget(parent) 
   {
     setThreadingModel(osgViewer::ViewerBase::SingleThreaded);
-    grid = new QGridLayout(this);
 
     osg::ref_ptr<osg::DisplaySettings> ds = osg::DisplaySettings::instance().get();
     traits = new osg::GraphicsContext::Traits;
     traits->windowDecoration = false;
     traits->x = 0;
     traits->y = 0;
+    traits->width = 100;
+    traits->height = 100;
     traits->doubleBuffer = true;
     traits->alpha = ds->getMinimumNumAlphaBits();
     traits->stencil = ds->getMinimumNumStencilBits();
     traits->sampleBuffers = ds->getMultiSamples();
     traits->samples = ds->getNumMultiSamples();
 
+    osg::ref_ptr<osg::Camera> camera = new osg::Camera;
     window = new osgQt::GraphicsWindowQt(traits.get());
-
-    _timer = new QTimer(this);
-    connect(_timer, SIGNAL(timeout()), this, SLOT(update()) );    
-  }
-
-  void viewer_widget::view(osg::ref_ptr<osgViewer::View> view) {
-
-    osg::ref_ptr<osg::Camera> camera = view->getCamera();
-    camera->setGraphicsContext(window);
+    camera->setGraphicsContext(window);    
     camera->setViewport( new osg::Viewport(0, 0, traits->width, traits->height) );
+    camera->setProjectionMatrixAsPerspective(30.0f, static_cast<double>(traits->width)/static_cast<double>(traits->height), 1.0f, 10000.0f );
 
-    this->addView(view);
+    grid = new QGridLayout(this);
 
+    view = new osgViewer::View;
+    view->setCamera(camera);
+    addView(view);
+  
     grid->addWidget(window->getGLWidget(), 0, 0);
     setLayout(grid);
+
+    _timer = new QTimer(this);
+    connect(_timer, SIGNAL(timeout()), this, SLOT(update()) );  
+    this->realize();
+  }
+
+  osg::ref_ptr<osgViewer::View> viewer_widget::osg_view() 
+  {
+    return view;
   }
    
   void viewer_widget::paintEvent(QPaintEvent* event) 

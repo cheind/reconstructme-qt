@@ -55,6 +55,7 @@ namespace ReconstructMeGUI {
   class scan;
   class QGLCanvas;
   class reme_resource_manager;
+  class frame_grabber;
 }
 
 namespace ReconstructMeGUI {
@@ -69,7 +70,7 @@ namespace ReconstructMeGUI {
     Q_OBJECT
     
   public:
-    scan_widget(std::shared_ptr<reme_resource_manager>, QWidget *parent = 0);
+    scan_widget(std::shared_ptr<reme_resource_manager>, std::shared_ptr<frame_grabber> frame_grabber, QWidget *parent = 0);
     ~scan_widget();
 
     const scan *scanner() const;
@@ -105,6 +106,7 @@ namespace ReconstructMeGUI {
     
     // Images & Widget
     QMap<reme_sensor_image_t, QGLCanvas*> _canvas_map; 
+    std::shared_ptr<frame_grabber> _f;
     std::shared_ptr<reme_resource_manager> _i;
   };
 

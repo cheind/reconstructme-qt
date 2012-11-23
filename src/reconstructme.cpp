@@ -97,15 +97,15 @@ namespace ReconstructMeGUI {
     _splash->showMessage(welcome_tag, _splash_MSG_ALIGNMENT);
     _splash->show();
 
-    _frame_grabber = new frame_grabber(_initializer);
+    _frame_grabber = std::shared_ptr<frame_grabber>(new frame_grabber(_initializer));
     _frame_grabber_thread = new QThread(this);
     _frame_grabber->moveToThread(_frame_grabber_thread);
     _frame_grabber_thread->start();
 
     // ui's setup
     _ui->setupUi(this);
-    _scan_ui = new scan_widget(_initializer, this);
-    _calibration_ui = new calibration_widget(_initializer, this);
+    _scan_ui = new scan_widget(_initializer, _frame_grabber, this);
+    _calibration_ui = new calibration_widget(_initializer, _frame_grabber, this);
     _osg_ui = new osg_widget(_initializer, parent);
 
     _ui->scan_page = _scan_ui;
@@ -176,12 +176,8 @@ namespace ReconstructMeGUI {
     // ui connections
     connect(_scan_ui, SIGNAL(status_bar_msg(const QString&, const int)), SLOT(status_bar_msg(const QString&, const int)));
     connect(_calibration_ui, SIGNAL(status_bar_msg(const QString&, const int)), SLOT(status_bar_msg(const QString&, const int)));
-    _scan_ui->connect(_frame_grabber, SIGNAL(frame(reme_sensor_image_t, reme_image_t)), SLOT(process_frame(reme_sensor_image_t, reme_image_t)), Qt::BlockingQueuedConnection);
-    _scan_ui->connect(_frame_grabber, SIGNAL(frames_updated()), SLOT(reconstruct()), Qt::BlockingQueuedConnection);
     connect(_scan_ui->scanner(), SIGNAL(current_fps(const float)), SLOT(show_fps(const float)));
-    
-    _calibration_ui->connect(_frame_grabber, SIGNAL(frame(reme_sensor_image_t, reme_image_t)), SLOT(process_frame(reme_sensor_image_t, reme_image_t)), Qt::BlockingQueuedConnection);
-
+        
     // Dialog connections
     _settings_dialog->connect(_ui->actionSettings, SIGNAL(triggered()),SLOT(show()));
     _settings_dialog->connect(_calibration_ui, SIGNAL(new_setting_file(const QString &, init_t)), SLOT(set_settings_path(const QString &, init_t)));
@@ -248,7 +244,7 @@ namespace ReconstructMeGUI {
     if (_frame_grabber->is_grabbing()) {
       // 1. stop frame grabber before closing
       _frame_grabber->connect(this, SIGNAL(closing()), SLOT(stop()), Qt::QueuedConnection);
-      this->connect(_frame_grabber, SIGNAL(stopped_grabbing()), SLOT(really_close()), Qt::QueuedConnection);
+      this->connect(_frame_grabber.get(), SIGNAL(stopped_grabbing()), SLOT(really_close()), Qt::QueuedConnection);
       emit closing();
       ev->ignore();
     } else {
@@ -269,7 +265,6 @@ namespace ReconstructMeGUI {
     _frame_grabber_thread->wait();
 
     delete _ui;
-    delete _frame_grabber;
   }
 
   // ==================== closing ====================

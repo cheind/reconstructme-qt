@@ -44,8 +44,12 @@
 
 namespace ReconstructMeGUI {
   frame_grabber::frame_grabber(std::shared_ptr<reme_resource_manager> initializer) : 
-    _i(initializer) 
+    _i(initializer)
   {
+    _req_count[REME_IMAGE_AUX] = 0;
+    _req_count[REME_IMAGE_DEPTH] = 0;
+    _req_count[REME_IMAGE_VOLUME] = 0;
+
     qRegisterMetaType<reme_sensor_image_t>("reme_sensor_image_t");
 
     connect(_i.get(), SIGNAL(initializing_sdk()), SLOT(stop()), Qt::BlockingQueuedConnection);
@@ -59,6 +63,15 @@ namespace ReconstructMeGUI {
     return _do_grab;
   }
 
+  void frame_grabber::request(reme_image_t image)
+  {
+    _req_count[image] += 1;
+  }
+
+  void frame_grabber::release(reme_image_t image)
+  {
+    _req_count[image] = std::max<int>(0, _req_count[image] - 1);
+  }
 
   void frame_grabber::start(bool initialization_success) {
     if (!initialization_success) return;
@@ -76,17 +89,24 @@ namespace ReconstructMeGUI {
     {
       // Prepare image and depth data
       success = success && REME_SUCCESS(reme_sensor_grab(_i->context(), _i->sensor()));
-      success = success && REME_SUCCESS(reme_sensor_prepare_images(_i->context(), _i->sensor()));
 
-      if (_i->rgb_size() && REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_AUX, _rgb))) 
+      if (_req_count[REME_IMAGE_AUX] > 0 && _i->rgb_size()) {
+        reme_sensor_prepare_image(_i->context(), _i->sensor(), REME_IMAGE_AUX);
+        reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_AUX, _rgb);
         emit frame(REME_IMAGE_AUX, _rgb);
-      
-      if (_i->depth_size() && REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_DEPTH, _depth))) 
+      }
+
+      if (_req_count[REME_IMAGE_DEPTH] > 0 && _i->depth_size()) {
+        reme_sensor_prepare_image(_i->context(), _i->sensor(), REME_IMAGE_DEPTH);
+        reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_DEPTH, _depth);
         emit frame(REME_IMAGE_DEPTH, _depth);
-      
-      if (_i->depth_size() && REME_SUCCESS(reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME, _phong))) 
+      }
+
+      if (_req_count[REME_IMAGE_VOLUME] > 0 && _i->depth_size()) {
+        reme_sensor_prepare_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME);
+        reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME, _phong);
         emit frame(REME_IMAGE_VOLUME, _phong);
-      
+      }      
 
       emit frames_updated();
       QCoreApplication::processEvents();

@@ -22,7 +22,7 @@ namespace ReconstructMeGUI {
 
     viewer_widget(QWidget *parent = 0);
 
-    void view(osg::ref_ptr<osgViewer::View> view);
+    osg::ref_ptr<osgViewer::View> osg_view();
     void start_rendering();
     void stop_rendering();
 
@@ -33,6 +33,7 @@ namespace ReconstructMeGUI {
     QGridLayout *grid;
     osg::ref_ptr<osgQt::GraphicsWindowQt> window;
     osg::ref_ptr<osg::GraphicsContext::Traits> traits;
+    osg::ref_ptr<osgViewer::View> view;
     QTimer *_timer;
   };
 }

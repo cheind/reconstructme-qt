@@ -36,6 +36,7 @@
 
 #include "scan.h"
 #include "reme_resource_manager.h"
+#include "frame_grabber.h"
 
 #include "settings.h"
 #include "strings.h"
@@ -68,16 +69,15 @@
 #include <QMetaType>
 #include <QSignalMapper>
 
-#include <iostream>
-
 #define STATUSBAR_TIME 1500
 #define SPLASH_MSG_ALIGNMENT Qt::AlignBottom | Qt::AlignLeft
 
 namespace ReconstructMeGUI {
   
-  scan_widget::scan_widget(std::shared_ptr<reme_resource_manager> initializer, QWidget *parent) : 
+  scan_widget::scan_widget(std::shared_ptr<reme_resource_manager> initializer, std::shared_ptr<frame_grabber> f, QWidget *parent) : 
     _ui(new Ui::scan_widget), 
-      _i(initializer)
+      _i(initializer),
+      _f(f)
   {
     _ui->setupUi(this);
 
@@ -159,13 +159,11 @@ namespace ReconstructMeGUI {
   }
 
   void scan_widget::process_frame(reme_sensor_image_t type, reme_image_t img) {
-    if (isVisible()) {
-      const void * data;
-      int length;
+    const void * data;
+    int length;
     
-      reme_image_get_bytes(_i->context(), img, &data, &length);
-      _canvas_map[type]->set_image_data(data);
-    }
+    reme_image_get_bytes(_i->context(), img, &data, &length);
+    _canvas_map[type]->set_image_data(data);
   }
 
   void scan_widget::reset_button_clicked() {
@@ -177,10 +175,19 @@ namespace ReconstructMeGUI {
   }
 
   void scan_widget::showEvent(QShowEvent* event) {
+    connect(_f.get(), SIGNAL(frame(reme_sensor_image_t, reme_image_t)), SLOT(process_frame(reme_sensor_image_t, reme_image_t)), Qt::BlockingQueuedConnection);
+    connect(_f.get(), SIGNAL(frames_updated()), SLOT(reconstruct()), Qt::BlockingQueuedConnection);
+    _f->request(REME_IMAGE_AUX);
+    _f->request(REME_IMAGE_DEPTH);
+    _f->request(REME_IMAGE_VOLUME);
   }
 
   void scan_widget::hideEvent(QHideEvent* event) {
     _scanner->set_mode(PAUSE);
+    _f->release(REME_IMAGE_AUX);
+    _f->release(REME_IMAGE_DEPTH);
+    _f->release(REME_IMAGE_VOLUME);
+    _f->disconnect(this);
   }
 
 }

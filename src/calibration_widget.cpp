@@ -38,6 +38,7 @@
 
 #include "calibration.pb.h"
 #include "reme_resource_manager.h"
+#include "frame_grabber.h"
 
 #include "settings.h"
 
@@ -61,17 +62,18 @@
 
 namespace ReconstructMeGUI {
 
-  calibration_widget::calibration_widget(std::shared_ptr<reme_resource_manager> initializer, QWidget *parent) : 
+  calibration_widget::calibration_widget(std::shared_ptr<reme_resource_manager> initializer, std::shared_ptr<frame_grabber> f, QWidget *parent) : 
     QWidget(parent),
     _ui(new Ui::calibration_widget),
-    _i(initializer)
+    _i(initializer),
+    _f(f)
   {
     _ui->setupUi(this);
 
     _add_next_frame = false;
     _calibrator = REME_ERROR_UNSPECIFIED;
     _calibrate_image = REME_ERROR_UNSPECIFIED;
-
+    
     _ui->progressBar->setMinimum(0);
     _ui->progressBar->setMaximum(MIN_CALIB_IMAGES);
 
@@ -103,7 +105,7 @@ namespace ReconstructMeGUI {
   }
 
   void calibration_widget::process_frame(reme_sensor_image_t type, reme_image_t img) {
-    if (isVisible() && type == REME_IMAGE_AUX) {
+    if (type == REME_IMAGE_AUX) {
       const void * data;
       int length;
 
@@ -165,8 +167,7 @@ namespace ReconstructMeGUI {
         success = success && REME_SUCCESS(reme_options_save_to_file(_i->context(), o, sensor_file_name.toStdString().c_str()));
 
         if (QMessageBox::Yes == QMessageBox::information(this, "Calibrated Sensor Configuration", "Do you want to use the new sensor configruation?", QMessageBox::Yes, QMessageBox::No)) {
-          emit new_setting_file(sensor_file_name, SENSOR);
-          _applied_new_sensor_config = true;
+          emit new_setting_file(sensor_file_name, SENSOR);          
         }
       }
     }
@@ -239,6 +240,9 @@ namespace ReconstructMeGUI {
   }
 
   void calibration_widget::showEvent(QShowEvent* ev) {
+    connect(_f.get(), SIGNAL(frame(reme_sensor_image_t, reme_image_t)), SLOT(process_frame(reme_sensor_image_t, reme_image_t)), Qt::BlockingQueuedConnection);
+    _f->request(REME_IMAGE_AUX);
+
     reme_options_create(_i->context(), &_cap_o);
     if (!REME_SUCCESS(reme_sensor_bind_capture_options(_i->context(), _i->sensor(), _cap_o))) {
       ev->ignore();
@@ -248,19 +252,16 @@ namespace ReconstructMeGUI {
     apply_camera_settings();
     apply_calibration_setting();
     _calibrate_image = _i->new_image();
-
-    _applied_new_sensor_config = false;
   }
 
   void calibration_widget::hideEvent(QHideEvent* event) {
-    if (!_applied_new_sensor_config) {
-      reme_sensor_bind_capture_options(_i->context(), _i->sensor(), _cap_o);
-      reme_sensor_apply_capture_options(_i->context(), _i->sensor(), _cap_o);
-    }
+    _f->disconnect(this);
+    _f->release(REME_IMAGE_AUX);
 
     if (_calibrator != REME_ERROR_UNSPECIFIED)
       _i->destroy_calibrator(_calibrator);
     if (_calibrate_image != REME_ERROR_UNSPECIFIED)
       _i->destroy_image(_calibrate_image);
+
   }
 }

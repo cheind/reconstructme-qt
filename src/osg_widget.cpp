@@ -62,7 +62,7 @@ namespace ReconstructMeGUI {
     _root = new osg::Group();
     _geode = new osg::Geode();
     _geom = new osg::Geometry();
-    _view = new osgViewer::View();
+    _view = _osg->osg_view();
     _manip = new osgGA::TrackballManipulator();
 
     _root->addChild(_geode);
@@ -91,8 +91,6 @@ namespace ReconstructMeGUI {
 
     _geode->getOrCreateStateSet()->setAttributeAndModes(mat, osg::StateAttribute::ON);
     _geode->getOrCreateStateSet()->setAttributeAndModes(lightmodel, osg::StateAttribute::ON);
-    
-    _osg->view(_view);
   }
 
   osg_widget::~osg_widget() {
@@ -143,7 +141,6 @@ namespace ReconstructMeGUI {
     osg::ref_ptr<osg::DrawElementsUInt> face_to_vertex = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
     osg::ref_ptr<index_array_type> normal_to_vertex = new index_array_type();
 
-    /*
     for (int i = 0; i < num_points; ++i) {
       vertex_coords->push_back(osg::Vec3(points[i*4+0], points[i*4+1], points[i*4+2]));
       vertex_normals->push_back(osg::Vec3(normals[i*4+0], normals[i*4+1], normals[i*4+2]));
@@ -157,28 +154,14 @@ namespace ReconstructMeGUI {
     _geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
     _geom->setNormalIndices(normal_to_vertex);
     _geom->addPrimitiveSet(face_to_vertex);
-    http://www.openscenegraph.org/projects/osg/browser/OpenSceneGraph/trunk/examples/osgviewerQt/osgviewerQtContext.cpp?rev=12131
-    */
-
-    vertex_coords->push_back(osg::Vec3(-0.5, 0.0, 0.0));
-    vertex_coords->push_back(osg::Vec3(0.5, 0.0, 0.0));
-    vertex_coords->push_back(osg::Vec3(0.0, 0.5, 0.0));
-
-    face_to_vertex->push_back(0);
-    face_to_vertex->push_back(1);
-    face_to_vertex->push_back(2);
-
-    _geom->setVertexArray(vertex_coords);
-    _geom->addPrimitiveSet(face_to_vertex);
-    
+   
     _geode->addDrawable(_geom);
     _geode->dirtyBound();
+    _root->dirtyBound();
 
-    /*
     _manip->setNode(_root);
     _manip->computeHomePosition();
     _manip->home(0);
-    */
 
     reme_surface_destroy(_i->context(), &s);
   }
