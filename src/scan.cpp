@@ -40,7 +40,6 @@
 #include "settings.h"
 #include "strings.h"
 #include "reme_resource_manager.h"
-#include "mutex.h"
 
 #include <QCoreApplication>
 #include <QSettings>

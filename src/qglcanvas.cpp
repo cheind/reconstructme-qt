@@ -37,7 +37,6 @@
 #pragma once
 
 #include "qglcanvas.h"
-#include "mutex.h"
 
 #include <QSize>
 
@@ -72,9 +71,7 @@ namespace ReconstructMeGUI {
     if (!_has_data) {
       p.fillRect(this->rect(), QColor(0, 0, 0));
     } 
-    else {
-      QMutexLocker lock(&image_mutex);
-      
+    else {     
       //Set the painter to use a smooth scaling algorithm.
       p.setRenderHint(QPainter::SmoothPixmapTransform, 1);
       p.drawImage(this->rect(), *img);
