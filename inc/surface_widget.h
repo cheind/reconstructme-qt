@@ -50,7 +50,6 @@ namespace Ui {
 }
 namespace ReconstructMeGUI {
   class reme_resource_manager;
-  class viewer_widget;
   class calibrate;
 }
 
@@ -67,12 +66,11 @@ namespace ReconstructMeGUI {
     virtual void showEvent(QShowEvent* event);
     virtual void hideEvent(QHideEvent* event);
 
-  protected:
+  protected slots:
     void update_surface();
 
   private:
     Ui::surface_widget *_ui;
-    viewer_widget* _osg;
     std::shared_ptr<reme_resource_manager> _i;
     osg::ref_ptr<osgViewer::View> _view;
     osg::ref_ptr<osg::Group> _root;

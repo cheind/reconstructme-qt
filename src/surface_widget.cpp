@@ -35,6 +35,7 @@
 #include "ui_surface_widget.h"
 #include "osg_viewer_qt.h"
 #include "reme_resource_manager.h"
+#include "surface.pb.h"
 
 #include <reconstructmesdk/reme.h>
 
@@ -55,14 +56,13 @@ namespace ReconstructMeGUI {
     _i(initializer)
   {
     _ui->setupUi(this);
-    
-    _osg = new viewer_widget(this);
-    _ui->gridLayout->addWidget(_osg, 0, 0);
 
+    connect(_ui->btnGenerate, SIGNAL(clicked()), SLOT(update_surface()));
+    
     _root = new osg::Group();
     _geode = new osg::Geode();
     _geom = new osg::Geometry();
-    _view = _osg->osg_view();
+    _view = _ui->viewer->osg_view();
     _manip = new osgGA::TrackballManipulator();
 
     _root->addChild(_geode);
@@ -99,11 +99,11 @@ namespace ReconstructMeGUI {
 
   void surface_widget::showEvent(QShowEvent* ev) {
     update_surface();
-    _osg->start_rendering();
+    _ui->viewer->start_rendering();
   }
 
   void surface_widget::hideEvent(QHideEvent* event) {
-    _osg->stop_rendering();
+    _ui->viewer->stop_rendering();
   }
 
   void surface_widget::update_surface()
@@ -114,10 +114,53 @@ namespace ReconstructMeGUI {
     const unsigned int n = _geode->getNumDrawables();             
     _geode->removeDrawables(0, _geode->getNumDrawables());
 
-    // Create surface using SDK
+    reme_options_t o;
+    reme_options_create(_i->context(), &o);
+    std::string msg;
+    
     reme_surface_t s;
     reme_surface_create(_i->context(), &s);
+
+    // Generation
+    generation_options go;
+    go.set_merge_duplicate_vertices(true);
+    go.set_merge_radius((float)_ui->spMergeRadius->value());
+    
+    reme_surface_bind_generation_options(_i->context(), s, o);
+    go.SerializeToString(&msg);
+    reme_options_set_bytes(_i->context(), o, msg.c_str(), msg.size());
+
     reme_surface_generate(_i->context(), s, _i->volume());
+    
+    // Poisson
+    if (_ui->cbPoisson->isChecked()) {
+      poisson_options po;
+      po.set_depth(_ui->spDepth->value());
+      po.set_scale((float)_ui->spScale->value());
+      po.set_minimum_depth(_ui->spMinimumDepth->value());    
+      po.set_solver_divide(_ui->spSolverDivide->value());
+      po.set_iso_divide(_ui->spIsoDivide->value());
+    
+      reme_surface_bind_poisson_options(_i->context(), s, o);
+      po.SerializeToString(&msg);
+      reme_options_set_bytes(_i->context(), o, msg.c_str(), msg.size());
+
+      reme_surface_poisson(_i->context(), s);
+    }
+
+    // Decimate
+    if (_ui->cbDecimation->isChecked()) {
+      decimation_options deco;
+      deco.set_maximum_error((float)_ui->spMaximumError->value());
+      deco.set_maximum_faces(_ui->spMaximumFaces->value());
+      deco.set_maximum_vertices(_ui->spMaximumVertices->value());
+      
+      reme_surface_bind_decimation_options(_i->context(), s, o);
+      deco.SerializeToString(&msg);
+      reme_options_set_bytes(_i->context(), o, msg.c_str(), msg.size());
+
+      reme_surface_decimate(_i->context(), s);
+    }
 
     // Convert to OSG
     const float *points, *normals;

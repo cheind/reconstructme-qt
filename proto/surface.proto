@@ -1,0 +1,71 @@
+// @file
+// @copyright Copyright (c) 2012 PROFACTOR GmbH. All rights reserved. 
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// @authors christoph.heindl@profactor.at
+
+// lite message
+option optimize_for = LITE_RUNTIME;
+
+// Surface generation from reconstruction volume
+message generation_options {
+  // When enabled duplicate vertices within a certain radius are merged towards a single vertex.
+  optional bool merge_duplicate_vertices = 1 [default = true];
+  // Defines merge radius. Larger values will perform a simple decimation
+  optional float merge_radius = 2 [default = 0.1];
+  
+  // Merge modus type
+  enum merge_type {
+    // For all vertices identified as duplicates use the first vertex as representative.
+    // Fast but inaccurate.
+    USE_FIRST = 0;
+    // For all vertices identified as duplicates use the average vertex position as representative.
+    // Slower but more accurate.
+    USE_AVERAGE = 1;
+  }
+  // How the merge is performed.
+  optional merge_type merge_mode = 3;
+}
+
+// Poisson surface generation options
+message poisson_options {
+  optional int32 depth = 1 [default = 8];
+  optional int32 solver_divide = 2 [default = 8];
+  optional int32 iso_divide = 3 [default = 8];
+  optional int32 minimum_samples_per_node = 4 [default = 1];
+  optional float scale = 5 [default = 1];  
+  optional bool enable_manifold = 6 [default = true];  
+  optional int32 minimum_depth = 7 [default = 5];
+}
+
+// Mesh decimantion options
+message decimation_options {
+  optional int32 maximum_faces = 1 [default = 100000];
+  optional int32 maximum_vertices = 2 [default = 0];
+  optional float maximum_error = 3 [default = 100000];
+}
