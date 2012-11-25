@@ -30,8 +30,8 @@
   * @authors christoph.kopf@profactor.at
   */
 
-#ifndef OSG_WIDGET_H
-#define OSG_WIDGET_H
+#ifndef SURFACE_WIDGET_H
+#define SURFACE_WIDGET_H
 
 #include "types.h"
 
@@ -46,7 +46,7 @@
 
 // Forward declarations
 namespace Ui {
-  class osg_widget;
+  class surface_widget;
 }
 namespace ReconstructMeGUI {
   class reme_resource_manager;
@@ -56,14 +56,13 @@ namespace ReconstructMeGUI {
 
 namespace ReconstructMeGUI {
 
-  /** This is dialog provides status information of the scanner*/
-  class osg_widget : public QWidget
+  class surface_widget : public QWidget
   {
     Q_OBJECT;
 
   public:
-    osg_widget(std::shared_ptr<reme_resource_manager> initializer, QWidget *parent = 0);
-    ~osg_widget();
+    surface_widget(std::shared_ptr<reme_resource_manager> initializer, QWidget *parent = 0);
+    ~surface_widget();
 
     virtual void showEvent(QShowEvent* event);
     virtual void hideEvent(QHideEvent* event);
@@ -72,7 +71,7 @@ namespace ReconstructMeGUI {
     void update_surface();
 
   private:
-    Ui::osg_widget *_ui;
+    Ui::surface_widget *_ui;
     viewer_widget* _osg;
     std::shared_ptr<reme_resource_manager> _i;
     osg::ref_ptr<osgViewer::View> _view;

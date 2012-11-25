@@ -31,8 +31,8 @@
   *          florian.eckerstorfer@profactor.at
   */
 
-#include "osg_widget.h"
-#include "ui_osg_widget.h"
+#include "surface_widget.h"
+#include "ui_surface_widget.h"
 #include "osg_viewer_qt.h"
 #include "reme_resource_manager.h"
 
@@ -49,9 +49,9 @@
 
 namespace ReconstructMeGUI {
 
-  osg_widget::osg_widget(std::shared_ptr<reme_resource_manager> initializer, QWidget *parent) : 
+  surface_widget::surface_widget(std::shared_ptr<reme_resource_manager> initializer, QWidget *parent) : 
     QWidget(parent),
-    _ui(new Ui::osg_widget),
+    _ui(new Ui::surface_widget),
     _i(initializer)
   {
     _ui->setupUi(this);
@@ -93,20 +93,20 @@ namespace ReconstructMeGUI {
     _geode->getOrCreateStateSet()->setAttributeAndModes(lightmodel, osg::StateAttribute::ON);
   }
 
-  osg_widget::~osg_widget() {
+  surface_widget::~surface_widget() {
     delete _ui;
   }
 
-  void osg_widget::showEvent(QShowEvent* ev) {
+  void surface_widget::showEvent(QShowEvent* ev) {
     update_surface();
     _osg->start_rendering();
   }
 
-  void osg_widget::hideEvent(QHideEvent* event) {
+  void surface_widget::hideEvent(QHideEvent* event) {
     _osg->stop_rendering();
   }
 
-  void osg_widget::update_surface()
+  void surface_widget::update_surface()
   {
     // Assumes that the timer is stopped.
 

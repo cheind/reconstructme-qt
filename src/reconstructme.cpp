@@ -38,7 +38,7 @@
 
 #include "scan_widget.h"
 #include "calibration_widget.h"
-#include "osg_widget.h"
+#include "surface_widget.h"
 
 #include "scan.h"
 #include "reme_resource_manager.h"
@@ -106,11 +106,11 @@ namespace ReconstructMeGUI {
     _ui->setupUi(this);
     _scan_ui = new scan_widget(_initializer, _frame_grabber, this);
     _calibration_ui = new calibration_widget(_initializer, _frame_grabber, this);
-    _osg_ui = new osg_widget(_initializer, parent);
+    _surface_ui = new surface_widget(_initializer, parent);
 
     _ui->scan_page = _scan_ui;
     _ui->calibration_page = _calibration_ui;
-    _ui->osg_page = _osg_ui;
+    _ui->osg_page = _surface_ui;
     _ui->stackedWidget->insertWidget(0, _ui->scan_page);
     _ui->stackedWidget->insertWidget(1, _ui->calibration_page);
     _ui->stackedWidget->insertWidget(2, _ui->osg_page);

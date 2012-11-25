@@ -52,7 +52,7 @@ QT4_WRAP_UI(QT_UI_GENERATED ${QT_UI})
 QT4_ADD_RESOURCES(QT_RC_GENERATED ${QT_RC})
 QT4_AUTOMOC(${SOURCES})
 
-PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS proto/opencl_info.proto proto/hardware.proto proto/log.proto proto/calibration.proto)
+PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS proto/opencl_info.proto proto/hardware.proto proto/log.proto proto/calibration.proto proto/surface.proto)
 
 SOURCE_GROUP("generated files" FILES ${QT_HEADERS_GENERATED})
 SOURCE_GROUP("generated files" FILES ${QT_SOURCES_GENERATED})
