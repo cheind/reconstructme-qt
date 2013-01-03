@@ -133,7 +133,7 @@ namespace ReconstructMeGUI {
     reme_surface_generate(_i->context(), s, _i->volume());
     
     // Poisson
-    if (_ui->cbPoisson->isChecked()) {
+    if (_ui->gbPoisson->isChecked()) {
       poisson_options po;
       po.set_depth(_ui->spDepth->value());
       po.set_scale((float)_ui->spScale->value());
@@ -149,7 +149,7 @@ namespace ReconstructMeGUI {
     }
 
     // Decimate
-    if (_ui->cbDecimation->isChecked()) {
+    if (_ui->gbDecimation->isChecked()) {
       decimation_options deco;
       deco.set_maximum_error((float)_ui->spMaximumError->value());
       deco.set_maximum_faces(_ui->spMaximumFaces->value());
