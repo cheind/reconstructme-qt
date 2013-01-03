@@ -38,7 +38,6 @@
 #include "reme_resource_manager.h"
 #include "settings.h"
 #include "strings.h"
-#include "mutex.h"
 
 #include <QDebug>
 #include <QCoreApplication>
