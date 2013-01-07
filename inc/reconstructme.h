@@ -125,7 +125,6 @@ namespace ReconstructMeGUI {
     // Members
     Ui::reconstructmeqt *_ui;
     scan_widget *_scan_ui;
-    calibration_widget *_calibration_ui;
     surface_widget *_surface_ui;
 
     QLabel *_fps_label;

@@ -68,6 +68,11 @@ namespace ReconstructMeGUI {
 
   protected slots:
     void update_surface();
+    void resume_scanning();
+    void save();
+
+  signals:
+    void set_top_widget_id(const int);
 
   private:
     Ui::surface_widget *_ui;

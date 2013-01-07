@@ -78,8 +78,8 @@ namespace ReconstructMeGUI {
     virtual void hideEvent(QHideEvent* event);
 
   public slots:
+    void toggle_play_pause();
     void process_frame(reme_sensor_image_t, reme_image_t);
-
     void reconstruct();
 
   private slots:
@@ -97,6 +97,8 @@ namespace ReconstructMeGUI {
     void initialize();
     /** Provide status information */
     void status_bar_msg(const QString &msg, const int msecs = 0);
+    /**  */
+    void set_top_widget_id(const int);
 
   private:
     Ui::scan_widget *_ui;

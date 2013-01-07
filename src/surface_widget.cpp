@@ -39,6 +39,8 @@
 
 #include <reconstructmesdk/reme.h>
 
+#include <QFileDialog>
+
 #include <osgViewer/View>
 #include <osg/Node>
 #include <osg/ref_ptr>
@@ -58,6 +60,8 @@ namespace ReconstructMeGUI {
     _ui->setupUi(this);
 
     connect(_ui->btnGenerate, SIGNAL(clicked()), SLOT(update_surface()));
+    connect(_ui->play_button, SIGNAL(clicked()), SLOT(resume_scanning()));
+    connect(_ui->save_button, SIGNAL(clicked()), SLOT(save()));
     
     _root = new osg::Group();
     _geode = new osg::Geode();
@@ -106,6 +110,10 @@ namespace ReconstructMeGUI {
     _ui->viewer->stop_rendering();
   }
 
+  void surface_widget::resume_scanning() {
+    emit set_top_widget_id(0);
+  }
+
   void surface_widget::update_surface()
   {
     // Assumes that the timer is stopped.
@@ -131,22 +139,6 @@ namespace ReconstructMeGUI {
     reme_options_set_bytes(_i->context(), o, msg.c_str(), msg.size());
 
     reme_surface_generate(_i->context(), s, _i->volume());
-    
-    // Poisson
-    if (_ui->gbPoisson->isChecked()) {
-      poisson_options po;
-      po.set_depth(_ui->spDepth->value());
-      po.set_scale((float)_ui->spScale->value());
-      po.set_minimum_depth(_ui->spMinimumDepth->value());    
-      po.set_solver_divide(_ui->spSolverDivide->value());
-      po.set_iso_divide(_ui->spIsoDivide->value());
-    
-      reme_surface_bind_poisson_options(_i->context(), s, o);
-      po.SerializeToString(&msg);
-      reme_options_set_bytes(_i->context(), o, msg.c_str(), msg.size());
-
-      reme_surface_poisson(_i->context(), s);
-    }
 
     // Decimate
     if (_ui->gbDecimation->isChecked()) {
@@ -207,5 +199,58 @@ namespace ReconstructMeGUI {
     _manip->home(0);
 
     reme_surface_destroy(_i->context(), &s);
+  }
+
+  void surface_widget::save() {
+    QString file_name = QFileDialog::getSaveFileName(this, tr("Save 3D Model"),
+                                                 QDir::currentPath(),
+                                                 tr("PLY files (*.ply);;OBJ files (*.obj);;3DS files (*.3ds);;STL files (*.stl)"),
+                                                 0);
+    if (file_name.isEmpty())
+      return;
+
+    // Create a new surface
+    reme_surface_t s;
+    bool success = true;
+    success = success && REME_SUCCESS(reme_surface_create(_i->context(), &s));
+    success = success && REME_SUCCESS(reme_surface_generate(_i->context(), s, _i->volume()));
+
+    reme_options_t o;
+    reme_options_create(_i->context(), &o);
+    std::string msg;
+
+    // Generation
+    generation_options go;
+    go.set_merge_duplicate_vertices(true);
+    go.set_merge_radius((float)_ui->spMergeRadius->value());
+    
+    reme_surface_bind_generation_options(_i->context(), s, o);
+    go.SerializeToString(&msg);
+    reme_options_set_bytes(_i->context(), o, msg.c_str(), msg.size());
+
+    reme_surface_generate(_i->context(), s, _i->volume());
+
+    // Decimate
+    if (_ui->gbDecimation->isChecked()) {
+      decimation_options deco;
+      deco.set_maximum_error((float)_ui->spMaximumError->value());
+      deco.set_maximum_faces(_ui->spMaximumFaces->value());
+      deco.set_maximum_vertices(_ui->spMaximumVertices->value());
+      
+      reme_surface_bind_decimation_options(_i->context(), s, o);
+      deco.SerializeToString(&msg);
+      reme_options_set_bytes(_i->context(), o, msg.c_str(), msg.size());
+
+      reme_surface_decimate(_i->context(), s);
+    }
+
+
+    // Transform the mesh from world space to CAD space, so external viewers
+    // can cope better with the result.
+    float mat[16];
+    success = success && REME_SUCCESS(reme_transform_set_predefined(_i->context(), REME_TRANSFORM_WORLD_TO_CAD, mat));
+    success = success && REME_SUCCESS(reme_surface_transform(_i->context(), s, mat));
+
+    success = success && REME_SUCCESS(reme_surface_save_to_file(_i->context(), s, file_name.toStdString().c_str()));
   }
 }

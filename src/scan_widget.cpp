@@ -120,7 +120,6 @@ namespace ReconstructMeGUI {
   scan_widget::~scan_widget()
   {
     delete _scanner;
-
     delete _ui;
   }
 
@@ -141,11 +140,16 @@ namespace ReconstructMeGUI {
     status_bar_msg(saving_to_tag + file_name, STATUSBAR_TIME);
   }
 
+  void scan_widget::toggle_play_pause() {
+    _ui->play_button->click(); // trigger play/pause
+  }
+
   void scan_widget::apply_mode(mode_t current__scanner_mode) {
     QPushButton* playPause_b = _ui->play_button;
     QPixmap pixmap;
     if (current__scanner_mode != PLAY) {
       _ui->save_button->setEnabled(true);
+      emit set_top_widget_id(1);
       pixmap.load(":/images/record-button.png");
       status_bar_msg(mode_pause_tag, STATUSBAR_TIME);
     }
