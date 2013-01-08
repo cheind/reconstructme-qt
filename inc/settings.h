@@ -46,5 +46,5 @@ namespace ReconstructMeGUI {
   const int opencl_device_default_tag = -1;
   const char* const devcice_id_tag = "device_id";
 
-  const char* const style_sheet_file_tag = ":/styles/steam_style.qss";
+  const char* const style_sheet_file_tag = ":/styles/darkorange.qss";
 }
