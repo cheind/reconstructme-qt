@@ -38,11 +38,14 @@
 #include <QWidget>
 #include <QTimer>
 
+#include <reconstructmesdk/types.h>
+
 #include <osg/Geometry>
 #include <osg/Geode>
 #include <osg/Group>
 #include <osgViewer/View>
 #include <osgGA/TrackballManipulator>
+#include <osg/PolygonMode>
 
 // Forward declarations
 namespace Ui {
@@ -70,7 +73,13 @@ namespace ReconstructMeGUI {
     void update_surface();
     void save();
 
+  private slots:
+    void render_polygon(bool do_apply);
+    void render_wireframe(bool do_apply);
+
   private:
+    osg::ref_ptr<osg::PolygonMode> poly_mode();
+
     Ui::surface_widget *_ui;
     std::shared_ptr<reme_resource_manager> _i;
     osg::ref_ptr<osgViewer::View> _view;
@@ -78,6 +87,9 @@ namespace ReconstructMeGUI {
     osg::ref_ptr<osg::Geometry> _geom;
     osg::ref_ptr<osg::Geode> _geode;
     osg::ref_ptr<osgGA::CameraManipulator> _manip;
+    reme_surface_t _s;
+
+    bool _has_surface;
   };
 } 
 

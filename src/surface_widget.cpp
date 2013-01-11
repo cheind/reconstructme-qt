@@ -48,6 +48,7 @@
 #include <osg/Geode>
 #include <osg/Material>
 #include <osg/LightModel>
+#include <osg/PolygonMode>
 #include <iostream>
 
 namespace ReconstructMeGUI {
@@ -55,12 +56,16 @@ namespace ReconstructMeGUI {
   surface_widget::surface_widget(std::shared_ptr<reme_resource_manager> initializer, QWidget *parent) : 
     QWidget(parent),
     _ui(new Ui::surface_widget),
-    _i(initializer)
+    _i(initializer),
+    _has_surface(false)
   {
     _ui->setupUi(this);
 
     connect(_ui->btnGenerate, SIGNAL(clicked()), SLOT(update_surface()));
-    
+    connect(_ui->saveButton, SIGNAL(clicked()), SLOT(save()));
+    connect(_ui->polygonRB, SIGNAL(toggled(bool)), SLOT(render_polygon(bool)));
+    connect(_ui->wireframeRB, SIGNAL(toggled(bool)), SLOT(render_wireframe(bool)));
+
     _root = new osg::Group();
     _geode = new osg::Geode();
     _geom = new osg::Geometry();
@@ -100,6 +105,9 @@ namespace ReconstructMeGUI {
   }
 
   void surface_widget::showEvent(QShowEvent* ev) {
+    reme_surface_create(_i->context(), &_s);
+    _has_surface = true;
+
     update_surface();    
     _manip->computeHomePosition();
     _manip->home(0);
@@ -107,7 +115,13 @@ namespace ReconstructMeGUI {
   }
 
   void surface_widget::hideEvent(QHideEvent* event) {
+    if(!_has_surface) {
+      return;
+    }
+
     _ui->viewer->stop_rendering();
+    reme_surface_destroy(_i->context(), &_s);
+    _has_surface = false;
   }
 
   void surface_widget::update_surface()
@@ -120,20 +134,17 @@ namespace ReconstructMeGUI {
     reme_options_t o;
     reme_options_create(_i->context(), &o);
     std::string msg;
-    
-    reme_surface_t s;
-    reme_surface_create(_i->context(), &s);
 
     // Generation
     generation_options go;
     go.set_merge_duplicate_vertices(true);
     go.set_merge_radius((float)_ui->spMergeRadius->value());
     
-    reme_surface_bind_generation_options(_i->context(), s, o);
+    reme_surface_bind_generation_options(_i->context(), _s, o);
     go.SerializeToString(&msg);
     reme_options_set_bytes(_i->context(), o, msg.c_str(), msg.size());
 
-    reme_surface_generate(_i->context(), s, _i->volume());
+    reme_surface_generate(_i->context(), _s, _i->volume());
 
     // Decimate
     if (_ui->gbDecimation->isChecked()) {
@@ -142,11 +153,11 @@ namespace ReconstructMeGUI {
       deco.set_maximum_faces(_ui->spMaximumFaces->value());
       deco.set_maximum_vertices(_ui->spMaximumVertices->value());
       
-      reme_surface_bind_decimation_options(_i->context(), s, o);
+      reme_surface_bind_decimation_options(_i->context(), _s, o);
       deco.SerializeToString(&msg);
       reme_options_set_bytes(_i->context(), o, msg.c_str(), msg.size());
 
-      reme_surface_decimate(_i->context(), s);
+      reme_surface_decimate(_i->context(), _s);
     }
 
     // Convert to OSG
@@ -160,12 +171,15 @@ namespace ReconstructMeGUI {
     //reme_transform_set_predefined(_i->context(), REME_TRANSFORM_WORLD_TO_CAD, mat);
     //reme_surface_transform(_i->context(), s, mat);
 
-    reme_surface_get_points(_i->context(), s, &points, &num_point_coordinates);
-    reme_surface_get_normals(_i->context(), s, &normals, &num_point_coordinates);
-    reme_surface_get_triangles(_i->context(), s, &faces, &num_triangle_indices);
+    reme_surface_get_points(_i->context(), _s, &points, &num_point_coordinates);
+    reme_surface_get_normals(_i->context(), _s, &normals, &num_point_coordinates);
+    reme_surface_get_triangles(_i->context(), _s, &faces, &num_triangle_indices);
     
     int num_triangles = num_triangle_indices / 3;
     int num_points = num_point_coordinates / 4;
+
+    _ui->numTrianglesLE->setText(QString::number(num_triangles));
+    _ui->numVerticesLE->setText(QString::number(num_points));
 
     _geom = new osg::Geometry();
     _geom->setUseDisplayList(true);
@@ -191,12 +205,38 @@ namespace ReconstructMeGUI {
     _geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
     _geom->setNormalIndices(normal_to_vertex);
     _geom->addPrimitiveSet(face_to_vertex);
-   
-    _geode->addDrawable(_geom);
-    //_geode->dirtyBound();
-    _root->dirtyBound();
 
-    reme_surface_destroy(_i->context(), &s);
+    // Wireframe
+    if (_ui->wireframeRB->isChecked())
+      render_wireframe(true);
+    else
+      render_polygon(true);
+
+    _geode->addDrawable(_geom);
+    _root->dirtyBound();
+  }
+
+  osg::ref_ptr<osg::PolygonMode> surface_widget::poly_mode() {
+    osg::ref_ptr<osg::StateSet> state = _geom->getOrCreateStateSet();
+    osg::ref_ptr<osg::PolygonMode> polygon_mode;
+    polygon_mode = dynamic_cast< osg::PolygonMode* >( state->getAttribute( osg::StateAttribute::POLYGONMODE ));
+    if ( !polygon_mode ) {
+      polygon_mode = new osg::PolygonMode;
+      state->setAttribute( polygon_mode );
+    }
+    return polygon_mode;
+  }
+
+  void surface_widget::render_polygon(bool do_apply) {
+    osg::ref_ptr<osg::PolygonMode> polygon_mode = poly_mode();
+    if (do_apply)
+      polygon_mode->setMode( osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::FILL );
+  }
+
+  void surface_widget::render_wireframe(bool do_apply) {
+    osg::ref_ptr<osg::PolygonMode> polygon_mode = poly_mode();
+    if (do_apply)
+      polygon_mode->setMode( osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE );
   }
 
   void surface_widget::save() {
@@ -207,48 +247,12 @@ namespace ReconstructMeGUI {
     if (file_name.isEmpty())
       return;
 
-    // Create a new surface
-    reme_surface_t s;
-    bool success = true;
-    success = success && REME_SUCCESS(reme_surface_create(_i->context(), &s));
-    success = success && REME_SUCCESS(reme_surface_generate(_i->context(), s, _i->volume()));
-
-    reme_options_t o;
-    reme_options_create(_i->context(), &o);
-    std::string msg;
-
-    // Generation
-    generation_options go;
-    go.set_merge_duplicate_vertices(true);
-    go.set_merge_radius((float)_ui->spMergeRadius->value());
-    
-    reme_surface_bind_generation_options(_i->context(), s, o);
-    go.SerializeToString(&msg);
-    reme_options_set_bytes(_i->context(), o, msg.c_str(), msg.size());
-
-    reme_surface_generate(_i->context(), s, _i->volume());
-
-    // Decimate
-    if (_ui->gbDecimation->isChecked()) {
-      decimation_options deco;
-      deco.set_maximum_error((float)_ui->spMaximumError->value());
-      deco.set_maximum_faces(_ui->spMaximumFaces->value());
-      deco.set_maximum_vertices(_ui->spMaximumVertices->value());
-      
-      reme_surface_bind_decimation_options(_i->context(), s, o);
-      deco.SerializeToString(&msg);
-      reme_options_set_bytes(_i->context(), o, msg.c_str(), msg.size());
-
-      reme_surface_decimate(_i->context(), s);
-    }
-
-
     // Transform the mesh from world space to CAD space, so external viewers
     // can cope better with the result.
     float mat[16];
-    success = success && REME_SUCCESS(reme_transform_set_predefined(_i->context(), REME_TRANSFORM_WORLD_TO_CAD, mat));
-    success = success && REME_SUCCESS(reme_surface_transform(_i->context(), s, mat));
+    reme_transform_set_predefined(_i->context(), REME_TRANSFORM_WORLD_TO_CAD, mat);
+    reme_surface_transform(_i->context(), _s, mat);
 
-    success = success && REME_SUCCESS(reme_surface_save_to_file(_i->context(), s, file_name.toStdString().c_str()));
+    reme_surface_save_to_file(_i->context(), _s, file_name.toStdString().c_str());
   }
 }

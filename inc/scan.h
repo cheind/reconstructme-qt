@@ -69,9 +69,6 @@ namespace ReconstructMeGUI {
     void toggle_play_pause();
     /** Sets the volume to empty */
     void reset_volume();
-    
-    /** Save current volume content as polygonzied 3D model to file_name */
-    void save(const QString &file_name);
 
   signals:
     /** Emit log information */

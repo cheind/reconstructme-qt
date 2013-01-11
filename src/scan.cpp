@@ -110,22 +110,6 @@ namespace ReconstructMeGUI {
     success = success && REME_SUCCESS(reme_sensor_reset(_i->context(), _i->sensor()));
   }
 
-  void scan::save(const QString &file_name) {
-    // Create a new surface
-    reme_surface_t m;
-    bool success = true;
-    success = success && REME_SUCCESS(reme_surface_create(_i->context(), &m));
-    success = success && REME_SUCCESS(reme_surface_generate(_i->context(), m, _i->volume()));
-
-    // Transform the mesh from world space to CAD space, so external viewers
-    // can cope better with the result.
-    float mat[16];
-    success = success && REME_SUCCESS(reme_transform_set_predefined(_i->context(), REME_TRANSFORM_WORLD_TO_CAD, mat));
-    success = success && REME_SUCCESS(reme_surface_transform(_i->context(), m, mat));
-
-    success = success && REME_SUCCESS(reme_surface_save_to_file(_i->context(), m, file_name.toStdString().c_str()));
-  }
-
   void scan::toggle_play_pause() {
     _mode = (_mode == PLAY) ? PAUSE : PLAY; // toggle mode
 

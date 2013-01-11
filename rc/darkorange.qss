@@ -68,7 +68,7 @@ QMenu::item:selected
 
 QWidget:disabled
 {
-    color: #404040;
+    color: #606060;
     background-color: #323232;
 }
 

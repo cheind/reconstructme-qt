@@ -108,8 +108,7 @@ namespace ReconstructMeGUI {
     connect(_scanner, SIGNAL(mode_changed(mode_t)), SLOT(apply_mode(mode_t)));
     _scanner->connect(_ui->reset_button, SIGNAL(clicked()), SLOT(reset_volume()));
     connect(_ui->reset_button, SIGNAL(clicked()), SLOT(reset_button_clicked()));
-    _surface_ui->connect(_ui->save_button, SIGNAL(clicked()), SLOT(save()));
-
+    
     // views
     _canvas_map[REME_IMAGE_AUX]->connect(_i.get(),    SIGNAL(rgb_size(const QSize*)),   SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
     _canvas_map[REME_IMAGE_DEPTH]->connect(_i.get(),  SIGNAL(depth_size(const QSize*)), SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
@@ -118,7 +117,6 @@ namespace ReconstructMeGUI {
     // Shortcuts
     _ui->play_button->setShortcut(QKeySequence("Ctrl+P"));
     _ui->reset_button->setShortcut(QKeySequence("Ctrl+R"));
-    _ui->save_button->setShortcut(QKeySequence("Ctrl+S"));
   }
 
   
@@ -147,14 +145,12 @@ namespace ReconstructMeGUI {
     if (current__scanner_mode != PLAY) {
       //release_frames();
       _ui->stackedWidget->setCurrentWidget(_surface_ui);
-      _ui->save_button->setEnabled(true);
       pixmap.load(":/images/record-button.png");
       status_bar_msg(mode_pause_tag, STATUSBAR_TIME);
     }
     else {
       //request_frames();
       _ui->stackedWidget->setCurrentWidget(_ui->reconstructionPage);
-      _ui->save_button->setDisabled(true);
       pixmap.load(":/images/pause-button.png");
       status_bar_msg(mode_play_tag, STATUSBAR_TIME);
     }
