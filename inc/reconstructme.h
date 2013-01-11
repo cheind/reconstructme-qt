@@ -65,7 +65,6 @@ namespace ReconstructMeGUI {
   class hardware_key_dialog;
   class reme_resource_manager;
   class frame_grabber;
-  class surface_widget;
 }
 
 namespace ReconstructMeGUI {
@@ -125,7 +124,6 @@ namespace ReconstructMeGUI {
     // Members
     Ui::reconstructmeqt *_ui;
     scan_widget *_scan_ui;
-    surface_widget *_surface_ui;
 
     QLabel *_fps_label;
     QLabel *_fps_color_label;

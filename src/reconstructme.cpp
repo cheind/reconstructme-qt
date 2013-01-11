@@ -37,7 +37,6 @@
 #include "ui_reconstructmeqt.h"
 
 #include "scan_widget.h"
-#include "surface_widget.h"
 
 #include "scan.h"
 #include "reme_resource_manager.h"
@@ -80,7 +79,7 @@
 #include <iostream>
 
 #define STATUSBAR_TIME 1500
-#define _splash_MSG_ALIGNMENT Qt::AlignBottom | Qt::AlignLeft
+#define SPLASH_MSG_ALIGNMENT Qt::AlignBottom | Qt::AlignLeft
 
 namespace ReconstructMeGUI {
   
@@ -93,7 +92,7 @@ namespace ReconstructMeGUI {
     QPixmap splashPix(":/images/_splash_screen.png");
     _splash = new QSplashScreen(this, splashPix);
     _splash->setAutoFillBackground(false);
-    _splash->showMessage(welcome_tag, _splash_MSG_ALIGNMENT);
+    _splash->showMessage(welcome_tag, SPLASH_MSG_ALIGNMENT);
     _splash->show();
 
     _frame_grabber = std::shared_ptr<frame_grabber>(new frame_grabber(_initializer));
@@ -104,12 +103,9 @@ namespace ReconstructMeGUI {
     // ui's setup
     _ui->setupUi(this);
     _scan_ui = new scan_widget(_initializer, _frame_grabber, this);
-    _surface_ui = new surface_widget(_initializer, parent);
 
     _ui->scan_page = _scan_ui;
-    _ui->osg_page = _surface_ui;
     _ui->stackedWidget->insertWidget(0, _ui->scan_page);
-    _ui->stackedWidget->insertWidget(1, _ui->osg_page);
     _ui->stackedWidget->setCurrentWidget(_ui->scan_page);
 
     // Status bar
@@ -153,11 +149,6 @@ namespace ReconstructMeGUI {
     // Create 
     create_mappings();
 
-    // stacked Widget
-    _ui->stackedWidget->connect(_scan_ui, SIGNAL(set_top_widget_id(const int)), SLOT(setCurrentIndex(int)));
-    _ui->stackedWidget->connect(_surface_ui, SIGNAL(set_top_widget_id(const int)), SLOT(setCurrentIndex(int)));
-    _scan_ui->connect(_surface_ui, SIGNAL(set_top_widget_id(const int)), SLOT(toggle_play_pause()));
-    
     // ui connections
     connect(_scan_ui, SIGNAL(status_bar_msg(const QString&, const int)), SLOT(status_bar_msg(const QString&, const int)));
     connect(_scan_ui->scanner(), SIGNAL(current_fps(const float)), SLOT(show_fps(const float)));

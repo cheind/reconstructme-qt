@@ -51,6 +51,9 @@
      </item>
      <item row="1" column="0" colspan="5">
       <widget class="QTableView" name="statustableView">
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
        <property name="selectionMode">
         <enum>QAbstractItemView::NoSelection</enum>
        </property>

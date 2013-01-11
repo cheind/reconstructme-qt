@@ -33,6 +33,7 @@
 
 #include "scan_widget.h"
 #include "ui_scan_widget.h"
+#include "surface_widget.h"
 
 #include "scan.h"
 #include "reme_resource_manager.h"
@@ -77,7 +78,8 @@ namespace ReconstructMeGUI {
   scan_widget::scan_widget(std::shared_ptr<reme_resource_manager> initializer, std::shared_ptr<frame_grabber> f, QWidget *parent) : 
     _ui(new Ui::scan_widget), 
       _i(initializer),
-      _f(f)
+      _f(f),
+      _first(true)
   {
     _ui->setupUi(this);
 
@@ -93,6 +95,10 @@ namespace ReconstructMeGUI {
     _ui->view_layout->setColumnStretch(0, 2);
     _ui->view_layout->setColumnStretch(1, 1);
 
+    _surface_ui = new surface_widget(_i, this);
+    _ui->stackedWidget->addWidget(_surface_ui);
+    _ui->stackedWidget->setCurrentWidget(_ui->reconstructionPage);
+
     // scanner
     _scanner = new scan(_i);
 
@@ -102,8 +108,7 @@ namespace ReconstructMeGUI {
     connect(_scanner, SIGNAL(mode_changed(mode_t)), SLOT(apply_mode(mode_t)));
     _scanner->connect(_ui->reset_button, SIGNAL(clicked()), SLOT(reset_volume()));
     connect(_ui->reset_button, SIGNAL(clicked()), SLOT(reset_button_clicked()));
-    _scanner->connect(this, SIGNAL(save_mesh_to_file(const QString &)), SLOT(save(const QString &)));
-    connect(_ui->save_button, SIGNAL(clicked()), SLOT(save_button_clicked()));
+    _surface_ui->connect(_ui->save_button, SIGNAL(clicked()), SLOT(save()));
 
     // views
     _canvas_map[REME_IMAGE_AUX]->connect(_i.get(),    SIGNAL(rgb_size(const QSize*)),   SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
@@ -127,33 +132,28 @@ namespace ReconstructMeGUI {
     _scanner->process_frame();
   }
 
-  void scan_widget::save_button_clicked()
-  {
-    QString file_name = QFileDialog::getSaveFileName(this, tr("Save 3D Model"),
-                                                 QDir::currentPath(),
-                                                 tr("PLY files (*.ply);;OBJ files (*.obj);;3DS files (*.3ds);;STL files (*.stl)"),
-                                                 0);
-    if (file_name.isEmpty())
-      return;
-
-    emit save_mesh_to_file(file_name);
-    status_bar_msg(saving_to_tag + file_name, STATUSBAR_TIME);
-  }
-
   void scan_widget::toggle_play_pause() {
     _ui->play_button->click(); // trigger play/pause
   }
 
   void scan_widget::apply_mode(mode_t current__scanner_mode) {
+    if (_first) {
+      // ignore first call
+      _first = false;
+      return;
+    }
     QPushButton* playPause_b = _ui->play_button;
     QPixmap pixmap;
     if (current__scanner_mode != PLAY) {
+      //release_frames();
+      _ui->stackedWidget->setCurrentWidget(_surface_ui);
       _ui->save_button->setEnabled(true);
-      emit set_top_widget_id(1);
       pixmap.load(":/images/record-button.png");
       status_bar_msg(mode_pause_tag, STATUSBAR_TIME);
     }
     else {
+      //request_frames();
+      _ui->stackedWidget->setCurrentWidget(_ui->reconstructionPage);
       _ui->save_button->setDisabled(true);
       pixmap.load(":/images/pause-button.png");
       status_bar_msg(mode_play_tag, STATUSBAR_TIME);
@@ -178,7 +178,7 @@ namespace ReconstructMeGUI {
     return _scanner;
   }
 
-  void scan_widget::showEvent(QShowEvent* event) {
+  void scan_widget::request_frames() {
     connect(_f.get(), SIGNAL(frame(reme_sensor_image_t, reme_image_t)), SLOT(process_frame(reme_sensor_image_t, reme_image_t)), Qt::BlockingQueuedConnection);
     connect(_f.get(), SIGNAL(frames_updated()), SLOT(reconstruct()), Qt::BlockingQueuedConnection);
     _f->request(REME_IMAGE_AUX);
@@ -186,12 +186,20 @@ namespace ReconstructMeGUI {
     _f->request(REME_IMAGE_VOLUME);
   }
 
-  void scan_widget::hideEvent(QHideEvent* event) {
+  void scan_widget::showEvent(QShowEvent* event) {
+    request_frames();
+  }
+
+  void scan_widget::release_frames() {
     _scanner->set_mode(PAUSE);
     _f->release(REME_IMAGE_AUX);
     _f->release(REME_IMAGE_DEPTH);
     _f->release(REME_IMAGE_VOLUME);
     _f->disconnect(this);
+  }
+
+  void scan_widget::hideEvent(QHideEvent* event) {
+    release_frames();
   }
 
 }

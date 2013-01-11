@@ -68,11 +68,7 @@ namespace ReconstructMeGUI {
 
   protected slots:
     void update_surface();
-    void resume_scanning();
     void save();
-
-  signals:
-    void set_top_widget_id(const int);
 
   private:
     Ui::surface_widget *_ui;
@@ -81,7 +77,7 @@ namespace ReconstructMeGUI {
     osg::ref_ptr<osg::Group> _root;
     osg::ref_ptr<osg::Geometry> _geom;
     osg::ref_ptr<osg::Geode> _geode;
-    osg::ref_ptr<osgGA::TrackballManipulator> _manip;
+    osg::ref_ptr<osgGA::CameraManipulator> _manip;
   };
 } 
 

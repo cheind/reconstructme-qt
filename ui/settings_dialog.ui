@@ -135,6 +135,9 @@
      </item>
      <item>
       <widget class="QListWidget" name="device_list_widget">
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
        <property name="locale">
         <locale language="English" country="UnitedStates"/>
        </property>

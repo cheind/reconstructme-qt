@@ -56,6 +56,7 @@ namespace ReconstructMeGUI {
   class QGLCanvas;
   class reme_resource_manager;
   class frame_grabber;
+  class surface_widget;
 }
 
 namespace ReconstructMeGUI {
@@ -83,29 +84,28 @@ namespace ReconstructMeGUI {
     void reconstruct();
 
   private slots:
-    /** Handle save button clicked event. Trigger scanner to save current mesh */
-    void save_button_clicked();
     /** Handle reset button clicked event. Trigger scanner to reset current volume */
     void reset_button_clicked();
     /** Handle play button clicked event. Trigger scanner to toggle PLAY/PAUSE */
     void apply_mode(mode_t mode);
 
+    void request_frames();
+    void release_frames();
+
   signals:
-    /** Trigger scanner to save current mesh */
-    void save_mesh_to_file(const QString &s);
     /** This signal is emited when this objects constructor finished */
     void initialize();
     /** Provide status information */
     void status_bar_msg(const QString &msg, const int msecs = 0);
-    /**  */
-    void set_top_widget_id(const int);
 
   private:
     Ui::scan_widget *_ui;
+    surface_widget *_surface_ui;
 
     // Scanner
     scan *_scanner;
-    
+    bool _first;
+
     // Images & Widget
     QMap<reme_sensor_image_t, QGLCanvas*> _canvas_map; 
     std::shared_ptr<frame_grabber> _f;

@@ -192,7 +192,8 @@ namespace ReconstructMeGUI {
     // Create empty options binding
     reme_options_t o;
     success = success && REME_SUCCESS(reme_options_create(_c, &o));
-    success = success && REME_SUCCESS(reme_context_bind_compile_options(_c, o));
+
+    success = success && REME_SUCCESS(reme_context_bind_reconstruction_options(_c, o));
 
     // load options if config_path already set
     std::string path = settings.value(config_path_tag, config_path_default_tag).toString().toStdString();

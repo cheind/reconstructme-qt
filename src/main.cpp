@@ -56,7 +56,7 @@
 
   // global style sheet
   QFile style_file(style_sheet_file_tag);
-  if(style_file.open(QFile::ReadOnly)) { 
+  if(style_file.open(QFile::ReadOnly)) {
     app.setStyle("plastique");
     app.setStyleSheet(style_file.readAll());
   }

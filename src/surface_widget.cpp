@@ -60,15 +60,13 @@ namespace ReconstructMeGUI {
     _ui->setupUi(this);
 
     connect(_ui->btnGenerate, SIGNAL(clicked()), SLOT(update_surface()));
-    connect(_ui->play_button, SIGNAL(clicked()), SLOT(resume_scanning()));
-    connect(_ui->save_button, SIGNAL(clicked()), SLOT(save()));
     
     _root = new osg::Group();
     _geode = new osg::Geode();
     _geom = new osg::Geometry();
     _view = _ui->viewer->osg_view();
-    _manip = new osgGA::TrackballManipulator();
-
+    _manip = new osgGA::TrackballManipulator;
+    
     _root->addChild(_geode);
     _view->setSceneData(_root);
     _view->setCameraManipulator(_manip);
@@ -102,7 +100,9 @@ namespace ReconstructMeGUI {
   }
 
   void surface_widget::showEvent(QShowEvent* ev) {
-    update_surface();
+    update_surface();    
+    _manip->computeHomePosition();
+    _manip->home(0);
     _ui->viewer->start_rendering();
   }
 
@@ -110,14 +110,9 @@ namespace ReconstructMeGUI {
     _ui->viewer->stop_rendering();
   }
 
-  void surface_widget::resume_scanning() {
-    emit set_top_widget_id(0);
-  }
-
   void surface_widget::update_surface()
   {
     // Assumes that the timer is stopped.
-
     // Remove old geometry
     const unsigned int n = _geode->getNumDrawables();             
     _geode->removeDrawables(0, _geode->getNumDrawables());
@@ -157,17 +152,24 @@ namespace ReconstructMeGUI {
     // Convert to OSG
     const float *points, *normals;
     const unsigned *faces;
-    int num_points, num_triangles;
+    int num_point_coordinates, num_triangle_indices;
 
-    reme_surface_get_points(_i->context(), s, &points, &num_points);
-    reme_surface_get_normals(_i->context(), s, &normals, &num_points);
-    reme_surface_get_triangles(_i->context(), s, &faces, &num_triangles);
+    // Transform the mesh from world space to CAD space, so external viewers
+    // can cope better with the result.
+    //float mat[16];
+    //reme_transform_set_predefined(_i->context(), REME_TRANSFORM_WORLD_TO_CAD, mat);
+    //reme_surface_transform(_i->context(), s, mat);
 
-    num_triangles /= 3;
+    reme_surface_get_points(_i->context(), s, &points, &num_point_coordinates);
+    reme_surface_get_normals(_i->context(), s, &normals, &num_point_coordinates);
+    reme_surface_get_triangles(_i->context(), s, &faces, &num_triangle_indices);
+    
+    int num_triangles = num_triangle_indices / 3;
+    int num_points = num_point_coordinates / 4;
 
     _geom = new osg::Geometry();
-    _geom->setUseDisplayList(false);
-    _geom->setUseVertexBufferObjects(true);
+    _geom->setUseDisplayList(true);
+    _geom->setUseVertexBufferObjects(false);
 
     typedef osg::TemplateIndexArray<unsigned int, osg::Array::UIntArrayType, 24, 4> index_array_type;
 
@@ -181,7 +183,7 @@ namespace ReconstructMeGUI {
       vertex_normals->push_back(osg::Vec3(normals[i*4+0], normals[i*4+1], normals[i*4+2]));
       normal_to_vertex->push_back(i);
     }
-
+    
     face_to_vertex->insert(face_to_vertex->begin(), faces, faces + num_triangles * 3);
 
     _geom->setVertexArray(vertex_coords);
@@ -191,12 +193,8 @@ namespace ReconstructMeGUI {
     _geom->addPrimitiveSet(face_to_vertex);
    
     _geode->addDrawable(_geom);
-    _geode->dirtyBound();
+    //_geode->dirtyBound();
     _root->dirtyBound();
-
-    _manip->setNode(_root);
-    _manip->computeHomePosition();
-    _manip->home(0);
 
     reme_surface_destroy(_i->context(), &s);
   }
