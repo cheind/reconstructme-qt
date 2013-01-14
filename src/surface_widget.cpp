@@ -40,6 +40,9 @@
 #include <reconstructmesdk/reme.h>
 
 #include <QFileDialog>
+#include <QtConcurrentRun>
+#include <QFuture>
+
 
 #include <osgViewer/View>
 #include <osg/Node>
@@ -65,6 +68,7 @@ namespace ReconstructMeGUI {
     connect(_ui->saveButton, SIGNAL(clicked()), SLOT(save()));
     connect(_ui->polygonRB, SIGNAL(toggled(bool)), SLOT(render_polygon(bool)));
     connect(_ui->wireframeRB, SIGNAL(toggled(bool)), SLOT(render_wireframe(bool)));
+    connect(&_fw, SIGNAL(finished()), this, SLOT(render()));
 
     _root = new osg::Group();
     _geode = new osg::Geode();
@@ -106,12 +110,8 @@ namespace ReconstructMeGUI {
 
   void surface_widget::showEvent(QShowEvent* ev) {
     reme_surface_create(_i->context(), &_s);
-    _has_surface = true;
-
-    update_surface();    
-    _manip->computeHomePosition();
-    _manip->home(0);
-    _ui->viewer->start_rendering();
+    
+    update_surface(); 
   }
 
   void surface_widget::hideEvent(QHideEvent* event) {
@@ -124,8 +124,21 @@ namespace ReconstructMeGUI {
     _has_surface = false;
   }
 
-  void surface_widget::update_surface()
-  {
+  void _update_surface(surface_widget *sw) {
+    return sw->update_surface_concurrent();
+  }
+
+  void surface_widget::update_surface() {
+    std::cout << 'a';
+
+    _future = QtConcurrent::run(_update_surface, this);
+    _fw.setFuture(_future);
+    this->setEnabled(false);
+  }
+
+  void surface_widget::update_surface_concurrent() {
+    std::cout << 'b';
+
     // Assumes that the timer is stopped.
     // Remove old geometry
     const unsigned int n = _geode->getNumDrawables();             
@@ -139,7 +152,8 @@ namespace ReconstructMeGUI {
     generation_options go;
     go.set_merge_duplicate_vertices(true);
     go.set_merge_radius((float)_ui->spMergeRadius->value());
-    
+    go.set_merge_mode(generation_options_merge_type_USE_AVERAGE);
+
     reme_surface_bind_generation_options(_i->context(), _s, o);
     go.SerializeToString(&msg);
     reme_options_set_bytes(_i->context(), o, msg.c_str(), msg.size());
@@ -152,13 +166,17 @@ namespace ReconstructMeGUI {
       deco.set_maximum_error((float)_ui->spMaximumError->value());
       deco.set_maximum_faces(_ui->spMaximumFaces->value());
       deco.set_maximum_vertices(_ui->spMaximumVertices->value());
-      
+
       reme_surface_bind_decimation_options(_i->context(), _s, o);
       deco.SerializeToString(&msg);
       reme_options_set_bytes(_i->context(), o, msg.c_str(), msg.size());
 
       reme_surface_decimate(_i->context(), _s);
     }
+  }
+
+  void surface_widget::render() {
+    std::cout << 'c';
 
     // Convert to OSG
     const float *points, *normals;
@@ -212,8 +230,18 @@ namespace ReconstructMeGUI {
     else
       render_polygon(true);
 
+    this->setEnabled(true);
+
     _geode->addDrawable(_geom);
     _root->dirtyBound();
+
+
+    if (!_has_surface && this->isVisible()) {
+      _manip->computeHomePosition();
+      _manip->home(0);
+      _ui->viewer->start_rendering();
+      _has_surface = true;
+    }
   }
 
   osg::ref_ptr<osg::PolygonMode> surface_widget::poly_mode() {

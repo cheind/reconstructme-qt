@@ -116,7 +116,7 @@ namespace ReconstructMeGUI {
     _status_model->appendRow(sensor_items);
     
     t = new QTimer(this);
-    t->setInterval(1000);
+    t->setInterval(250);
     t->setSingleShot(true);
     ui->closeBtn->connect(t, SIGNAL(timeout()), SLOT(click()));
   }

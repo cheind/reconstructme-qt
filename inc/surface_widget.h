@@ -37,6 +37,7 @@
 
 #include <QWidget>
 #include <QTimer>
+#include <QFutureWatcher>
 
 #include <reconstructmesdk/types.h>
 
@@ -68,15 +69,18 @@ namespace ReconstructMeGUI {
 
     virtual void showEvent(QShowEvent* event);
     virtual void hideEvent(QHideEvent* event);
+    
+    void update_surface_concurrent();
 
   protected slots:
     void update_surface();
     void save();
-
+    
   private slots:
     void render_polygon(bool do_apply);
     void render_wireframe(bool do_apply);
-
+    void render();
+    
   private:
     osg::ref_ptr<osg::PolygonMode> poly_mode();
 
@@ -89,6 +93,8 @@ namespace ReconstructMeGUI {
     osg::ref_ptr<osgGA::CameraManipulator> _manip;
     reme_surface_t _s;
 
+    QFutureWatcher<void> _fw;
+    QFuture<void> _future;
     bool _has_surface;
   };
 } 

@@ -38,6 +38,8 @@
 
 #include <QWidget>
 #include <QMap>
+#include <QFuture>
+#include <QFutureWatcher>
 
 #include "types.h"
 

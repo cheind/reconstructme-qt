@@ -177,7 +177,7 @@ namespace ReconstructMeGUI {
     _status_dialog->logBtn()->connect(_initializer.get(), SIGNAL(sdk_initialized(bool)), SLOT(show()));
 
     _initializer->connect(_settings_dialog, SIGNAL(initialize()), SLOT(initialize()));
-    _scan_ui->scanner()->connect(_initializer.get(), SLOT(sdk_initialized(bool)), SLOT(initialize(bool)));
+    _scan_ui->scanner()->connect(_initializer.get(), SIGNAL(sdk_initialized(bool)), SLOT(initialize(bool)));
 
     qRegisterMetaType<init_t>( "reme_log_severity_t" );
     _logging_dialog->connect(_initializer.get(), SIGNAL(log_message(reme_log_severity_t, const QString &)), SLOT(add_log_message(reme_log_severity_t, const QString &)));
