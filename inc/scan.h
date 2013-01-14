@@ -64,6 +64,8 @@ namespace ReconstructMeGUI {
     void set_mode(mode_t mode);
 
   public slots:
+    void initialize(bool do_init);
+
     void process_frame();
     /** Toggles current mode */
     void toggle_play_pause();
@@ -88,6 +90,9 @@ namespace ReconstructMeGUI {
     mode_t _mode;
     bool lost_track_prev;
     int cnt;
+    int _play_integration_time;
+    int _current_integration_time;
+    reme_options_t _o;
     clock_t c0;
   };
 }

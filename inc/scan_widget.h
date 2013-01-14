@@ -75,6 +75,7 @@ namespace ReconstructMeGUI {
     ~scan_widget();
 
     const scan *scanner() const;
+    scan *scanner();
     virtual void showEvent(QShowEvent* event);
     virtual void hideEvent(QHideEvent* event);
 

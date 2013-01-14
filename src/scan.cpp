@@ -54,17 +54,33 @@
 namespace ReconstructMeGUI {
 
   scan::scan(std::shared_ptr<reme_resource_manager> initializer) : 
-    _i(initializer)
+    _i(initializer),
+    _play_integration_time(-1)
   {
     _mode = PAUSE;
     lost_track_prev = false;
   }
 
   scan::~scan() {
+    reme_options_destroy(_i->context(), &_o);
+  }
+
+  void scan::initialize(bool do_init) {
+    if (!do_init) return;
+
+    reme_options_create(_i->context(), &_o);
+    reme_context_bind_reconstruction_options(_i->context(), _o);
   }
 
   void scan::process_frame() {
     if (_mode == PAUSE) return;
+
+    // Set tracking mode to global when mode switches to play
+    reme_volume_get_time(_i->context(), _i->volume(), &_current_integration_time);
+    if (_play_integration_time == _current_integration_time) 
+      reme_options_set(_i->context(), _o, "camera_tracking.search_mode", "GLOBAL");
+    else if (_current_integration_time == _play_integration_time+1) 
+      reme_options_set(_i->context(), _o, "camera_tracking.search_mode", "AUTO");
 
     bool success = true;
 
@@ -112,6 +128,10 @@ namespace ReconstructMeGUI {
 
   void scan::toggle_play_pause() {
     _mode = (_mode == PLAY) ? PAUSE : PLAY; // toggle mode
+
+    // Remember times of integration for switching tracking mode to global
+    if (_mode == PLAY)
+      reme_volume_get_time(_i->context(), _i->sensor(), &_play_integration_time);
 
     int cnt = 0;
     clock_t c0 = clock();

@@ -174,6 +174,10 @@ namespace ReconstructMeGUI {
     return _scanner;
   }
 
+  scan *scan_widget::scanner() {
+    return _scanner;
+  }
+
   void scan_widget::request_frames() {
     connect(_f.get(), SIGNAL(frame(reme_sensor_image_t, reme_image_t)), SLOT(process_frame(reme_sensor_image_t, reme_image_t)), Qt::BlockingQueuedConnection);
     connect(_f.get(), SIGNAL(frames_updated()), SLOT(reconstruct()), Qt::BlockingQueuedConnection);
