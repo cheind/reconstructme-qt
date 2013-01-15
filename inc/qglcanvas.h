@@ -56,6 +56,11 @@ namespace ReconstructMeGUI {
       /** Render the content of the image */
       virtual void paintEvent(QPaintEvent *event);
 
+      virtual void mouseReleaseEvent(QMouseEvent *event);
+
+    signals:
+      void mouse_released();
+
     private:
       QImage *img;
       QImage default_img;

@@ -70,6 +70,8 @@
 #include <QMetaType>
 #include <QSignalMapper>
 
+#include <iostream>
+
 #define STATUSBAR_TIME 1500
 #define SPLASH_MSG_ALIGNMENT Qt::AlignBottom | Qt::AlignLeft
 
@@ -113,6 +115,8 @@ namespace ReconstructMeGUI {
     _canvas_map[REME_IMAGE_AUX]->connect(_i.get(),    SIGNAL(rgb_size(const QSize*)),   SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
     _canvas_map[REME_IMAGE_DEPTH]->connect(_i.get(),  SIGNAL(depth_size(const QSize*)), SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
     _canvas_map[REME_IMAGE_VOLUME]->connect(_i.get(), SIGNAL(depth_size(const QSize*)), SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
+
+    connect(_canvas_map[REME_IMAGE_VOLUME], SIGNAL(mouse_released()), SLOT(toggle_play_pause()));
 
     // Shortcuts
     _ui->play_button->setShortcut(QKeySequence("Ctrl+P"));

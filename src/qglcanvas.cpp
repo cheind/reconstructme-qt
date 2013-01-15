@@ -79,6 +79,11 @@ namespace ReconstructMeGUI {
 
     p.end();
   }
+
+  void QGLCanvas::mouseReleaseEvent(QMouseEvent *event) {
+    emit mouse_released();
+  }
+
 }
 
 #endif
