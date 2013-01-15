@@ -129,16 +129,12 @@ namespace ReconstructMeGUI {
   }
 
   void surface_widget::update_surface() {
-    std::cout << 'a';
-
     _future = QtConcurrent::run(_update_surface, this);
     _fw.setFuture(_future);
     this->setEnabled(false);
   }
 
   void surface_widget::update_surface_concurrent() {
-    std::cout << 'b';
-
     // Assumes that the timer is stopped.
     // Remove old geometry
     const unsigned int n = _geode->getNumDrawables();             
@@ -176,8 +172,6 @@ namespace ReconstructMeGUI {
   }
 
   void surface_widget::render() {
-    std::cout << 'c';
-
     // Convert to OSG
     const float *points, *normals;
     const unsigned *faces;
@@ -234,7 +228,6 @@ namespace ReconstructMeGUI {
 
     _geode->addDrawable(_geom);
     _root->dirtyBound();
-
 
     if (!_has_surface && this->isVisible()) {
       _manip->computeHomePosition();

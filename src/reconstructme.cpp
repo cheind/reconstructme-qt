@@ -89,7 +89,7 @@ namespace ReconstructMeGUI {
     _initializer(new reme_resource_manager())
   {
     // _splashscreen
-    QPixmap splashPix(":/images/_splash_screen.png");
+    QPixmap splashPix(":/images/splash_screen.png");
     _splash = new QSplashScreen(this, splashPix);
     _splash->setAutoFillBackground(false);
     _splash->showMessage(welcome_tag, SPLASH_MSG_ALIGNMENT);
