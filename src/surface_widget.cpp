@@ -69,6 +69,7 @@ namespace ReconstructMeGUI {
     connect(_ui->polygonRB, SIGNAL(toggled(bool)), SLOT(render_polygon(bool)));
     connect(_ui->wireframeRB, SIGNAL(toggled(bool)), SLOT(render_wireframe(bool)));
     connect(&_fw, SIGNAL(finished()), this, SLOT(render()));
+    connect(_ui->gbSurfaceProcessing, SIGNAL(toggled(bool)), SLOT(update_surface()));
 
     _root = new osg::Group();
     _geode = new osg::Geode();
@@ -132,6 +133,7 @@ namespace ReconstructMeGUI {
     _future = QtConcurrent::run(_update_surface, this);
     _fw.setFuture(_future);
     this->setEnabled(false);
+    _ui->viewer->start_loading_animation();
   }
 
   void surface_widget::update_surface_concurrent() {
@@ -144,30 +146,36 @@ namespace ReconstructMeGUI {
     reme_options_create(_i->context(), &o);
     std::string msg;
 
-    // Generation
-    generation_options go;
-    go.set_merge_duplicate_vertices(true);
-    go.set_merge_radius((float)_ui->spMergeRadius->value());
-    go.set_merge_mode(generation_options_merge_type_USE_AVERAGE);
+    if (_ui->gbSurfaceProcessing->isChecked()) {
+      // Generation
+      generation_options go;
+      go.set_merge_duplicate_vertices(true);
+      go.set_merge_radius((float)_ui->spMergeRadius->value());
+      go.set_merge_mode(generation_options_merge_type_USE_AVERAGE);
 
-    reme_surface_bind_generation_options(_i->context(), _s, o);
-    go.SerializeToString(&msg);
-    reme_options_set_bytes(_i->context(), o, msg.c_str(), msg.size());
-
-    reme_surface_generate(_i->context(), _s, _i->volume());
-
-    // Decimate
-    if (_ui->gbDecimation->isChecked()) {
-      decimation_options deco;
-      deco.set_maximum_error((float)_ui->spMaximumError->value());
-      deco.set_maximum_faces(_ui->spMaximumFaces->value());
-      deco.set_maximum_vertices(_ui->spMaximumVertices->value());
-
-      reme_surface_bind_decimation_options(_i->context(), _s, o);
-      deco.SerializeToString(&msg);
+      reme_surface_bind_generation_options(_i->context(), _s, o);
+      go.SerializeToString(&msg);
       reme_options_set_bytes(_i->context(), o, msg.c_str(), msg.size());
 
-      reme_surface_decimate(_i->context(), _s);
+      reme_surface_generate(_i->context(), _s, _i->volume());
+
+      // Decimate
+      if (_ui->gbDecimation->isChecked()) {
+        decimation_options deco;
+        deco.set_maximum_error((float)_ui->spMaximumError->value());
+        deco.set_maximum_faces(_ui->spMaximumFaces->value());
+        deco.set_maximum_vertices(_ui->spMaximumVertices->value());
+        deco.set_minimum_roundness(_ui->spMinRoundness->value());
+
+        reme_surface_bind_decimation_options(_i->context(), _s, o);
+        deco.SerializeToString(&msg);
+        reme_options_set_bytes(_i->context(), o, msg.c_str(), msg.size());
+
+        reme_surface_decimate(_i->context(), _s);
+      }
+    }
+    else {
+      reme_surface_generate(_i->context(), _s, _i->volume());
     }
   }
 
@@ -235,6 +243,7 @@ namespace ReconstructMeGUI {
       _ui->viewer->start_rendering();
       _has_surface = true;
     }
+    _ui->viewer->stop_loading_animation();
   }
 
   osg::ref_ptr<osg::PolygonMode> surface_widget::poly_mode() {

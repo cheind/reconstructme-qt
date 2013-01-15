@@ -8,6 +8,8 @@
 
 #include <QtCore/QTimer>
 #include <QtGui/QGridLayout>
+#include <QMovie>
+#include <QLabel>
 
 #include <osgViewer/ViewerEventHandlers>
 #include <osgGA/TrackballManipulator>
@@ -50,6 +52,11 @@ namespace ReconstructMeGUI {
     _timer = new QTimer(this);
     connect(_timer, SIGNAL(timeout()), this, SLOT(update()) );  
     this->realize();
+
+    _movie = new QMovie(":/images/loading.gif");
+    _process_label = new QLabel(this);
+    _process_label->setMovie(_movie);
+    _process_label->setFixedSize(54, 55);
   }
 
   osg::ref_ptr<osgViewer::View> viewer_widget::osg_view() 
@@ -70,6 +77,21 @@ namespace ReconstructMeGUI {
   void viewer_widget::stop_rendering()
   {
     _timer->stop();
+  }
+
+  void viewer_widget::start_loading_animation()
+  {
+    int x = (this->width()  - _process_label->width() ) / 2;
+    int y = (this->height() - _process_label->height()) / 2;
+    _process_label->move(x, y);
+    _movie->start();
+    _process_label->show();
+  }
+
+  void viewer_widget::stop_loading_animation()
+  {
+    _movie->stop();
+    _process_label->hide();
   }
 
 }

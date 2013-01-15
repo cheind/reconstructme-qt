@@ -13,6 +13,7 @@
 
 // Forward declaration
 class QGridLayout;
+class QLabel;
 
 namespace ReconstructMeGUI {
 
@@ -23,10 +24,14 @@ namespace ReconstructMeGUI {
     viewer_widget(QWidget *parent = 0);
 
     osg::ref_ptr<osgViewer::View> osg_view();
+    
     void start_rendering();
     void stop_rendering();
 
     virtual void paintEvent(QPaintEvent* event);
+
+    void start_loading_animation();
+    void stop_loading_animation();
 
   private:
     struct data;
@@ -35,5 +40,7 @@ namespace ReconstructMeGUI {
     osg::ref_ptr<osg::GraphicsContext::Traits> traits;
     osg::ref_ptr<osgViewer::View> view;
     QTimer *_timer;
+    QLabel *_process_label;
+    QMovie *_movie;
   };
 }

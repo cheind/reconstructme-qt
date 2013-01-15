@@ -75,6 +75,7 @@
 #include <QSignalMapper>
 #include <QWidget>
 #include <QCloseEvent>
+#include <QMovie>
 
 #include <iostream>
 

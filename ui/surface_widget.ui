@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>698</width>
-    <height>425</height>
+    <height>507</height>
    </rect>
   </property>
   <property name="font">
@@ -108,7 +108,7 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QGroupBox" name="groupBox">
+      <widget class="QGroupBox" name="gbSurfaceProcessing">
        <property name="maximumSize">
         <size>
          <width>220</width>
@@ -118,11 +118,20 @@
        <property name="title">
         <string>Surface Processing</string>
        </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="2" column="0">
          <layout class="QGridLayout" name="gridLayout_5">
           <item row="0" column="1">
            <widget class="QDoubleSpinBox" name="spMergeRadius">
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
             <property name="singleStep">
              <double>0.100000000000000</double>
             </property>
@@ -133,8 +142,11 @@
           </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label">
+            <property name="toolTip">
+             <string>Merge duplicate vertices within a certain radius towards a single vertex</string>
+            </property>
             <property name="text">
-             <string>Vertex merge radius</string>
+             <string>Vertex Merge Radius</string>
             </property>
            </widget>
           </item>
@@ -150,15 +162,11 @@
              <bool>false</bool>
             </property>
             <layout class="QGridLayout" name="gridLayout_4">
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_6">
-               <property name="text">
-                <string>Maximum Faces</string>
-               </property>
-              </widget>
-             </item>
              <item row="0" column="1">
               <widget class="QSpinBox" name="spMaximumFaces">
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
                <property name="maximum">
                 <number>1000000000</number>
                </property>
@@ -169,13 +177,29 @@
              </item>
              <item row="1" column="0">
               <widget class="QLabel" name="label_7">
+               <property name="toolTip">
+                <string>Decimate to target complexity</string>
+               </property>
                <property name="text">
-                <string>Maximum Vertices</string>
+                <string>Max Vertices</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_6">
+               <property name="toolTip">
+                <string>Decimate to target complexity</string>
+               </property>
+               <property name="text">
+                <string>Max Faces</string>
                </property>
               </widget>
              </item>
              <item row="1" column="1">
               <widget class="QSpinBox" name="spMaximumVertices">
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
                <property name="maximum">
                 <number>1000000000</number>
                </property>
@@ -186,18 +210,47 @@
              </item>
              <item row="2" column="0">
               <widget class="QLabel" name="label_8">
+               <property name="toolTip">
+                <string>Maximum quadric error to accept per collapse</string>
+               </property>
                <property name="text">
-                <string>Maximum Error</string>
+                <string>Max Error</string>
                </property>
               </widget>
              </item>
              <item row="2" column="1">
               <widget class="QDoubleSpinBox" name="spMaximumError">
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
                <property name="maximum">
                 <double>100000.000000000000000</double>
                </property>
                <property name="value">
                 <double>10000.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="label_4">
+               <property name="toolTip">
+                <string>Minimum triangle roundness</string>
+               </property>
+               <property name="text">
+                <string>Min Roundness</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QDoubleSpinBox" name="spMinRoundness">
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="maximum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.050000000000000</double>
                </property>
               </widget>
              </item>
