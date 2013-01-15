@@ -56,7 +56,7 @@ namespace ReconstructMeGUI {
     _movie = new QMovie(":/images/loading.gif");
     _process_label = new QLabel(this);
     _process_label->setMovie(_movie);
-    _process_label->setFixedSize(54, 55);
+    _process_label->setFixedSize(128, 128); 
   }
 
   osg::ref_ptr<osgViewer::View> viewer_widget::osg_view() 
