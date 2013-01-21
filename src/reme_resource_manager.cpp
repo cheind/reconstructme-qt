@@ -57,7 +57,9 @@ namespace ReconstructMeGUI {
     i->new_log_message(sev, QString(message));
   }
 
-  reme_resource_manager::reme_resource_manager() {
+  reme_resource_manager::reme_resource_manager() 
+    : _has_valid_license(false)
+  {
     _c = 0;
     _initializing = false;
     connect(&_fw, SIGNAL(finished()), this, SLOT(finished_initialize()));
@@ -179,6 +181,8 @@ namespace ReconstructMeGUI {
     else if (error == REME_ERROR_UNSPECIFIED) 
       success = false;
     
+    _has_valid_license = success;
+
     return success;
   }
 
@@ -217,6 +221,10 @@ namespace ReconstructMeGUI {
 
     _has_compiled_context = success;
     return _has_compiled_context;
+  }
+
+  bool reme_resource_manager::has_valid_license() const {
+    return _has_valid_license;
   }
 
   reme_calibrator_t reme_resource_manager::new_calibrator() const {

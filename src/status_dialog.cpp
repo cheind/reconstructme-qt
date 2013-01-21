@@ -69,7 +69,7 @@ namespace ReconstructMeGUI {
   void status_dialog::create_content() {
     QList< QStandardItem *> sensor_items;
     
-    _sen_obj_item = new QStandardItem("Sensor");
+    _sen_obj_item = new QStandardItem("3D Capture Sensor");
     _sen_status_item = new QStandardItem();
     _sen_message_item = new QStandardItem();
 
@@ -84,7 +84,7 @@ namespace ReconstructMeGUI {
     //============================
     QList< QStandardItem *> device_items;
     
-    _dev_obj_item = new QStandardItem("Device");
+    _dev_obj_item = new QStandardItem("Processing Device");
     _dev_status_item = new QStandardItem();
     _dev_message_item = new QStandardItem();
 

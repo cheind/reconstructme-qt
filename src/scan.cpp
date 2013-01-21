@@ -102,13 +102,6 @@ namespace ReconstructMeGUI {
       // Update volume with depth data from the current sensor perspective
       success = success && REME_SUCCESS(reme_sensor_update_volume(_i->context(), _i->sensor()));
     }
-    else if (track_error == REME_ERROR_INVALID_LICENSE) {
-      // lost track
-      if (!lost_track_prev) {
-        emit status_bar_msg(camera_track_lost_license_tag);
-      }
-      lost_track_prev = true;
-    }
     else if (!lost_track_prev) {
       // track lost
       lost_track_prev = true;

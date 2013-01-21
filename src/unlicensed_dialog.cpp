@@ -30,76 +30,37 @@
   * @authors christoph.kopf@profactor.at
   */
 
-#ifndef SURFACE_WIDGET_H
-#define SURFACE_WIDGET_H
-
-#include "types.h"
 #include "unlicensed_dialog.h"
+#include "ui_unlicensed_dialog.h"
 
-#include <QWidget>
-#include <QTimer>
-#include <QFutureWatcher>
+#include <QRect>
 
-#include <reconstructmesdk/types.h>
-
-#include <osg/Geometry>
-#include <osg/Geode>
-#include <osg/Group>
-#include <osgViewer/View>
-#include <osgGA/TrackballManipulator>
-#include <osg/PolygonMode>
-
-// Forward declarations
-namespace Ui {
-  class surface_widget;
-}
-namespace ReconstructMeGUI {
-  class reme_resource_manager;
-  class calibrate;
-}
+#include <iostream>
 
 namespace ReconstructMeGUI {
-
-  class surface_widget : public QWidget
+  unlicensed_dialog::unlicensed_dialog(QWidget *parent, Qt::WindowFlags flags) : 
+    QDialog(parent, flags),  
+    _ui(new Ui::unlicensedDialog)
   {
-    Q_OBJECT;
+    _ui->setupUi(this);
+  }
 
-  public:
-    surface_widget(std::shared_ptr<reme_resource_manager> initializer, QWidget *parent = 0);
-    ~surface_widget();
+  unlicensed_dialog::~unlicensed_dialog() 
+  {
+    delete _ui;
+  }
 
-    virtual void showEvent(QShowEvent* event);
-    virtual void hideEvent(QHideEvent* event);
+  void unlicensed_dialog::showEvent(QShowEvent* event)
+  {
+    QWidget* root = this;
+    while (root->parent() != 0) {
+      root = root->parentWidget();
+    }
+
+    int x = root->x() + (root->width()  - width() ) / 2;
+    int y = root->y() + (root->height() - height()) / 2;
     
-    void update_surface_concurrent();
-
-  protected slots:
-    void update_surface();
-    void save();
-    
-  private slots:
-    void render_polygon(bool do_apply);
-    void render_wireframe(bool do_apply);
-    void render();
-    
-  private:
-    osg::ref_ptr<osg::PolygonMode> poly_mode();
-
-    Ui::surface_widget *_ui;
-    unlicensed_dialog *_unlicensed_dialog;
-    std::shared_ptr<reme_resource_manager> _i;
-
-    osg::ref_ptr<osgViewer::View> _view;
-    osg::ref_ptr<osg::Group> _root;
-    osg::ref_ptr<osg::Geometry> _geom;
-    osg::ref_ptr<osg::Geode> _geode;
-    osg::ref_ptr<osgGA::CameraManipulator> _manip;
-    reme_surface_t _s;
-
-    QFutureWatcher<void> _fw;
-    QFuture<void> _future;
-    bool _has_surface;
-  };
-} 
-
-#endif // CALIBRATION_WIDGET_H
+    move(x, y);
+    this->setEnabled(true);
+  }
+}

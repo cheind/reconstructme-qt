@@ -44,7 +44,7 @@ namespace ReconstructMeGUI {
   const char* const invalid_license_tag = "Invalid license. Switching to non commercial mode.";
   const char* const license_applied_tag = "Successfully applied license file.";
   const char* const camera_track_found_tag = "Camera Track found.";
-  const char* const camera_track_lost_tag = "Camera Track lost. Move camera to recovery pose to continue.";
+  const char* const camera_track_lost_tag = "Global Tracking.";
   const char* const camera_track_lost_license_tag = "Please wait, camera lost track due to the use of a non commercial version.";
   const char* const saved_file_to_tag = "Saved file to ";
 

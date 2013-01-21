@@ -68,6 +68,8 @@ namespace ReconstructMeGUI {
     const reme_sensor_t sensor() const;
     const reme_volume_t volume() const;
     
+    bool has_valid_license() const;
+
     reme_calibrator_t new_calibrator() const;
     void destroy_calibrator(reme_calibrator_t calib);
 
@@ -113,6 +115,7 @@ namespace ReconstructMeGUI {
     bool _has_compiled_context;
     bool _has_sensor;
     bool _has_volume;
+    bool _has_valid_license;
 
     QFutureWatcher<void> _fw;
     QFuture<void> _future;

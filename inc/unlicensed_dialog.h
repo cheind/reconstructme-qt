@@ -30,76 +30,33 @@
   * @authors christoph.kopf@profactor.at
   */
 
-#ifndef SURFACE_WIDGET_H
-#define SURFACE_WIDGET_H
+#ifndef UNLICENSED_DIALOG_H
+#define UNLICENSED_DIALOG_H
 
-#include "types.h"
-#include "unlicensed_dialog.h"
-
-#include <QWidget>
-#include <QTimer>
-#include <QFutureWatcher>
-
-#include <reconstructmesdk/types.h>
-
-#include <osg/Geometry>
-#include <osg/Geode>
-#include <osg/Group>
-#include <osgViewer/View>
-#include <osgGA/TrackballManipulator>
-#include <osg/PolygonMode>
+#include <QDialog>
 
 // Forward declarations
 namespace Ui {
-  class surface_widget;
-}
-namespace ReconstructMeGUI {
-  class reme_resource_manager;
-  class calibrate;
+  class unlicensedDialog;
 }
 
 namespace ReconstructMeGUI {
 
-  class surface_widget : public QWidget
+  /** This dialog is for user inforamation about the usage of unlicened software */
+  class unlicensed_dialog : public QDialog
   {
     Q_OBJECT;
 
   public:
-    surface_widget(std::shared_ptr<reme_resource_manager> initializer, QWidget *parent = 0);
-    ~surface_widget();
+    unlicensed_dialog(QWidget *parent = 0, Qt::WindowFlags flags = Qt::FramelessWindowHint);
+    ~unlicensed_dialog();
 
     virtual void showEvent(QShowEvent* event);
-    virtual void hideEvent(QHideEvent* event);
-    
-    void update_surface_concurrent();
 
-  protected slots:
-    void update_surface();
-    void save();
-    
-  private slots:
-    void render_polygon(bool do_apply);
-    void render_wireframe(bool do_apply);
-    void render();
-    
   private:
-    osg::ref_ptr<osg::PolygonMode> poly_mode();
-
-    Ui::surface_widget *_ui;
-    unlicensed_dialog *_unlicensed_dialog;
-    std::shared_ptr<reme_resource_manager> _i;
-
-    osg::ref_ptr<osgViewer::View> _view;
-    osg::ref_ptr<osg::Group> _root;
-    osg::ref_ptr<osg::Geometry> _geom;
-    osg::ref_ptr<osg::Geode> _geode;
-    osg::ref_ptr<osgGA::CameraManipulator> _manip;
-    reme_surface_t _s;
-
-    QFutureWatcher<void> _fw;
-    QFuture<void> _future;
-    bool _has_surface;
+    Ui::unlicensedDialog *_ui;
   };
+
 } 
 
-#endif // CALIBRATION_WIDGET_H
+#endif // UNLICENSED_DIALOG_H

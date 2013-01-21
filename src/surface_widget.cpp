@@ -64,6 +64,8 @@ namespace ReconstructMeGUI {
   {
     _ui->setupUi(this);
 
+    _unlicensed_dialog = new unlicensed_dialog(this);
+
     connect(_ui->btnGenerate, SIGNAL(clicked()), SLOT(update_surface()));
     connect(_ui->saveButton, SIGNAL(clicked()), SLOT(save()));
     connect(_ui->polygonRB, SIGNAL(toggled(bool)), SLOT(render_polygon(bool)));
@@ -134,6 +136,10 @@ namespace ReconstructMeGUI {
     _fw.setFuture(_future);
     this->setEnabled(false);
     _ui->viewer->start_loading_animation();
+
+    if (!_i->has_valid_license()) {
+      _unlicensed_dialog->show();
+    }
   }
 
   void surface_widget::update_surface_concurrent() {
@@ -243,7 +249,9 @@ namespace ReconstructMeGUI {
       _ui->viewer->start_rendering();
       _has_surface = true;
     }
+
     _ui->viewer->stop_loading_animation();
+    _unlicensed_dialog->hide();
   }
 
   osg::ref_ptr<osg::PolygonMode> surface_widget::poly_mode() {
