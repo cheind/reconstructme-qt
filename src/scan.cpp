@@ -117,6 +117,8 @@ namespace ReconstructMeGUI {
     bool success = true;
     success = success && REME_SUCCESS(reme_volume_reset(_i->context(), _i->volume()));
     success = success && REME_SUCCESS(reme_sensor_reset(_i->context(), _i->sensor()));
+
+    reme_volume_get_time(_i->context(), _i->volume(), &_play_integration_time);
   }
 
   void scan::toggle_play_pause() {
