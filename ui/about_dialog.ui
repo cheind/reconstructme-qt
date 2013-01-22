@@ -121,9 +121,7 @@
             <string>PROFACTOR GmbH
 Im Stadtgut A2
 4407 - Steyr Gleink
-Austria
-
-+43 7252 885 120</string>
+Austria</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
