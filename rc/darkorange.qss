@@ -3,8 +3,8 @@ QToolTip
      border: 1px solid black;
      background-color: #ffa02f;
      padding: 1px;
-     border-radius: 3px;
-     opacity: 100;
+     border-radius: 0px;
+     opacity: 85;
 }
 
 QWidget
@@ -88,17 +88,17 @@ QLineEdit
     padding: 1px;
     border-style: solid;
     border: 1px solid #1e1e1e;
-    border-radius: 5;
+    border-radius: 2;
 }
 
 QPushButton
 {
     color: #b1b1b1;
     background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #565656, stop: 0.1 #525252, stop: 0.5 #4e4e4e, stop: 0.9 #4a4a4a, stop: 1 #464646);
-    border-width: 1px;
+    border-width: 0px;
     border-color: #1e1e1e;
     border-style: solid;
-    border-radius: 6;
+    border-radius: 2;
     padding: 3px;
     font-size: 12px;
     padding-left: 5px;
@@ -116,7 +116,7 @@ QComboBox
     background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #565656, stop: 0.1 #525252, stop: 0.5 #4e4e4e, stop: 0.9 #4a4a4a, stop: 1 #464646);
     border-style: solid;
     border: 1px solid #1e1e1e;
-    border-radius: 5;
+    border-radius: 2;
 }
 
 QComboBox:hover,QPushButton:hover
@@ -256,6 +256,7 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical
       background: none;
 }
 
+
 QTextEdit
 {
     background-color: #242424;
@@ -341,7 +342,7 @@ QMenu::separator
 QProgressBar
 {
     border: 2px solid grey;
-    border-radius: 5px;
+    border-radius: 2px;
     text-align: center;
 }
 
