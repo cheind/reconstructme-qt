@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>432</width>
+    <width>505</width>
     <height>161</height>
    </rect>
   </property>
@@ -41,7 +41,7 @@
       <number>3</number>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;Non Commercial Usage Limitation&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;At this point, ReconstructMe waits longer as it does in commercial mode. Fell free to visit our &lt;/span&gt;&lt;a href=&quot;http://shop.profactor.at/index.php?language=en&amp;amp;cat=c2_ReconstructMe-ReconstructMe.html&amp;amp;cPath=2&amp;amp;&quot;&gt;&lt;span style=&quot; font-size:16pt; text-decoration: underline; color:#ffaa00;&quot;&gt;webshop&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt; where you can order licenses.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;Non Commercial Usage Limitation&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;In the unlicensed version of ReconstructMe surface generation is slow. Please support ReconstructMe by buying a license at our &lt;/span&gt;&lt;a href=&quot;http://shop.profactor.at&quot;&gt;&lt;span style=&quot; font-size:16pt; text-decoration: underline; color:#ffaa00;&quot;&gt;webshop&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

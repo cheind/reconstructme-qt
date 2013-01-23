@@ -172,8 +172,8 @@ namespace ReconstructMeGUI {
       message = "Successfully initialized";
     }
     else {
-       icon.swap(QIcon(":/images/status_error.png"));
-      message = "Error occured";
+      icon.swap(QIcon(":/images/status_error.png"));
+      message = "Failed to initialize";
     }
 
     switch (what) {
@@ -206,7 +206,7 @@ namespace ReconstructMeGUI {
     return ui->closeBtn;
   }
 
-  const QPushButton *status_dialog::logBtn() {
-    return ui->logBtn;
+  QPushButton *status_dialog::onlineHelpBtn() {
+    return ui->onlineHelpBtn;
   }
 }

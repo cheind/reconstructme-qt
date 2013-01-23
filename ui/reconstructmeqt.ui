@@ -74,6 +74,7 @@
     <addaction name="actionProjectHome"/>
     <addaction name="actionForum"/>
     <addaction name="actionDevice"/>
+    <addaction name="actionFAQ_2"/>
     <addaction name="separator"/>
     <addaction name="actionLog"/>
     <addaction name="actionGenerate_hardware_key"/>
@@ -187,6 +188,11 @@
   <action name="action3D_Preview">
    <property name="text">
     <string>3D Preview</string>
+   </property>
+  </action>
+  <action name="actionFAQ_2">
+   <property name="text">
+    <string>Frequently Asked Questions</string>
    </property>
   </action>
  </widget>

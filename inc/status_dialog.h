@@ -61,7 +61,7 @@ namespace ReconstructMeGUI {
     ~status_dialog();
     
     const QPushButton *closeBtn();
-    const QPushButton *logBtn();
+    QPushButton *onlineHelpBtn();
 
   public slots:
     void reset();

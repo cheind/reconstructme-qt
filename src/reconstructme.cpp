@@ -168,14 +168,13 @@ namespace ReconstructMeGUI {
     _status_dialog->connect(_initializer.get(), SIGNAL(initialized(init_t, bool)), SLOT(initialized(init_t, bool)), Qt::BlockingQueuedConnection);
 
     _status_dialog->connect(_status_dialog->closeBtn(), SIGNAL(clicked()), SLOT(hide()));
-    _status_dialog->connect(_status_dialog->logBtn(), SIGNAL(clicked()), SLOT(hide()));
-    _logging_dialog->connect(_status_dialog->logBtn(), SIGNAL(clicked()), SLOT(show()));
+    _status_dialog->connect(_status_dialog->onlineHelpBtn(), SIGNAL(clicked()), SLOT(hide()));
     _status_dialog->connect(_initializer.get(), SIGNAL(initializing_sdk()), SLOT(reset()));
     _status_dialog->connect(_initializer.get(), SIGNAL(initializing_sdk()), SLOT(show()));
     _status_dialog->closeBtn()->connect(_initializer.get(), SIGNAL(initializing_sdk()), SLOT(hide()));
     _status_dialog->closeBtn()->connect(_initializer.get(), SIGNAL(sdk_initialized(bool)), SLOT(show()));
-    _status_dialog->logBtn()->connect(_initializer.get(), SIGNAL(initializing_sdk()), SLOT(hide()));
-    _status_dialog->logBtn()->connect(_initializer.get(), SIGNAL(sdk_initialized(bool)), SLOT(show()));
+    _status_dialog->onlineHelpBtn()->connect(_initializer.get(), SIGNAL(initializing_sdk()), SLOT(hide()));
+    _status_dialog->onlineHelpBtn()->connect(_initializer.get(), SIGNAL(sdk_initialized(bool)), SLOT(show()));
 
     _initializer->connect(_settings_dialog, SIGNAL(initialize()), SLOT(initialize()));
     _scan_ui->scanner()->connect(_initializer.get(), SIGNAL(sdk_initialized(bool)), SLOT(initialize(bool)));
@@ -197,20 +196,22 @@ namespace ReconstructMeGUI {
   void reconstructme::create_mappings() {
     _url_mapper = new QSignalMapper(this);
     _url_mapper->setMapping(_ui->actionDevice, QString(url_device_matrix_tag));
-    _url_mapper->setMapping(_ui->actionFAQ, QString(url_faq_tag));
+    _url_mapper->setMapping(_ui->actionFAQ_2, QString(url_faq_tag));
     _url_mapper->setMapping(_ui->actionForum, QString(url_forum_tag));
     _url_mapper->setMapping(_ui->actionInstallation, QString(url_install_tag));
     _url_mapper->setMapping(_ui->actionProjectHome, QString(url_reconstructme_qt));
     _url_mapper->setMapping(_ui->actionSDKDocumentation, QString(url_sdk_doku_tag));
     _url_mapper->setMapping(_ui->actionUsage, QString(url_usage_tag));
+    _url_mapper->setMapping(_status_dialog->onlineHelpBtn(), QString(url_faq_tag));
     
     _url_mapper->connect(_ui->actionDevice, SIGNAL(triggered()), SLOT(map()));
-    _url_mapper->connect(_ui->actionFAQ, SIGNAL(triggered()), SLOT(map()));
+    _url_mapper->connect(_ui->actionFAQ_2, SIGNAL(triggered()), SLOT(map()));
     _url_mapper->connect(_ui->actionForum, SIGNAL(triggered()), SLOT(map()));
     _url_mapper->connect(_ui->actionInstallation, SIGNAL(triggered()), SLOT(map()));
     _url_mapper->connect(_ui->actionProjectHome, SIGNAL(triggered()), SLOT(map()));
     _url_mapper->connect(_ui->actionSDKDocumentation, SIGNAL(triggered()), SLOT(map()));
     _url_mapper->connect(_ui->actionUsage, SIGNAL(triggered()), SLOT(map()));
+    _url_mapper->connect(_status_dialog->onlineHelpBtn(), SIGNAL(clicked()), SLOT(map()));
 
     connect(_url_mapper, SIGNAL(mapped(const QString&)), SLOT(open_url(const QString&)));
   }
