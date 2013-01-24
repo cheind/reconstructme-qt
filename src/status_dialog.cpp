@@ -191,9 +191,9 @@ namespace ReconstructMeGUI {
         _lic_status_item->setIcon(icon);
         _has_device = success;
         if (success) 
-          _lic_message_item->setText("Commercial mode");
+          _lic_message_item->setText("License applied successfully");
         else 
-          _lic_message_item->setText("Non commercial mode");
+          _lic_message_item->setText("Unlicensed");
         break;
     }
 
