@@ -34,7 +34,7 @@
     
     
 
-    <Feature Id='Complete' Title='ReconstructMe 1.0' Description='ReconstructMe Complete' Display='expand' Level='1' ConfigurableDirectory='INSTALLDIR'>
+    <Feature Id='Complete' Title='ReconstructMe' Description='ReconstructMe Complete' Display='expand' Level='1' ConfigurableDirectory='INSTALLDIR'>
 
       <Feature Id='MainProgram' Title='ReconstructMe Qt' Description='ReconstructMe Qt fronted.' Level='1'>
         <ComponentGroupRef Id='ReconstructMeSDKRuntimeFiles' />

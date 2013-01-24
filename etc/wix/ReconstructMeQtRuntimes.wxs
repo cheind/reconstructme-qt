@@ -16,11 +16,15 @@
           </Shortcut>
         </File>
       </Component>
+	  <Component Id="OsgQt" Guid="D200E371-8648-4B88-91EC-3CFA827D43DB">
+		<File KeyPath="yes" Source="@OSG_BINARY_DIR@/osg80-osgQt.dll" />
+      </Component>
     </DirectoryRef>
   </Fragment>
   <Fragment>
     <ComponentGroup Id="ReconstructMeQtRuntimeFiles">
       <ComponentRef Id="ReconstructMeQt" />
+	  <ComponentRef Id="OsgQt" />
     </ComponentGroup>
   </Fragment>
 </Wix>
