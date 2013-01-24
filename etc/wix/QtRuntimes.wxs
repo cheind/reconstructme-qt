@@ -12,12 +12,18 @@
                 <File KeyPath="yes" Source="@QT_BINARY_DIR@/QtOpenGL4.dll" />
             </Component>
 		</DirectoryRef>
+		<DirectoryRef Id="IMAGEFORMATSDIR">
+			<Component Id="QGif4" Guid="871B033E-A405-407D-8701-7846F27C1FE8">
+                <File KeyPath="yes" Source="@QT_BINARY_DIR@/../plugins/imageformats/qgif4.dll" />
+            </Component>
+		</DirectoryRef>
 	</Fragment>
 	<Fragment>
     <ComponentGroup Id="QtRuntimeFiles">
 			<ComponentRef Id="QtCore4" />
 			<ComponentRef Id="QtGUI4" />
 			<ComponentRef Id="QtOpenGL4" />
+			<ComponentRef Id="QGif4" />
 		</ComponentGroup>
 	</Fragment>
 </Wix>

@@ -28,6 +28,8 @@
       <Directory Id='ProgramFilesFolder' Name='PFiles'>
         <Directory Id='INSTALLDIR' Name='ReconstructMeQt'>
           <Merge Id="VCRedist" SourceFile="@PROJECT_SOURCE_DIR@/etc/wix/Microsoft_VC100_CRT_x86.msm" DiskId="1" Language="0"/>
+		  <Directory Id='IMAGEFORMATSDIR' Name='imageformats'>
+		  </Directory>
         </Directory>
       </Directory>
     </Directory>
