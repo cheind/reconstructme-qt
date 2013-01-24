@@ -9,3 +9,9 @@ Then proceed as follows to update the robvis internal to 1.0.40
    exectute: perl svn_load_dirs.pl <BASE_DIRECTORY> <CURRENT> <EXPORT> 
    where <BASE_DIRECTORY> is the path to robvis repository containing the subdirectory <CURRENT> 
    that holds version 1.0.35 to be upgraded.
+
+ - example: svn_load_dirs.pl https://pinguin.profactor.at/mas/ ras_projects/reconstructme-qt/trunk D:\reconstructme-qt-export
+ - Vendor-Branch auschecken
+ - Vendor-Branch mit Trunk in Branch mergen
+ - Vendor-Branch committen
+ - Vendor-Branch am Jenkins bauen
