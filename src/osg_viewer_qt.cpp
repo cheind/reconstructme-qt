@@ -56,7 +56,6 @@ namespace ReconstructMeGUI {
     _movie = new QMovie(":/images/loading.gif");
     _process_label = new QLabel(this);
     _process_label->setMovie(_movie);
-    _movie->start();
     _process_label->setFixedSize(128, 128); 
   }
 
@@ -85,13 +84,13 @@ namespace ReconstructMeGUI {
     int x = (this->width()  - _process_label->width() ) / 2;
     int y = (this->height() - _process_label->height()) / 2;
     _process_label->move(x, y);
-    
+    _movie->start();
     _process_label->show();
   }
 
   void viewer_widget::stop_loading_animation()
   {
-    //_movie->stop();
+    _movie->stop();
     _process_label->hide();
   }
 

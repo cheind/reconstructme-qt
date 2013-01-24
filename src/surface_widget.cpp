@@ -112,8 +112,6 @@ namespace ReconstructMeGUI {
   }
 
   void surface_widget::showEvent(QShowEvent* ev) {
-    reme_surface_create(_i->context(), &_s);
-    
     update_surface(); 
   }
 
@@ -132,6 +130,7 @@ namespace ReconstructMeGUI {
   }
 
   void surface_widget::update_surface() {
+    reme_surface_create(_i->context(), &_s);
     _future = QtConcurrent::run(_update_surface, this);
     _fw.setFuture(_future);
     this->setEnabled(false);

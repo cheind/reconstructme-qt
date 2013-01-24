@@ -78,8 +78,6 @@ namespace ReconstructMeGUI {
 
     const scan *scanner() const;
     scan *scanner();
-    virtual void showEvent(QShowEvent* event);
-    virtual void hideEvent(QHideEvent* event);
 
   public slots:
     void toggle_play_pause();
@@ -91,6 +89,8 @@ namespace ReconstructMeGUI {
     void reset_button_clicked();
     /** Handle play button clicked event. Trigger scanner to toggle PLAY/PAUSE */
     void apply_mode(mode_t mode);
+
+    void handle_frame_grabber_requests(int);
 
     void request_frames();
     void release_frames();

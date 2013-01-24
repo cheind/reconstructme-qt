@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>346</width>
-    <height>217</height>
+    <width>363</width>
+    <height>221</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -41,7 +41,7 @@
       <number>3</number>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;Unlicensed Limitation&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;In the unlicensed version of ReconstructMe surface generation does not run at full speed.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Please support ReconstructMe by aquiring a license.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;a href=&quot;http://shop.profactor.at/&quot;&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline; color:#ffaa00;&quot;&gt;webshop&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;|&lt;/span&gt;&lt;a href=&quot;http://reconstructme.net/&quot;&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline; color:#ffaa00;&quot;&gt;homepage&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;|&lt;/span&gt;&lt;a href=&quot;http://reconstructme.net/blog/&quot;&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline; color:#ffaa00;&quot;&gt;blog&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;|&lt;/span&gt;&lt;a href=&quot;https://groups.google.com/forum/?fromgroups#!forum/reconstructme&quot;&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline; color:#ffaa00;&quot;&gt;forum&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;Unlicensed Limitation&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-family:'Arial,sans-serif'; font-size:16pt;&quot;&gt;20 seconds of unnecessary wait.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-family:'Arial,sans-serif'; font-size:16pt;&quot;&gt;Please support ReconstructMe.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;a href=&quot;http://shop.profactor.at&quot;&gt;&lt;span style=&quot; font-size:16pt; text-decoration: underline; color:#ffaa00;&quot;&gt;Acquire a license for instant results&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-family:'Arial,sans-serif'; font-size:16pt; color:#ffaa00;&quot;&gt;.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-family:'Arial,sans-serif'; font-size:16pt;&quot;&gt;Waiting...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

@@ -110,7 +110,8 @@ namespace ReconstructMeGUI {
     connect(_scanner, SIGNAL(mode_changed(mode_t)), SLOT(apply_mode(mode_t)));
     _scanner->connect(_ui->reset_button, SIGNAL(clicked()), SLOT(reset_volume()));
     connect(_ui->reset_button, SIGNAL(clicked()), SLOT(reset_button_clicked()));
-    
+    connect(_ui->stackedWidget, SIGNAL(currentChanged(int)), SLOT(handle_frame_grabber_requests(int)));
+
     // views
     _canvas_map[REME_IMAGE_AUX]->connect(_i.get(),    SIGNAL(rgb_size(const QSize*)),   SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
     _canvas_map[REME_IMAGE_DEPTH]->connect(_i.get(),  SIGNAL(depth_size(const QSize*)), SLOT(set_image_size(const QSize*)), Qt::BlockingQueuedConnection);
@@ -121,6 +122,8 @@ namespace ReconstructMeGUI {
     // Shortcuts
     _ui->play_button->setShortcut(QKeySequence("Ctrl+P"));
     _ui->reset_button->setShortcut(QKeySequence("Ctrl+R"));
+
+    request_frames();
   }
 
   
@@ -190,8 +193,11 @@ namespace ReconstructMeGUI {
     _f->request(REME_IMAGE_VOLUME);
   }
 
-  void scan_widget::showEvent(QShowEvent* event) {
-    request_frames();
+  void scan_widget::handle_frame_grabber_requests(int id) {
+    if (_ui->stackedWidget->widget(id) ==_ui->reconstructionPage)
+      request_frames();
+    else
+      release_frames();
   }
 
   void scan_widget::release_frames() {
@@ -200,10 +206,6 @@ namespace ReconstructMeGUI {
     _f->release(REME_IMAGE_DEPTH);
     _f->release(REME_IMAGE_VOLUME);
     _f->disconnect(this);
-  }
-
-  void scan_widget::hideEvent(QHideEvent* event) {
-    release_frames();
   }
 
 }
