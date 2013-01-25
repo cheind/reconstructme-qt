@@ -12,9 +12,10 @@ Then proceed as follows to update the robvis internal to 1.0.40
  
  - update version number in hudson_build script
  - update version number in cmakelists.txt
+ - update versionnumber in qsettings, to make shure to use the moset current onse
 
  - example: svn_load_dirs.pl https://pinguin.profactor.at/mas/ ras_projects/reconstructme-qt/trunk D:\reconstructme-qt-export
- - Vendor-Branch auschecken
- - Vendor-Branch mit Trunk in Branch mergen
- - Vendor-Branch committen
- - Vendor-Branch am Jenkins bauen
+ - Vendor-Branch check out
+ - Merge Vendor-Branch with Trunk in Branch
+ - Vendor-Branch commit
+ - Vendor-Branch build at hudson
