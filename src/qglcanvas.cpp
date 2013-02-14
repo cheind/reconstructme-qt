@@ -45,8 +45,8 @@
 namespace ReconstructMeGUI {
 
   QGLCanvas::QGLCanvas(QWidget* parent) : QGLWidget(parent),
-    _width(1),
-    _height(1)
+    _width(2),
+    _height(2)
   {
     img = new QImage(_width, _height, QImage::Format_RGB888);
   }
@@ -55,19 +55,15 @@ namespace ReconstructMeGUI {
     if ((_width != width || _height != height) && width > 0 && height > 0) {
       _width = width;
       _height = height;
-      img = new QImage(_width, _width, QImage::Format_RGB888);
+      img = new QImage(_width, _height, QImage::Format_RGB888);
     }
   }
 
-  void QGLCanvas::set_image_data(const void *data) {
+  void QGLCanvas::set_image_data(const void *data, int length) {
     if (data == 0)
       return;
-    std::cout << img->byteCount() << std::endl;
-    for (int h=0; h<_height; h++) {
-    // scanLine returns a ptr to the start of the data for that row
-      memcpy(img->scanLine(h), &(static_cast<const char*>(data)[h]), _width*3);
-    }
-    //memcpy((void*)img->bits(), data, img->byteCount());
+
+    memcpy((void*)img->bits(), data, length); 
     repaint();
   }
 

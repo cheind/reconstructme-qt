@@ -115,7 +115,8 @@ namespace ReconstructMeGUI {
 
     // Trigger concurrent initialization
     _fg = std::shared_ptr<frame_grabber>(new frame_grabber(_rm));
-    connect(_fg.get(), SIGNAL(frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)), SLOT(show_frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)), Qt::BlockingQueuedConnection);
+    connect(_fg.get(), SIGNAL(frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)), 
+                    SLOT(show_frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)), Qt::BlockingQueuedConnection);
     _rm->connect(this, SIGNAL(initialize()), SLOT(initialize()));
     _rm_thread = new QThread(this);
     _rm->moveToThread(_rm_thread);
@@ -131,20 +132,18 @@ namespace ReconstructMeGUI {
 
   void reconstructme::show_frame(reme_sensor_image_t type, const void* data, int length, int width, int height, int channels, int num_bytes_per_channel, int row_stride) {
     
-    std::cout << length << " " << width << " " << height << " " << channels << " " << num_bytes_per_channel << " " << row_stride<< std::endl;
-
     switch(type) {
     case REME_IMAGE_AUX:
       _ui->rgb_canvas->set_image_size(width, height);
-      _ui->rgb_canvas->set_image_data(data);
+      _ui->rgb_canvas->set_image_data(data, length);
       break;
     case REME_IMAGE_DEPTH:
       _ui->depth_canvas->set_image_size(width, height);
-      _ui->depth_canvas->set_image_data(data);
+      _ui->depth_canvas->set_image_data(data, length);
       break;
     case REME_IMAGE_VOLUME:
       _ui->rec_canvas->set_image_size(width, height);
-      _ui->rec_canvas->set_image_data(data);
+      _ui->rec_canvas->set_image_data(data, length);
       break;
     }
   }

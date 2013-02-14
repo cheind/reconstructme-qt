@@ -48,7 +48,7 @@ namespace ReconstructMeGUI {
       QGLCanvas(QWidget* parent = NULL);
       
     public slots:
-      void set_image_data(const void *data = 0);
+      void set_image_data(const void *data, int length);
       /** Set the image to render in paintEvent */
       void set_image_size(int width, int height);
 
