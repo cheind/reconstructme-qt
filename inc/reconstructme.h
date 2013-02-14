@@ -96,6 +96,8 @@ namespace ReconstructMeGUI {
       int btn_1 = 1024, // QMessageBox::Ok
       int btn_2 = 0);   // QMessageBox::NoButton
 
+    void toggle_mode();
+
     void really_close();
     void show_frame(reme_sensor_image_t type, const void* data, int length, int width, int height, int channels, int num_bytes_per_channel, int row_stride);
 
@@ -103,6 +105,8 @@ namespace ReconstructMeGUI {
     /** This signal is emited when this objects constructor finished */
     void initialize();
     void closing();
+    void start_scanning();
+    void stop_scanning();
 
   protected:
      void	closeEvent(QCloseEvent *event);
@@ -129,6 +133,8 @@ namespace ReconstructMeGUI {
     std::shared_ptr<reme_resource_manager> _rm;
     std::shared_ptr<frame_grabber> _fg;
     QThread* _rm_thread;
+   
+    mode_t _mode;
   };
 }
 

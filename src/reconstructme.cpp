@@ -85,7 +85,8 @@ namespace ReconstructMeGUI {
   reconstructme::reconstructme(QWidget *parent) : 
     QMainWindow(parent),
     _ui(new Ui::reconstructmeqt),
-    _rm(new reme_resource_manager())
+    _rm(new reme_resource_manager()),
+    _mode(PAUSE)
   {
     // ui's setup
     _ui->setupUi(this);
@@ -130,7 +131,10 @@ namespace ReconstructMeGUI {
     _fg->request(REME_IMAGE_DEPTH);
     _fg->request(REME_IMAGE_VOLUME);
 
-    _rm->connect(_ui->play_button, SIGNAL(clicked()), SLOT(start_scanning()));
+    _rm->connect(this, SIGNAL(start_scanning()), SLOT(start_scanning()));
+    _rm->connect(this, SIGNAL(stop_scanning()), SLOT(stop_scanning()));
+
+    connect(_ui->play_button, SIGNAL(clicked()), SLOT(toggle_mode()));
     _rm->connect(_ui->reset_button, SIGNAL(clicked()), SLOT(reset_volume()));
 
     emit initialize();
@@ -150,6 +154,17 @@ namespace ReconstructMeGUI {
       _ui->rec_canvas->set_image_size(width, height);
       _ui->rec_canvas->set_image_data(data, length);
       break;
+    }
+  }
+
+  void reconstructme::toggle_mode() {
+    if (_mode == PAUSE) {
+      _mode = PLAY;
+      emit start_scanning();
+    }
+    else if (_mode == PLAY) {
+      _mode = PAUSE;
+      emit stop_scanning();
     }
   }
 
