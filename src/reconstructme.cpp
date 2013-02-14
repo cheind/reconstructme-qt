@@ -131,14 +131,12 @@ namespace ReconstructMeGUI {
     _fg->request(REME_IMAGE_VOLUME);
 
     _rm->connect(_ui->play_button, SIGNAL(clicked()), SLOT(start_scanning()));
+    _rm->connect(_ui->reset_button, SIGNAL(clicked()), SLOT(reset_volume()));
 
     emit initialize();
   }
 
   void reconstructme::show_frame(reme_sensor_image_t type, const void* data, int length, int width, int height, int channels, int num_bytes_per_channel, int row_stride) {
-    //char * buffer = (char*)malloc(length);
-    //memcpy((char*)buffer, data, length); 
-
     switch(type) {
     case REME_IMAGE_AUX:
       _ui->rgb_canvas->set_image_size(width, height);
@@ -153,8 +151,6 @@ namespace ReconstructMeGUI {
       _ui->rec_canvas->set_image_data(data, length);
       break;
     }
-
-    //free((void*)buffer);
   }
 
   void reconstructme::create_url_mappings() {

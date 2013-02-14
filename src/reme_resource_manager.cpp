@@ -261,6 +261,11 @@ namespace ReconstructMeGUI {
     }
   }
 
+  void reme_resource_manager::reset_volume() {
+    reme_volume_reset(_c, _v);
+    reme_sensor_reset(_c, _s);
+  }
+
   void reme_resource_manager::get_version(std::string& version) {
     int length;
     const char* data;

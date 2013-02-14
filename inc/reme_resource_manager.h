@@ -86,6 +86,7 @@ namespace ReconstructMeGUI {
     void start_scanning();
     void stop_scanning();
     void scan();
+    void reset_volume();
 
     /** Getter for correct sized RGB QImage */
     const QSize *rgb_size() const;
