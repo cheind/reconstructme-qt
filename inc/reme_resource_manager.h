@@ -41,6 +41,8 @@
 #include "hardware.pb.h"
 #include "frame_grabber.h"
 
+#include <ctime>
+
 #include <QObject>
 #include <QPair>
 #include <QFuture>
@@ -103,6 +105,8 @@ namespace ReconstructMeGUI {
     void depth_size(const QSize*);
     void rgb_size(const QSize*);
     void phong_size(const QSize*);
+
+    void current_fps(const float);
    
   private:
     bool try_open_sensor(const char *driver);
@@ -127,6 +131,9 @@ namespace ReconstructMeGUI {
     std::shared_ptr<frame_grabber> _fg;
 
     bool _lost_track_prev;
+
+    clock_t _c0;
+    int _cnt;
   };
 }
 

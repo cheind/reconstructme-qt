@@ -97,6 +97,22 @@ namespace ReconstructMeGUI {
     r.moveCenter(QApplication::desktop()->availableGeometry().center());
     setGeometry(r);
     
+    // Status bar
+    _label_fps = new QLabel();
+    _label_fps->setStyleSheet("qproperty-alignment: AlignRight; margin-right: 0px; padding-right: 0px;");
+    _label_fps->setMaximumWidth(100);
+    _label_fps->setToolTip(tool_tip_fps_label_tag);
+    
+    _label_fps_color = new QLabel();
+    _label_fps_color->setMinimumWidth(10);
+    _label_fps_color->setMaximumWidth(10);
+    _label_fps_color->setStyleSheet("margin-left: 0px; padding-left: 0px;");
+    _label_fps_color->setAutoFillBackground(true);
+    _label_fps_color->setToolTip(tool_tip_fps_color_label_tag);
+
+    statusBar()->addPermanentWidget(_label_fps, 0);
+    statusBar()->addPermanentWidget(_label_fps_color, 0);
+
     // Create dialogs
     _dialog_log = new logging_dialog(_rm, this, Qt::Dialog);
     _dialog_settings = new settings_dialog(_rm, this);
@@ -136,6 +152,7 @@ namespace ReconstructMeGUI {
 
     connect(_ui->play_button, SIGNAL(clicked()), SLOT(toggle_mode()));
     _rm->connect(_ui->reset_button, SIGNAL(clicked()), SLOT(reset_volume()));
+    connect(_rm.get(), SIGNAL(current_fps(const float)), SLOT(show_fps(const float)));
 
     emit initialize();
   }
@@ -261,13 +278,13 @@ namespace ReconstructMeGUI {
   }
 
   void reconstructme::show_fps(const float fps) {
-    //if (fps > 20) 
-    //  _label_fps_color->setStyleSheet("background-color: green;");
-    //else if (fps > 10)
-    //  _label_fps_color->setStyleSheet("background-color: orange;");
-    //else
-    //  _label_fps_color->setStyleSheet("background-color: #FF4848;");
-    //
-    //_label_fps->setText(QString().sprintf("%.2f fps", fps));
+    if (fps > 20) 
+      _label_fps_color->setStyleSheet("background-color: green;");
+    else if (fps > 10)
+      _label_fps_color->setStyleSheet("background-color: orange;");
+    else
+      _label_fps_color->setStyleSheet("background-color: #FF4848;");
+    
+    _label_fps->setText(QString().sprintf("%.2f fps", fps));
   }
 }

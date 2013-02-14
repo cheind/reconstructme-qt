@@ -34,6 +34,7 @@
 #pragma once
 
 #define STATUS_MSG_DURATION 2000
+#define FPS_MODULO 15
 
 #include "reme_resource_manager.h"
 #include "settings.h"
@@ -212,22 +213,25 @@ namespace ReconstructMeGUI {
     _fg->request(REME_IMAGE_DEPTH);
     connect(_fg.get(), SIGNAL(frames_updated()), SLOT(scan()));
     _lost_track_prev = true;
+    _cnt = 0;
+    _c0 = clock();
   }
 
   void reme_resource_manager::stop_scanning() {
     _fg->release(REME_IMAGE_DEPTH);
     disconnect(_fg.get(), SIGNAL(frames_updated()), this, SLOT(scan()));
+    current_fps(0);
   }
 
   void reme_resource_manager::scan() {
     bool success = true;
 
-    //cnt++;
-    //if (cnt % FPS_MODULO == 0) {
-    //  emit current_fps((float)cnt/(((float)(clock()-c0))/CLOCKS_PER_SEC));
-    //  c0 = clock();
-    //  cnt = 0;
-    //}
+    _cnt++;
+    if (_cnt % FPS_MODULO == 0) {
+      emit current_fps((float)_cnt/(((float)(clock()-_c0))/CLOCKS_PER_SEC));
+      _c0 = clock();
+      _cnt = 0;
+    }
 
     reme_error_t track_error = reme_sensor_track_position(_c, _s);
     if (REME_SUCCESS(track_error)) {
