@@ -51,6 +51,8 @@
 #include "settings_dialog.h"
 #include "status_dialog.h"
 
+#include <stdlib.h>
+
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDesktopServices>
@@ -104,6 +106,7 @@ namespace ReconstructMeGUI {
     _dialog_license->connect(_ui->actionGenerate_hardware_key, SIGNAL(triggered()), SLOT(show()));
     _dialog_log->connect(_ui->actionLog, SIGNAL(triggered()), SLOT(show()));
     _dialog_about->connect(_ui->actionAbout, SIGNAL(triggered()), SLOT(show()));
+    _dialog_settings->connect(_ui->actionSettings, SIGNAL(triggered()), SLOT(show()));
 
     // application icon
     QPixmap titleBarPix (":/images/icon.ico");
@@ -115,8 +118,8 @@ namespace ReconstructMeGUI {
 
     // Trigger concurrent initialization
     _fg = std::shared_ptr<frame_grabber>(new frame_grabber(_rm));
-    connect(_fg.get(), SIGNAL(frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)), 
-                    SLOT(show_frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)), Qt::BlockingQueuedConnection);
+    _rm->set_frame_grabber(_fg);
+    connect(_fg.get(), SIGNAL(frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)), SLOT(show_frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)));
     _rm->connect(this, SIGNAL(initialize()), SLOT(initialize()));
     _rm_thread = new QThread(this);
     _rm->moveToThread(_rm_thread);
@@ -127,11 +130,15 @@ namespace ReconstructMeGUI {
     _fg->request(REME_IMAGE_DEPTH);
     _fg->request(REME_IMAGE_VOLUME);
 
+    _rm->connect(_ui->play_button, SIGNAL(clicked()), SLOT(start_scanning()));
+
     emit initialize();
   }
 
   void reconstructme::show_frame(reme_sensor_image_t type, const void* data, int length, int width, int height, int channels, int num_bytes_per_channel, int row_stride) {
-    
+    //char * buffer = (char*)malloc(length);
+    //memcpy((char*)buffer, data, length); 
+
     switch(type) {
     case REME_IMAGE_AUX:
       _ui->rgb_canvas->set_image_size(width, height);
@@ -146,6 +153,8 @@ namespace ReconstructMeGUI {
       _ui->rec_canvas->set_image_data(data, length);
       break;
     }
+
+    //free((void*)buffer);
   }
 
   void reconstructme::create_url_mappings() {
@@ -224,9 +233,9 @@ namespace ReconstructMeGUI {
   }
 
   void reconstructme::action_settings_clicked() {
-    //_dialog_settings->show();
-    //_dialog_settings->raise();
-    //_dialog_settings->activateWindow();
+    _dialog_settings->show();
+    _dialog_settings->raise();
+    _dialog_settings->activateWindow();
   }
 
   void reconstructme::open_url(const QString &url_string) {

@@ -204,6 +204,63 @@ namespace ReconstructMeGUI {
     return _has_compiled_context;
   }
 
+  void reme_resource_manager::set_frame_grabber(std::shared_ptr<frame_grabber> fg) {
+    _fg = std::shared_ptr<frame_grabber>(fg);
+  }
+
+  void reme_resource_manager::start_scanning() {
+    _fg->request(REME_IMAGE_DEPTH);
+    connect(_fg.get(), SIGNAL(frames_updated()), SLOT(scan()));
+    _lost_track_prev = true;
+  }
+
+  void reme_resource_manager::stop_scanning() {
+    _fg->release(REME_IMAGE_DEPTH);
+    disconnect(_fg.get(), SIGNAL(frames_updated()), this, SLOT(scan()));
+  }
+
+  void reme_resource_manager::scan() {
+    bool success = true;
+
+    //cnt++;
+    //if (cnt % FPS_MODULO == 0) {
+    //  emit current_fps((float)cnt/(((float)(clock()-c0))/CLOCKS_PER_SEC));
+    //  c0 = clock();
+    //  cnt = 0;
+    //}
+
+    reme_error_t track_error = reme_sensor_track_position(_c, _s);
+    if (REME_SUCCESS(track_error)) {
+      // Track camera success (engine step)
+      if (_lost_track_prev) {
+        // track found
+        _lost_track_prev = false;
+        reme_options_t o;
+        reme_options_create(_c, &o);
+        reme_context_bind_reconstruction_options(_c, o);
+        reme_options_set(_c, o, "camera_tracking.search_mode", "AUTO");
+        reme_options_destroy(_c, &o);
+        //emit status_bar_msg(camera_track_found_tag, STATUS_MSG_DURATION);
+      }
+      // Update volume with depth data from the current sensor perspective
+      success = success && REME_SUCCESS(reme_sensor_update_volume(_c, _s));
+    }
+    else if (!_lost_track_prev) {
+      // track lost
+      _lost_track_prev = true;
+      reme_options_t o;
+      reme_options_create(_c, &o);
+      reme_context_bind_reconstruction_options(_c, o);
+      reme_options_set(_c, o, "camera_tracking.search_mode", "GLOBAL");
+      reme_options_destroy(_c, &o);
+      //emit status_bar_msg(camera_track_lost_tag);
+    }
+
+    if (!success) {
+      //emit status_bar_msg(something_went_wrong_tag, STATUS_MSG_DURATION);
+    }
+  }
+
   void reme_resource_manager::get_version(std::string& version) {
     int length;
     const char* data;

@@ -82,6 +82,11 @@ namespace ReconstructMeGUI {
     reme_image_t new_image() const;
     void destroy_image(reme_image_t image);
 
+    void set_frame_grabber(std::shared_ptr<frame_grabber> fg);
+    void start_scanning();
+    void stop_scanning();
+    void scan();
+
     /** Getter for correct sized RGB QImage */
     const QSize *rgb_size() const;
     /** Getter for correct sized Depth QImage */
@@ -117,6 +122,10 @@ namespace ReconstructMeGUI {
     bool _has_sensor;
     bool _has_volume;
     bool _has_valid_license;
+
+    std::shared_ptr<frame_grabber> _fg;
+
+    bool _lost_track_prev;
   };
 }
 

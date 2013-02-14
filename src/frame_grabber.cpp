@@ -120,7 +120,7 @@ namespace ReconstructMeGUI {
         emit frame(REME_IMAGE_VOLUME, data, length, width, height, channels, num_bytes_per_channel, row_stride);
       }      
 
-      emit frames_updated();
+      emit frames_updated();  
       QCoreApplication::processEvents();
     }
 
