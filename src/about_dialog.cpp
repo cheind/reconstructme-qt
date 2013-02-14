@@ -36,16 +36,18 @@
 
 #include "defines.h"
 
+#include "reconstructmesdk/types.h"
+
 #include <QPixmap>
 
 #include <sstream>
 
 namespace ReconstructMeGUI {
-  about_dialog::about_dialog(reme_context_t c, QWidget *parent, Qt::WindowFlags f) : 
+  about_dialog::about_dialog(QWidget *parent, Qt::WindowFlags f) : 
     QDialog(parent, f),  
-    ui(new Ui::about_dialog)
+    _ui(new Ui::about_dialog)
   {
-    ui->setupUi(this);
+    _ui->setupUi(this);
 
     std::stringstream ss_gui_v;
     ss_gui_v << RECONSTRUCTMEQT_VERSION_MAJOR << ".";
@@ -58,30 +60,26 @@ namespace ReconstructMeGUI {
     ss_sdk_v << REME_VERSION_BUILD << "-";
     ss_sdk_v << REME_VERSION_REVISION;
 
-    int length;               
-    const char* runtime_sdk_version;
-    reme_context_get_version(c, &runtime_sdk_version, &length);
-
     std::stringstream ss_version;
     ss_version << "Version ReconstructMeQT: " << ss_gui_v.str() << "\n";
     ss_version << "Build Version ReconstructMeSDK: " << ss_sdk_v.str() << "\n";
     ss_version << "Runtime Version ReconstructMeSDK: " << ss_sdk_v.str();
     
-    ui->version_label->setText(QString::fromStdString(ss_version.str()));
+    _ui->version_label->setText(QString::fromStdString(ss_version.str()));
     
     std::stringstream ss_authors;
     ss_authors << "Christoph Heindl";
     ss_authors << "\nChristoph Kopf";
     ss_authors << "\nFlorian Eckerstorfer";
 
-    ui->authors_label->setText(QString::fromStdString(ss_authors.str()));
+    _ui->authors_label->setText(QString::fromStdString(ss_authors.str()));
 
-    ui->logo_label->setPixmap(QPixmap(":/images/reme_typo.png"));
-    ui->logo_label->setOpenExternalLinks(true);
+    _ui->logo_label->setPixmap(QPixmap(":/images/reme_typo.png"));
+    _ui->logo_label->setOpenExternalLinks(true);
   }
 
   about_dialog::~about_dialog()
   {
-    delete ui;
+    delete _ui;
   }
 }

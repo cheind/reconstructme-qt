@@ -28,7 +28,6 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   * @authors christoph.kopf@profactor.at
-  *          florian.eckerstorfer@profactor.at
   */
   
 #ifndef MAINWINDOW_H
@@ -36,9 +35,9 @@
 
 #pragma once
 
-#include <QMainWindow>
-
 #include "types.h"
+
+#include <QMainWindow>
 
 #include <reconstructmesdk/types.h>
 
@@ -46,7 +45,6 @@
 class QImage;
 class QThread;
 class QLabel;
-class QSplashScreen;
 class QFileDialog;
 class QProgressDialog;
 class QSignalMapper;
@@ -54,8 +52,6 @@ namespace Ui {
   class reconstructmeqt;
 }
 namespace ReconstructMeGUI {
-  class scan_widget;
-  class calibration_widget;
   class scan;
   class QGLCanvas;
   class about_dialog;
@@ -76,7 +72,7 @@ namespace ReconstructMeGUI {
   */
   class reconstructme : public QMainWindow
   {
-    Q_OBJECT
+    Q_OBJECT;
     
   public:
     explicit reconstructme(QWidget *parent = 0);
@@ -92,12 +88,6 @@ namespace ReconstructMeGUI {
 
     /** Settings dialog */
     void action_settings_clicked();
-    /** About dialog */
-    void action_about_clicked();
-    /** Show/Hide log dialog */
-    void action_log_toggled(bool checked);
-    /** Show/Hide log dialog */
-    void action_status_toggled(bool checked);
 
     /** show message box */
     void show_message_box(
@@ -107,6 +97,7 @@ namespace ReconstructMeGUI {
       int btn_2 = 0);   // QMessageBox::NoButton
 
     void really_close();
+    void show_frame(reme_sensor_image_t type, const void* data, int length, int width, int height, int channels, int num_bytes_per_channel, int row_stride);
 
   signals:
     /** This signal is emited when this objects constructor finished */
@@ -117,31 +108,27 @@ namespace ReconstructMeGUI {
      void	closeEvent(QCloseEvent *event);
 
   private:
-    void create_mappings();
+    void create_url_mappings();
 
     QSignalMapper *_url_mapper;
 
     // Members
     Ui::reconstructmeqt *_ui;
-    scan_widget *_scan_ui;
-
-    QLabel *_fps_label;
-    QLabel *_fps_color_label;
+    
+    QLabel *_label_fps;
+    QLabel *_label_fps_color;
 
     // Dialogs
-    settings_dialog *_settings_dialog;
-    logging_dialog *_logging_dialog;
-    hardware_key_dialog *_hardware_key_dialog;
-    about_dialog *_about_dialog;
-    status_dialog *_status_dialog;
-
-    // Splash screens
-    QSplashScreen *_splash;
+    settings_dialog *_dialog_settings;
+    logging_dialog *_dialog_log;
+    hardware_key_dialog *_dialog_license;
+    about_dialog *_dialog_about;
+    status_dialog *_dialog_state;
 
     // utils
-    std::shared_ptr<reme_resource_manager> _initializer;
-    std::shared_ptr<frame_grabber> _frame_grabber;
-    QThread* _frame_grabber_thread;
+    std::shared_ptr<reme_resource_manager> _rm;
+    std::shared_ptr<frame_grabber> _fg;
+    QThread* _rm_thread;
   };
 }
 

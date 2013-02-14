@@ -22,11 +22,11 @@ IF(RECONSTRUCTMEQT_LINK_INSTALLED_SDK)
 ENDIF()
 
 SET(ROBVIS_CMAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/robvis/cmake CACHE PATH "Directory that contains the robvis cmake directory.")
-IF (IS_DIRECTORY ${ROBVIS_CMAKE_DIRECTORY})
-	FIND_PACKAGE(Protobuf)
-	INCLUDE(${ROBVIS_CMAKE_DIRECTORY}/externals/lib_protoc/head.cmake)
-	MESSAGE(STATUS "Using protobuf from Robvis")
-ELSE()
+#IF (IS_DIRECTORY ${ROBVIS_CMAKE_DIRECTORY})
+#	FIND_PACKAGE(Protobuf)
+#	INCLUDE(${ROBVIS_CMAKE_DIRECTORY}/externals/lib_protoc/head.cmake)
+#	MESSAGE(STATUS "Using protobuf from Robvis")
+#ELSE()
 	# include protobuf and set paths manually
 	SET(PROTOBUF_INCLUDE_DIR "${PATHS_CMAKE_3RDPARTY_DIR}/protobuf-2.4.1/src" CACHE PATH "" FORCE)
 	SET(PROTOBUF_LITE_LIBRARY "${PATHS_CMAKE_3RDPARTY_DIR}/protobuf-2.4.1/bin/libprotobuf-lite.lib" CACHE FILEPATH "" FORCE)
@@ -34,7 +34,7 @@ ELSE()
 	SET(PROTOBUF_PROTOC_EXECUTABLE "${PATHS_CMAKE_3RDPARTY_DIR}/protobuf-2.4.1/protoc.exe" CACHE FILEPATH "" FORCE)
 	FIND_PACKAGE(Protobuf)
 	MESSAGE(STATUS "Overriding Protobuf Finder")
-ENDIF()
+#ENDIF()
 
 
 # set paths for osg

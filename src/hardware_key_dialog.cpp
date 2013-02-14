@@ -43,40 +43,34 @@
 #include <sstream>
 
 namespace ReconstructMeGUI {
-  hardware_key_dialog::hardware_key_dialog(reme_context_t ctx, QWidget *parent) : 
-    QDialog(parent),  
-    ui(new Ui::hardware_key_dialog)
+  hardware_key_dialog::hardware_key_dialog(std::shared_ptr<reme_resource_manager> rm, QWidget *parent) : 
+    QDialog(parent),
+    _rm(rm),
+    _ui(new Ui::hardware_key_dialog)
   {
-    ui->setupUi(this);
+    _ui->setupUi(this);
     setModal(true);
-
-    const void *bytes;
-    int length;
-
-    reme_options_t o;
-    reme_options_create(ctx, &o);
-
-    reme_license_t l;
-    reme_license_create(ctx, &l);
-    reme_license_bind_hardware_hashes(ctx, l, o);
-
-    reme_options_get_bytes(ctx, o, &bytes, &length); 
-
-    hardware hardware;
-    hardware.ParseFromArray(bytes, length);
     
+    // connections
+    connect(_ui->cp_clipboard_btn, SIGNAL(clicked()), SLOT(copy_keys_to_clipboard()));
+    connect(_ui->save_btn, SIGNAL(clicked()), SLOT(save_keys()));
+    connect(rm.get(), SIGNAL(sdk_initialized(bool)), SLOT(set_hashes()));
+  }
+
+  void hardware_key_dialog::set_hashes()
+  {
+    hardware hardware;
+    _rm->get_hardware_hashes(hardware);
+
     std::stringstream ss;
     ::google::protobuf::RepeatedPtrField< ::std::string>::const_iterator it;
 
     for (it = hardware.hashes().begin(); it < hardware.hashes().end(); it++) 
       ss << "hashes: \"" << *it << "\"\n";
     
-    ui->hw_key_te->append(QString(ss.str().c_str()));
-
-    // connections
-    connect(ui->cp_clipboard_btn, SIGNAL(clicked()), SLOT(copy_keys_to_clipboard()));
-    connect(ui->save_btn, SIGNAL(clicked()), SLOT(save_keys()));
+    _ui->hw_key_te->append(QString(ss.str().c_str()));
   }
+ 
 
   void hardware_key_dialog::save_keys() {
     QString file_name = QFileDialog::getSaveFileName(this, tr("Save hardware keys"),
@@ -88,19 +82,20 @@ namespace ReconstructMeGUI {
 
     std::ofstream myfile;
     myfile.open(file_name.toStdString());
-    myfile << ui->hw_key_te->toPlainText().toStdString();
+    myfile << _ui->hw_key_te->toPlainText().toStdString();
     myfile.close();
   }
 
-  void hardware_key_dialog::copy_keys_to_clipboard() {
-    ui->hw_key_te->selectAll();
-    ui->hw_key_te->copy();
+  void hardware_key_dialog::copy_keys_to_clipboard() 
+  {
+    _ui->hw_key_te->selectAll();
+    _ui->hw_key_te->copy();
 
     QMessageBox::information(this, "Copy", "Copied hardware keys to clipboard", QMessageBox::Ok);
   }
 
   hardware_key_dialog::~hardware_key_dialog() 
   {
-    delete ui;
+    delete _ui;
   }
 }

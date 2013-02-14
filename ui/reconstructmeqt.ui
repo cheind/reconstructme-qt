@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1024</width>
-    <height>768</height>
+    <width>907</width>
+    <height>640</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -37,15 +37,441 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout" stretch="0">
     <item>
-     <widget class="QStackedWidget" name="stackedWidget">
-      <widget class="QWidget" name="scan_page">
-       <property name="font">
-        <font>
-         <stylestrategy>PreferDefault</stylestrategy>
-        </font>
+     <widget class="QWidget" name="scanWidget" native="true">
+      <layout class="QGridLayout" name="gridLayout_2">
+       <property name="margin">
+        <number>0</number>
        </property>
-      </widget>
-      <widget class="QWidget" name="osg_page"/>
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="1" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetMinimumSize</enum>
+           </property>
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>1</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="play_button">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>40</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>250</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Toggle Play/Pause</string>
+             </property>
+             <property name="statusTip">
+              <string/>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="../rc/res.qrc">
+               <normaloff>:/images/record-button.png</normaloff>:/images/record-button.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>35</width>
+               <height>35</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="reset_button">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>40</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>250</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Reset</string>
+             </property>
+             <property name="statusTip">
+              <string/>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="../rc/res.qrc">
+               <normaloff>:/images/reset-button.png</normaloff>:/images/reset-button.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>30</width>
+               <height>30</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Expanding</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>1</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item row="0" column="0">
+          <widget class="QStackedWidget" name="stackedWidget">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <widget class="QWidget" name="scanPage">
+            <layout class="QGridLayout" name="view_layout" columnstretch="2,1">
+             <item row="0" column="1">
+              <widget class="ReconstructMeGUI::QGLCanvas" name="rgb_canvas" native="true"/>
+             </item>
+             <item row="1" column="1">
+              <widget class="ReconstructMeGUI::QGLCanvas" name="depth_canvas" native="true"/>
+             </item>
+             <item row="0" column="0" rowspan="2">
+              <widget class="ReconstructMeGUI::QGLCanvas" name="rec_canvas" native="true"/>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="surfacePage">
+            <layout class="QGridLayout" name="gridLayout_6" columnstretch="10,0">
+             <item row="1" column="1" rowspan="2">
+              <widget class="QGroupBox" name="groupBox_2">
+               <property name="maximumSize">
+                <size>
+                 <width>220</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="title">
+                <string>Surface</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_7">
+                <item row="0" column="0">
+                 <layout class="QGridLayout" name="gridLayout_4">
+                  <item row="1" column="1" rowspan="2">
+                   <widget class="QLineEdit" name="numVerticesLE">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QLineEdit" name="numTrianglesLE">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0" rowspan="2">
+                   <widget class="QLabel" name="label_2">
+                    <property name="text">
+                     <string>Number of Vertices</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="label_3">
+                    <property name="text">
+                     <string>Number of Triangles</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0" colspan="2">
+                   <widget class="QPushButton" name="saveButton">
+                    <property name="text">
+                     <string>Save</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0" colspan="2">
+                   <widget class="QGroupBox" name="groupBox_3">
+                    <property name="title">
+                     <string>Render Mode</string>
+                    </property>
+                    <layout class="QGridLayout" name="gridLayout_8">
+                     <item row="0" column="0">
+                      <widget class="QRadioButton" name="polygonRB">
+                       <property name="text">
+                        <string>Fill</string>
+                       </property>
+                       <property name="checked">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="0">
+                      <widget class="QRadioButton" name="wireframeRB">
+                       <property name="text">
+                        <string>Wireframe</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QGroupBox" name="gbSurfaceProcessing">
+               <property name="maximumSize">
+                <size>
+                 <width>220</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="title">
+                <string>Surface Processing</string>
+               </property>
+               <property name="checkable">
+                <bool>false</bool>
+               </property>
+               <property name="checked">
+                <bool>false</bool>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_5">
+                <item row="2" column="0">
+                 <layout class="QGridLayout" name="gridLayout_9">
+                  <item row="0" column="1">
+                   <widget class="QDoubleSpinBox" name="spMergeRadius">
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.100000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>0.100000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label">
+                    <property name="toolTip">
+                     <string>Merge duplicate vertices within a certain radius towards a single vertex</string>
+                    </property>
+                    <property name="text">
+                     <string>Vertex Merge Radius</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0" colspan="2">
+                   <widget class="QGroupBox" name="gbDecimation">
+                    <property name="title">
+                     <string>Surface Decimation</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <layout class="QGridLayout" name="gridLayout_10">
+                     <item row="0" column="1">
+                      <widget class="QSpinBox" name="spMaximumFaces">
+                       <property name="alignment">
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                       </property>
+                       <property name="maximum">
+                        <number>1000000000</number>
+                       </property>
+                       <property name="value">
+                        <number>40000</number>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="0">
+                      <widget class="QLabel" name="label_7">
+                       <property name="toolTip">
+                        <string>Decimate to target complexity</string>
+                       </property>
+                       <property name="text">
+                        <string>Max Vertices</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="0">
+                      <widget class="QLabel" name="label_6">
+                       <property name="toolTip">
+                        <string>Decimate to target complexity</string>
+                       </property>
+                       <property name="text">
+                        <string>Max Faces</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="1">
+                      <widget class="QSpinBox" name="spMaximumVertices">
+                       <property name="alignment">
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                       </property>
+                       <property name="maximum">
+                        <number>1000000000</number>
+                       </property>
+                       <property name="value">
+                        <number>0</number>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="0">
+                      <widget class="QLabel" name="label_8">
+                       <property name="toolTip">
+                        <string>Maximum quadric error to accept per collapse</string>
+                       </property>
+                       <property name="text">
+                        <string>Max Error</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="1">
+                      <widget class="QDoubleSpinBox" name="spMaximumError">
+                       <property name="alignment">
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                       </property>
+                       <property name="maximum">
+                        <double>100000.000000000000000</double>
+                       </property>
+                       <property name="value">
+                        <double>10000.000000000000000</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="3" column="0">
+                      <widget class="QLabel" name="label_4">
+                       <property name="toolTip">
+                        <string>Minimum triangle roundness</string>
+                       </property>
+                       <property name="text">
+                        <string>Min Roundness</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="3" column="1">
+                      <widget class="QDoubleSpinBox" name="spMinRoundness">
+                       <property name="alignment">
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                       </property>
+                       <property name="maximum">
+                        <double>1.000000000000000</double>
+                       </property>
+                       <property name="singleStep">
+                        <double>0.050000000000000</double>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
+                  <item row="2" column="0" rowspan="4" colspan="2">
+                   <widget class="QPushButton" name="btnGenerate">
+                    <property name="text">
+                     <string>Update Surface</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <spacer name="verticalSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="0" column="0" rowspan="4">
+              <widget class="ReconstructMeGUI::viewer_widget" name="viewer" native="true">
+               <property name="minimumSize">
+                <size>
+                 <width>200</width>
+                 <height>200</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
@@ -55,7 +481,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1024</width>
+     <width>907</width>
      <height>21</height>
     </rect>
    </property>
@@ -63,6 +489,7 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionOpen_Volume"/>
     <addaction name="actionSettings"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
@@ -135,7 +562,7 @@
   </action>
   <action name="actionLog">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Log</string>
@@ -195,8 +622,27 @@
     <string>Frequently Asked Questions</string>
    </property>
   </action>
+  <action name="actionOpen_Volume">
+   <property name="text">
+    <string>Open Volume</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>ReconstructMeGUI::viewer_widget</class>
+   <extends>QWidget</extends>
+   <header>osg_viewer_qt.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ReconstructMeGUI::QGLCanvas</class>
+   <extends>QWidget</extends>
+   <header>qglcanvas.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../rc/res.qrc"/>
  </resources>

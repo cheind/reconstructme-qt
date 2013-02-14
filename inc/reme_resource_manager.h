@@ -37,6 +37,9 @@
 #pragma once
 
 #include "types.h"
+#include "opencl_info.pb.h"
+#include "hardware.pb.h"
+#include "frame_grabber.h"
 
 #include <QObject>
 #include <QPair>
@@ -59,8 +62,6 @@ namespace ReconstructMeGUI {
     reme_resource_manager();
     ~reme_resource_manager();
 
-    void _initialize();
-
   public slots:
     void initialize();
 
@@ -68,6 +69,11 @@ namespace ReconstructMeGUI {
     const reme_sensor_t sensor() const;
     const reme_volume_t volume() const;
     
+    void get_version(std::string& version);
+    void get_hardware_hashes(hardware& hashes);
+    void get_opencl_info(opencl_info &ocl);
+    void new_log_message(reme_log_severity_t sev, const QString &log);
+
     bool has_valid_license() const;
 
     reme_calibrator_t new_calibrator() const;
@@ -80,11 +86,6 @@ namespace ReconstructMeGUI {
     const QSize *rgb_size() const;
     /** Getter for correct sized Depth QImage */
     const QSize *depth_size() const;
-
-    void new_log_message(reme_log_severity_t sev, const QString &log);
-
-  private slots:
-    void finished_initialize();
 
   signals:
     void initializing(init_t what);
@@ -116,10 +117,6 @@ namespace ReconstructMeGUI {
     bool _has_sensor;
     bool _has_volume;
     bool _has_valid_license;
-
-    QFutureWatcher<void> _fw;
-    QFuture<void> _future;
-    bool _initializing;
   };
 }
 

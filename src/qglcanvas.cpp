@@ -40,28 +40,34 @@
 
 #include <QSize>
 
+#include <iostream>
+
 namespace ReconstructMeGUI {
-  QGLCanvas::QGLCanvas(QString &default_img_path, QWidget* parent) : QGLWidget(parent), 
-    default_img(default_img_path){
-    
-    set_image_size(0);
+
+  QGLCanvas::QGLCanvas(QWidget* parent) : QGLWidget(parent),
+    _width(1),
+    _height(1)
+  {
+    img = new QImage(_width, _height, QImage::Format_RGB888);
   }
 
-  void QGLCanvas::set_image_size(const QSize* size) {
-    if (size != 0) 
-      img = new QImage(*size, QImage::Format_RGB888);
-    else 
-      img = &default_img;
-    
-    repaint();
+  void QGLCanvas::set_image_size(int width, int height) {
+    if ((_width != width || _height != height) && width > 0 && height > 0) {
+      _width = width;
+      _height = height;
+      img = new QImage(_width, _width, QImage::Format_RGB888);
+    }
   }
 
   void QGLCanvas::set_image_data(const void *data) {
-    _has_data = data != 0;
-    
-    if (_has_data)
-      memcpy((void*)img->bits(), data, img->byteCount());
-    
+    if (data == 0)
+      return;
+    std::cout << img->byteCount() << std::endl;
+    for (int h=0; h<_height; h++) {
+    // scanLine returns a ptr to the start of the data for that row
+      memcpy(img->scanLine(h), &(static_cast<const char*>(data)[h]), _width*3);
+    }
+    //memcpy((void*)img->bits(), data, img->byteCount());
     repaint();
   }
 
@@ -71,7 +77,7 @@ namespace ReconstructMeGUI {
     if (!_has_data) {
       p.fillRect(this->rect(), QColor(0, 0, 0));
     } 
-    else {     
+    else {
       //Set the painter to use a smooth scaling algorithm.
       p.setRenderHint(QPainter::SmoothPixmapTransform, 1);
       p.drawImage(this->rect(), *img);

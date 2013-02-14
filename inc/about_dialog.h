@@ -35,10 +35,7 @@
 #define ABOUT_DIALOG_H
 
 #pragma once
-
 #include <QDialog>
-
-#include <reconstructmesdk/reme.h>
 
 // Forward Declaration
 namespace Ui {
@@ -51,12 +48,12 @@ namespace ReconstructMeGUI {
   {
 
   public:
-    about_dialog(reme_context_t c, QWidget *parent = 0, Qt::WindowFlags f = 0);
+    about_dialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
     ~about_dialog();
   
   private:
     // Members
-    Ui::about_dialog *ui;
+    Ui::about_dialog *_ui;
   };
 
 }

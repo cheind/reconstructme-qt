@@ -34,9 +34,10 @@
 #ifndef HARDWARE_KEY_DIALOG_H
 #define HARDWARE_KEY_DIALOG_H
 
-#include <QDialog>
+#include "types.h"
+#include "reme_resource_manager.h"
 
-#include <reconstructmesdk\reme.h>
+#include <QDialog>
 
 // Forward declarations
 namespace Ui {
@@ -51,7 +52,7 @@ namespace ReconstructMeGUI {
     Q_OBJECT;
 
   public:
-    hardware_key_dialog(reme_context_t ctx, QWidget *parent = 0);
+    hardware_key_dialog(std::shared_ptr<reme_resource_manager> rm, QWidget *parent = 0);
     ~hardware_key_dialog();
 
   private slots:
@@ -60,8 +61,11 @@ namespace ReconstructMeGUI {
     /** Copies the keys to the clipboard */
     void copy_keys_to_clipboard();
 
+    void set_hashes();
+
   private:
-    Ui::hardware_key_dialog *ui;
+    Ui::hardware_key_dialog *_ui;
+    std::shared_ptr<reme_resource_manager> _rm;
   };
 
 } 

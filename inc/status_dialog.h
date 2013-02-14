@@ -35,6 +35,7 @@
 #define STATUS_DIALOG_H
 
 #include "types.h"
+#include "reme_resource_manager.h"
 
 #include <QDialog>
 
@@ -57,7 +58,7 @@ namespace ReconstructMeGUI {
     Q_OBJECT;
 
   public:
-    status_dialog(QWidget *parent = 0, Qt::WindowFlags f = Qt::FramelessWindowHint);
+    status_dialog(std::shared_ptr<reme_resource_manager> rm, QWidget *parent = 0, Qt::WindowFlags f = Qt::FramelessWindowHint);
     ~status_dialog();
     
     const QPushButton *closeBtn();
@@ -74,7 +75,9 @@ namespace ReconstructMeGUI {
   private:
     void create_content();
 
-    Ui::status_dialog *ui;
+    std::shared_ptr<reme_resource_manager> _rm;
+
+    Ui::status_dialog *_ui;
     QStandardItemModel *_status_model;
 
     QStandardItem *_lic_obj_item;
@@ -93,7 +96,7 @@ namespace ReconstructMeGUI {
     bool _has_sensor ;
     bool _has_device ;
 
-    QTimer *t;
+    QTimer *_t;
   };
 } 
 

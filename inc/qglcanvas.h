@@ -45,12 +45,12 @@ namespace ReconstructMeGUI {
     Q_OBJECT;
 
     public:
-      QGLCanvas(QString &default_img_path = QString(), QWidget* parent = NULL);
-    
+      QGLCanvas(QWidget* parent = NULL);
+      
     public slots:
       void set_image_data(const void *data = 0);
       /** Set the image to render in paintEvent */
-      void set_image_size(const QSize* size);
+      void set_image_size(int width, int height);
 
     protected:
       /** Render the content of the image */
@@ -63,8 +63,10 @@ namespace ReconstructMeGUI {
 
     private:
       QImage *img;
-      QImage default_img;
+      QImage *default_img;
       bool _has_data;
+      int _width;
+      int _height; 
   };
 
 }

@@ -33,6 +33,7 @@
 
 #include "logging_dialog.h"
 #include "ui_logging_dialog.h"
+#include "types.h"
 
 #include "log.pb.h"
 
@@ -44,11 +45,12 @@
 
 namespace ReconstructMeGUI {
 
-  logging_dialog::logging_dialog(QWidget *parent, Qt::WindowFlags f) : 
-    window_dialog(parent, f),  
-    ui(new Ui::logging_widget)
+  logging_dialog::logging_dialog(std::shared_ptr<reme_resource_manager> rm, QWidget *parent, Qt::WindowFlags f) : 
+    window_dialog(parent, f), 
+    _rm(rm),
+    _ui(new Ui::logging_widget)
   {
-    ui->setupUi(this);
+    _ui->setupUi(this);
 
     _log_model = new QStandardItemModel(0, 3, parent);
     _log_model->setHeaderData(0, Qt::Horizontal, tr("Severity"));
@@ -59,26 +61,27 @@ namespace ReconstructMeGUI {
     _proxy_model->setSourceModel(_log_model);
     _proxy_model->setDynamicSortFilter(true);
 
-    ui->logtableview->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-    ui->logtableview->horizontalHeader()->setStretchLastSection(true);
-    ui->logtableview->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);    
+    _ui->logtableview->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+    _ui->logtableview->horizontalHeader()->setStretchLastSection(true);
+    _ui->logtableview->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);    
    
-    ui->logtableview->setModel(_proxy_model);
-    ui->logtableview->horizontalHeader()->setSortIndicator(1, Qt::AscendingOrder);
+    _ui->logtableview->setModel(_proxy_model);
+    _ui->logtableview->horizontalHeader()->setSortIndicator(1, Qt::AscendingOrder);
 
     setModal(false);
 
-    connect(ui->btnClear, SIGNAL(clicked()), SLOT(clear_log()));
-    connect(ui->btnSave, SIGNAL(clicked()), SLOT(save_log()));
+    connect(_ui->btnClear, SIGNAL(clicked()), SLOT(clear_log()));
+    connect(_ui->btnSave, SIGNAL(clicked()), SLOT(save_log()));
+    qRegisterMetaType<init_t>( "reme_log_severity_t" );
+    connect(_rm.get(), SIGNAL(log_message(reme_log_severity_t, const QString &)), SLOT(add_log_message(reme_log_severity_t, const QString &)));
   }
 
   logging_dialog::~logging_dialog() 
   {
-    delete ui;
+    delete _ui;
   }
 
   void logging_dialog::add_log_message(reme_log_severity_t sev, const QString &log) {
-     
     QStyle *style = this->style();
 
     QString sev_str;

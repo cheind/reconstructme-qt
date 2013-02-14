@@ -39,32 +39,44 @@
 #include <QPushButton>
 #include <QTimer>
 
+#include <iostream>
+
 namespace ReconstructMeGUI {
 
-  status_dialog::status_dialog(QWidget *parent, Qt::WindowFlags f) : 
-    QDialog(parent, f),  
-    ui(new Ui::status_dialog)
+  status_dialog::status_dialog(std::shared_ptr<reme_resource_manager> rm, QWidget *parent, Qt::WindowFlags f) : 
+    QDialog(parent, f),
+    _rm(rm),
+    _ui(new Ui::status_dialog)
   {
-    ui->setupUi(this);
+    _ui->setupUi(this);
 
     _status_model = new QStandardItemModel(0, 3, parent);
     _status_model->setHeaderData(0, Qt::Horizontal, tr("Object"));
     _status_model->setHeaderData(1, Qt::Horizontal, tr("Status"));
     _status_model->setHeaderData(2, Qt::Horizontal, tr("Message"));
 
-    ui->statustableView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-    ui->statustableView->horizontalHeader()->setStretchLastSection(true);
-    ui->statustableView->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);    
+    _ui->statustableView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+    _ui->statustableView->horizontalHeader()->setStretchLastSection(true);
+    _ui->statustableView->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);    
    
-    ui->statustableView->setModel(_status_model);
-    ui->statustableView->horizontalHeader()->setSortIndicator(1, Qt::AscendingOrder);
+    _ui->statustableView->setModel(_status_model);
+    _ui->statustableView->horizontalHeader()->setSortIndicator(1, Qt::AscendingOrder);
 
     setModal(true);
+
+    connect(_ui->closeBtn, SIGNAL(clicked()), SLOT(hide()));
+    connect(_ui->onlineHelpBtn, SIGNAL(clicked()), SLOT(hide()));
+    _ui->closeBtn->connect(_rm.get(), SIGNAL(initializing_sdk()), SLOT(hide()));
+    _ui->closeBtn->connect(_rm.get(), SIGNAL(sdk_initialized(bool)), SLOT(show()));
+    
+    connect(_rm.get(), SIGNAL(initializing(init_t)), SLOT(initializing(init_t)), Qt::BlockingQueuedConnection);
+    connect(_rm.get(), SIGNAL(initialized(init_t, bool)), SLOT(initialized(init_t, bool)), Qt::BlockingQueuedConnection);
+    connect(_rm.get(), SIGNAL(initializing_sdk()), SLOT(reset()));
+    connect(_rm.get(), SIGNAL(initializing_sdk()), SLOT(show()));
 
     create_content();
     reset();
   }
-
 
   void status_dialog::create_content() {
     QList< QStandardItem *> sensor_items;
@@ -115,14 +127,14 @@ namespace ReconstructMeGUI {
     _status_model->appendRow(device_items);
     _status_model->appendRow(sensor_items);
     
-    t = new QTimer(this);
-    t->setInterval(250);
-    t->setSingleShot(true);
-    ui->closeBtn->connect(t, SIGNAL(timeout()), SLOT(click()));
+    _t = new QTimer(this);
+    _t->setInterval(250);
+    _t->setSingleShot(true);
+    _ui->closeBtn->connect(_t, SIGNAL(timeout()), SLOT(click()));
   }
 
   status_dialog::~status_dialog() {
-    delete ui;
+    delete _ui;
   }
 
   void status_dialog::reset() {
@@ -198,15 +210,15 @@ namespace ReconstructMeGUI {
     }
 
     if (_has_license && _has_sensor && _has_device) {
-      t->start();
+      _t->start();
     }
   }
 
   const QPushButton *status_dialog::closeBtn() {
-    return ui->closeBtn;
+    return _ui->closeBtn;
   }
 
   QPushButton *status_dialog::onlineHelpBtn() {
-    return ui->onlineHelpBtn;
+    return _ui->onlineHelpBtn;
   }
 }

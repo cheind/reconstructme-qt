@@ -43,8 +43,8 @@
 
 
 namespace ReconstructMeGUI {
-  frame_grabber::frame_grabber(std::shared_ptr<reme_resource_manager> initializer) : 
-    _i(initializer)
+  frame_grabber::frame_grabber(std::shared_ptr<reme_resource_manager> rm) : 
+    _rm(rm)
   {
     _req_count[REME_IMAGE_AUX] = 0;
     _req_count[REME_IMAGE_DEPTH] = 0;
@@ -52,8 +52,8 @@ namespace ReconstructMeGUI {
 
     qRegisterMetaType<reme_sensor_image_t>("reme_sensor_image_t");
 
-    connect(_i.get(), SIGNAL(initializing_sdk()), SLOT(stop()), Qt::BlockingQueuedConnection);
-    connect(_i.get(), SIGNAL(sdk_initialized(bool)), SLOT(start(bool)));
+    connect(_rm.get(), SIGNAL(initializing_sdk()), SLOT(stop()));
+    connect(_rm.get(), SIGNAL(sdk_initialized(bool)), SLOT(start(bool)));
   }
     
   frame_grabber::~frame_grabber() {
@@ -77,9 +77,9 @@ namespace ReconstructMeGUI {
     if (!initialization_success) return;
 
     // Image creation
-    reme_image_create(_i->context(), &_rgb);
-    reme_image_create(_i->context(), &_depth);
-    reme_image_create(_i->context(), &_phong);
+    reme_image_create(_rm->context(), &_rgb);
+    reme_image_create(_rm->context(), &_depth);
+    reme_image_create(_rm->context(), &_phong);
 
     // Grabbing utils
     _do_grab = true;
@@ -88,24 +88,36 @@ namespace ReconstructMeGUI {
     while (_do_grab && success)
     {
       // Prepare image and depth data
-      success = success && REME_SUCCESS(reme_sensor_grab(_i->context(), _i->sensor()));
+      success = success && REME_SUCCESS(reme_sensor_grab(_rm->context(), _rm->sensor()));
 
-      if (_req_count[REME_IMAGE_AUX] > 0 && _i->rgb_size()) {
-        reme_sensor_prepare_image(_i->context(), _i->sensor(), REME_IMAGE_AUX);
-        reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_AUX, _rgb);
-        emit frame(REME_IMAGE_AUX, _rgb);
+      if (_req_count[REME_IMAGE_AUX] > 0 && _rm->rgb_size()) {
+        const void* data;
+        int length, width, height, channels, num_bytes_per_channel, row_stride;
+        reme_sensor_prepare_image(_rm->context(), _rm->sensor(), REME_IMAGE_AUX);
+        reme_sensor_get_image(_rm->context(), _rm->sensor(), REME_IMAGE_AUX, _rgb);
+        reme_image_get_bytes(_rm->context(), _rgb, &data, &length);
+        reme_image_get_info(_rm->context(), _rgb, &width, &height, &channels, &num_bytes_per_channel, &row_stride);
+        emit frame(REME_IMAGE_AUX, data, length, width, height, channels, num_bytes_per_channel, row_stride);
       }
 
-      if (_req_count[REME_IMAGE_DEPTH] > 0 && _i->depth_size()) {
-        reme_sensor_prepare_image(_i->context(), _i->sensor(), REME_IMAGE_DEPTH);
-        reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_DEPTH, _depth);
-        emit frame(REME_IMAGE_DEPTH, _depth);
+      if (_req_count[REME_IMAGE_DEPTH] > 0 && _rm->depth_size()) {
+        const void* data;
+        int length, width, height, channels, num_bytes_per_channel, row_stride;
+        reme_sensor_prepare_image(_rm->context(), _rm->sensor(), REME_IMAGE_DEPTH);
+        reme_sensor_get_image(_rm->context(), _rm->sensor(), REME_IMAGE_DEPTH, _depth);
+        reme_image_get_bytes(_rm->context(), _depth, &data, &length);
+        reme_image_get_info(_rm->context(), _depth, &width, &height, &channels, &num_bytes_per_channel, &row_stride);
+        emit frame(REME_IMAGE_DEPTH, data, length, width, height, channels, num_bytes_per_channel, row_stride);
       }
 
-      if (_req_count[REME_IMAGE_VOLUME] > 0 && _i->depth_size()) {
-        reme_sensor_prepare_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME);
-        reme_sensor_get_image(_i->context(), _i->sensor(), REME_IMAGE_VOLUME, _phong);
-        emit frame(REME_IMAGE_VOLUME, _phong);
+      if (_req_count[REME_IMAGE_VOLUME] > 0 && _rm->depth_size()) {
+        const void* data;
+        int length, width, height, channels, num_bytes_per_channel, row_stride;
+        reme_sensor_prepare_image(_rm->context(), _rm->sensor(), REME_IMAGE_VOLUME);
+        reme_sensor_get_image(_rm->context(), _rm->sensor(), REME_IMAGE_VOLUME, _phong);
+        reme_image_get_bytes(_rm->context(), _phong, &data, &length);
+        reme_image_get_info(_rm->context(), _phong, &width, &height, &channels, &num_bytes_per_channel, &row_stride);
+        emit frame(REME_IMAGE_VOLUME, data, length, width, height, channels, num_bytes_per_channel, row_stride);
       }      
 
       emit frames_updated();

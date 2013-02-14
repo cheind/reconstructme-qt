@@ -48,95 +48,88 @@
 
 namespace ReconstructMeGUI {
 
-  settings_dialog::settings_dialog(reme_context_t ctx, QWidget *parent) :
+  settings_dialog::settings_dialog(std::shared_ptr<reme_resource_manager> rm, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::settings_dialog())
+    _rm(rm),
+    _ui(new Ui::settings_dialog())
   {
     // setup this
-    ui->setupUi(this);
-    c = ctx;
+    _ui->setupUi(this);
 
-    file_watcher = new QFileSystemWatcher(this);
-    connect(file_watcher, SIGNAL(fileChanged(const QString &)), SLOT(trigger_scanner_with_file(const QString &)));
+    _file_watcher = new QFileSystemWatcher(this);
+    connect(_file_watcher, SIGNAL(fileChanged(const QString &)), SLOT(trigger_scanner_with_file(const QString &)));
 
     // create default settings at first program start or restore settings
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
 
-    device_id    = settings.value(opencl_device_tag, opencl_device_default_tag).toInt();
-    sens_path    = settings.value(sensor_path_tag, sensor_path_default_tag).toString();
-    cfg_path     = settings.value(config_path_tag, config_path_default_tag).toString();
-    license_file = settings.value(license_file_tag, license_file_default_tag).toString();
+    _device_id    = settings.value(opencl_device_tag, opencl_device_default_tag).toInt();
+    _sens_path    = settings.value(sensor_path_tag, sensor_path_default_tag).toString();
+    _cfg_path     = settings.value(config_path_tag, config_path_default_tag).toString();
+    _license_file = settings.value(license_file_tag, license_file_default_tag).toString();
     
-    if (QFile::exists(sens_path))    file_watcher->addPath(sens_path);
-    if (QFile::exists(cfg_path))     file_watcher->addPath(cfg_path);
-    if (QFile::exists(license_file)) file_watcher->addPath(license_file);
+    if (QFile::exists(_sens_path))    _file_watcher->addPath(_sens_path);
+    if (QFile::exists(_cfg_path))     _file_watcher->addPath(_cfg_path);
+    if (QFile::exists(_license_file)) _file_watcher->addPath(_license_file);
 
-    settings.setValue(sensor_path_tag, sens_path);
-    settings.setValue(opencl_device_tag, device_id);
-    settings.setValue(config_path_tag, cfg_path);
-    settings.setValue(license_file_tag, license_file);
+    settings.setValue(sensor_path_tag, _sens_path);
+    settings.setValue(opencl_device_tag, _device_id);
+    settings.setValue(config_path_tag, _cfg_path);
+    settings.setValue(license_file_tag, _license_file);
     settings.sync();
 
     // update textboxes
-    ui->config_path_tb->setText(cfg_path);
-    ui->sensor_path_tb->setText(sens_path);
-    ui->license_file_tb->setText(license_file);
+    _ui->config_path_tb->setText(_cfg_path);
+    _ui->sensor_path_tb->setText(_sens_path);
+    _ui->license_file_tb->setText(_license_file);
 
     // devices from ReconstructMe SDK
-    init_opencl_device_widget();
+    connect(_rm.get(), SIGNAL(sdk_initialized(bool)), SLOT(init_opencl_device_widget()));
 
-    connect(ui->browse_button_config,  SIGNAL(clicked()), SLOT(browse_config_button_clicked()));
-    connect(ui->browse_button_sensor,  SIGNAL(clicked()), SLOT(browse_sensor_button_clicked()));
-    connect(ui->browse_button_license, SIGNAL(clicked()), SLOT(browse_license_file_clicked()));
+    connect(_ui->browse_button_config,  SIGNAL(clicked()), SLOT(browse_config_button_clicked()));
+    connect(_ui->browse_button_sensor,  SIGNAL(clicked()), SLOT(browse_sensor_button_clicked()));
+    connect(_ui->browse_button_license, SIGNAL(clicked()), SLOT(browse_license_file_clicked()));
 
-    QAbstractButton *restore = ui->buttonBox->button(QDialogButtonBox::RestoreDefaults);
-    connect(restore, SIGNAL(clicked()), SLOT(create_default_settings()));
+    _rm->connect(this, SIGNAL(initialize()), SLOT(initialize()));
+
+    QAbstractButton *restore_btn = _ui->buttonBox->button(QDialogButtonBox::RestoreDefaults);
+    connect(restore_btn, SIGNAL(clicked()), SLOT(create_default_settings()));
   }
 
+
   void settings_dialog::init_opencl_device_widget() {
-    ui->device_list_widget->clear();
-
-    const void *bytes;
-    int length;
-
-    reme_options_t o;
-    reme_options_create(c, &o);
-
-    reme_context_bind_opencl_info(c, o);
-
-    reme_options_get_bytes(c, o, &bytes, &length); 
+    _ui->device_list_widget->clear();
 
     opencl_info ocl_info;
-    ocl_info.ParseFromArray(bytes, length);
+    _rm->get_opencl_info(ocl_info);
 
-    google::protobuf::RepeatedPtrField<opencl_info_device>::const_iterator it;
+    ::google::protobuf::RepeatedPtrField<opencl_info_device>::const_iterator it;
     for (it = ocl_info.devices().begin(); it < ocl_info.devices().end(); it++) {
       QString device (it->name().c_str());
-      ui->device_list_widget->addItem(new QListWidgetItem(device.trimmed()));
+      _ui->device_list_widget->addItem(new QListWidgetItem(device.trimmed()));
     }
     
-    if (device_id == opencl_device_default_tag)
-      ui->ocl_device_auto_cb->setChecked(true);
+    if (_device_id == opencl_device_default_tag)
+      _ui->ocl_device_auto_cb->setChecked(true);
     else 
-      ui->device_list_widget->setCurrentRow(device_id);
+      _ui->device_list_widget->setCurrentRow(_device_id);
   }
 
   settings_dialog::~settings_dialog() {
-    delete ui;
+    delete _ui;
   }
 
   void settings_dialog::set_settings_path(const QString &file_path, init_t type) {
     switch(type) {
       case LICENSE:
-        ui->license_file_tb->setText(file_path);
+        _ui->license_file_tb->setText(file_path);
         accept();
         break;
       case OPENCL:
-        ui->config_path_tb->setText(file_path);
+        _ui->config_path_tb->setText(file_path);
         accept();
         break;
       case SENSOR:
-        ui->sensor_path_tb->setText(file_path);
+        _ui->sensor_path_tb->setText(file_path);
         accept();
         break;
     }
@@ -144,49 +137,49 @@ namespace ReconstructMeGUI {
 
   void settings_dialog::accept() {
     // remove old once from filesystemwatcher
-    if (QFile::exists(sens_path))    file_watcher->removePath(sens_path);
-    if (QFile::exists(cfg_path))     file_watcher->removePath(cfg_path);
-    if (QFile::exists(license_file)) file_watcher->removePath(license_file);
+    if (QFile::exists(_sens_path))    _file_watcher->removePath(_sens_path);
+    if (QFile::exists(_cfg_path))     _file_watcher->removePath(_cfg_path);
+    if (QFile::exists(_license_file)) _file_watcher->removePath(_license_file);
 
-    cfg_path     = ui->config_path_tb->text();
-    sens_path    = ui->sensor_path_tb->text();
-    license_file = ui->license_file_tb->text();
+    _cfg_path     = _ui->config_path_tb->text();
+    _sens_path    = _ui->sensor_path_tb->text();
+    _license_file = _ui->license_file_tb->text();
 
     // add to filesystemwatcher
-    if (QFile::exists(sens_path))    file_watcher->addPath(sens_path);
-    if (QFile::exists(cfg_path))     file_watcher->addPath(cfg_path);
-    if (QFile::exists(license_file)) file_watcher->addPath(license_file);
+    if (QFile::exists(_sens_path))    _file_watcher->addPath(_sens_path);
+    if (QFile::exists(_cfg_path))     _file_watcher->addPath(_cfg_path);
+    if (QFile::exists(_license_file)) _file_watcher->addPath(_license_file);
 
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
 
     // get current device selection
-    if (ui->ocl_device_auto_cb->isChecked()) {
-      device_id = opencl_device_default_tag;
+    if (_ui->ocl_device_auto_cb->isChecked()) {
+      _device_id = opencl_device_default_tag;
     }
     else {
-      QListWidgetItem* item = ui->device_list_widget->currentItem();
+      QListWidgetItem* item = _ui->device_list_widget->currentItem();
       if (!item) {
         // no selection, use preferred
-        device_id = opencl_device_default_tag;
-        ui->ocl_device_auto_cb->setChecked(true);
+        _device_id = opencl_device_default_tag;
+        _ui->ocl_device_auto_cb->setChecked(true);
       }
       else {
-        device_id = ui->device_list_widget->row(item);      
+        _device_id = _ui->device_list_widget->row(item);      
       }
     }
     
     // if an option changed
-    if ((settings.value(config_path_tag, config_path_default_tag).toString()   != cfg_path)     ||
-        (settings.value(opencl_device_tag, opencl_device_default_tag).toInt()  != device_id)    ||  
-        (settings.value(license_file_tag, license_file_default_tag).toString() != license_file) ||
-        (settings.value(sensor_path_tag, sensor_path_default_tag).toString()   != sens_path)      )
+    if ((settings.value(config_path_tag, config_path_default_tag).toString()   != _cfg_path)     ||
+        (settings.value(opencl_device_tag, opencl_device_default_tag).toInt()  != _device_id)    ||  
+        (settings.value(license_file_tag, license_file_default_tag).toString() != _license_file) ||
+        (settings.value(sensor_path_tag, sensor_path_default_tag).toString()   != _sens_path)      )
       emit initialize();
 
     // persist changes
-    settings.setValue(config_path_tag, cfg_path);
-    settings.setValue(sensor_path_tag, sens_path); // find preferred sensor
-    settings.setValue(license_file_tag, license_file);
-    settings.setValue(opencl_device_tag, device_id); 
+    settings.setValue(config_path_tag, _cfg_path);
+    settings.setValue(sensor_path_tag, _sens_path); // find preferred sensor
+    settings.setValue(license_file_tag, _license_file);
+    settings.setValue(opencl_device_tag, _device_id); 
     settings.sync();
 
     hide();
@@ -194,14 +187,14 @@ namespace ReconstructMeGUI {
 
   void settings_dialog::reject() {
     // restore values
-    ui->config_path_tb->setText(cfg_path);
-    ui->sensor_path_tb->setText(sens_path);
-    ui->license_file_tb->setText(license_file);
+    _ui->config_path_tb->setText(_cfg_path);
+    _ui->sensor_path_tb->setText(_sens_path);
+    _ui->license_file_tb->setText(_license_file);
 
-    if (device_id == opencl_device_default_tag)
-      ui->ocl_device_auto_cb->setChecked(true);
+    if (_device_id == opencl_device_default_tag)
+      _ui->ocl_device_auto_cb->setChecked(true);
     else 
-      ui->device_list_widget->setCurrentRow(device_id);
+      _ui->device_list_widget->setCurrentRow(_device_id);
 
     // and hide
     hide();
@@ -209,10 +202,10 @@ namespace ReconstructMeGUI {
 
   void settings_dialog::create_default_settings() {
     // update ui
-    ui->config_path_tb->setText(config_path_default_tag);
-    ui->sensor_path_tb->setText(sensor_path_default_tag);
-    ui->license_file_tb->setText(license_file_default_tag);
-    ui->ocl_device_auto_cb->setChecked(true);
+    _ui->config_path_tb->setText(config_path_default_tag);
+    _ui->sensor_path_tb->setText(sensor_path_default_tag);
+    _ui->license_file_tb->setText(license_file_default_tag);
+    _ui->ocl_device_auto_cb->setChecked(true);
   }
 
   QString settings_dialog::get_file_from_dialog(QString &current_path, QString &filter) {
@@ -226,37 +219,33 @@ namespace ReconstructMeGUI {
   }
 
   void settings_dialog::browse_config_button_clicked() {
-    QString selected_file = get_file_from_dialog(cfg_path, QString("Configruation files (*.txt);; All files (*.*)"));
+    QString selected_file = get_file_from_dialog(_cfg_path, QString("Configruation files (*.txt);; All files (*.*)"));
     if (selected_file == "") return;
 
-    ui->config_path_tb->setText(selected_file); 
+    _ui->config_path_tb->setText(selected_file); 
   }
 
   void settings_dialog::browse_sensor_button_clicked() {
-    QString selected_file = get_file_from_dialog(sens_path, QString("Sensor files (*.txt);; All files (*.*)"));
+    QString selected_file = get_file_from_dialog(_sens_path, QString("Sensor files (*.txt);; All files (*.*)"));
     if (selected_file == "") return;
 
-    ui->sensor_path_tb->setText(selected_file);
+    _ui->sensor_path_tb->setText(selected_file);
   }
 
   void settings_dialog::browse_license_file_clicked() {
-    QString selected_file = get_file_from_dialog(license_file, QString("License files (*.txt.sgn);; All files (*.*)"));
+    QString selected_file = get_file_from_dialog(_license_file, QString("License files (*.txt.sgn);; All files (*.*)"));
     if (selected_file == "") return;
 
-    ui->license_file_tb->setText(selected_file);
+    _ui->license_file_tb->setText(selected_file);
   }
 
   void settings_dialog::trigger_scanner_with_file(const QString &file_path) {
     bool do_reload = QMessageBox::Yes == QMessageBox::information(this, file_changed_tag, apply_changes_tag + file_path + "?", QMessageBox::Yes, QMessageBox::No);
 
     if (do_reload && (
-        (file_path == cfg_path)     ||
-        (file_path == license_file) ||
-        (file_path == sens_path)   )  )
+        (file_path == _cfg_path)     ||
+        (file_path == _license_file) ||
+        (file_path == _sens_path)   )  )
       emit initialize();
   }
 }
-
-
-
-

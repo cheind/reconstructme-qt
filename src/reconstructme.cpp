@@ -36,8 +36,6 @@
 #include "reconstructme.h"
 #include "ui_reconstructmeqt.h"
 
-#include "scan_widget.h"
-
 #include "scan.h"
 #include "reme_resource_manager.h"
 #include "frame_grabber.h"
@@ -57,7 +55,6 @@
 #include <QMessageBox>
 #include <QDesktopServices>
 #include <QUrl>
-#include <QSplashScreen>
 #include <QImage>
 #include <QThread>
 #include <QLabel>
@@ -80,67 +77,33 @@
 #include <iostream>
 
 #define STATUSBAR_TIME 1500
-#define SPLASH_MSG_ALIGNMENT Qt::AlignBottom | Qt::AlignLeft
 
 namespace ReconstructMeGUI {
   
   reconstructme::reconstructme(QWidget *parent) : 
     QMainWindow(parent),
     _ui(new Ui::reconstructmeqt),
-    _initializer(new reme_resource_manager())
+    _rm(new reme_resource_manager())
   {
-    // _splashscreen
-    QPixmap splashPix(":/images/splash_screen.png");
-    _splash = new QSplashScreen(this, splashPix);
-    _splash->setAutoFillBackground(false);
-    _splash->showMessage(welcome_tag, SPLASH_MSG_ALIGNMENT);
-    _splash->show();
-
-    _frame_grabber = std::shared_ptr<frame_grabber>(new frame_grabber(_initializer));
-    _frame_grabber_thread = new QThread(this);
-    _frame_grabber->moveToThread(_frame_grabber_thread);
-    _frame_grabber_thread->start();
-
     // ui's setup
     _ui->setupUi(this);
-    _scan_ui = new scan_widget(_initializer, _frame_grabber, this);
-
-    _ui->scan_page = _scan_ui;
-    _ui->stackedWidget->insertWidget(0, _ui->scan_page);
-    _ui->stackedWidget->setCurrentWidget(_ui->scan_page);
-
-    // Status bar
-    _fps_label = new QLabel();
-    _fps_label->setStyleSheet("qproperty-alignment: AlignRight; margin-right: 0px; padding-right: 0px;");
-    _fps_label->setMaximumWidth(100);
-    _fps_label->setToolTip(tool_tip_fps_label_tag);
-    
-    _fps_color_label = new QLabel();
-    _fps_color_label->setMinimumWidth(10);
-    _fps_color_label->setMaximumWidth(10);
-    _fps_color_label->setStyleSheet("margin-left: 0px; padding-left: 0px;");
-    _fps_color_label->setAutoFillBackground(true);
-    _fps_color_label->setToolTip(tool_tip_fps_color_label_tag);
-
-    statusBar()->addPermanentWidget(_fps_label, 0);
-    statusBar()->addPermanentWidget(_fps_color_label, 0);
+    _ui->stackedWidget->setCurrentWidget(_ui->scanPage);
 
     // move to center
     QRect r = geometry();
     r.moveCenter(QApplication::desktop()->availableGeometry().center());
     setGeometry(r);
-
-    reme_context_t c;
-    reme_context_create(&c);
     
-     // Create dialogs
-    _logging_dialog = new logging_dialog(this, Qt::Dialog);
-    _settings_dialog = new settings_dialog(c, this);
-    _hardware_key_dialog = new hardware_key_dialog(c, this);
-    _about_dialog = new about_dialog(c, this);
-    _status_dialog = new status_dialog(this);
+    // Create dialogs
+    _dialog_log = new logging_dialog(_rm, this, Qt::Dialog);
+    _dialog_settings = new settings_dialog(_rm, this);
+    _dialog_license = new hardware_key_dialog(_rm, this);
+    _dialog_about = new about_dialog(this);
+    _dialog_state = new status_dialog(_rm, this);
 
-    reme_context_destroy(&c);
+    _dialog_license->connect(_ui->actionGenerate_hardware_key, SIGNAL(triggered()), SLOT(show()));
+    _dialog_log->connect(_ui->actionLog, SIGNAL(triggered()), SLOT(show()));
+    _dialog_about->connect(_ui->actionAbout, SIGNAL(triggered()), SLOT(show()));
 
     // application icon
     QPixmap titleBarPix (":/images/icon.ico");
@@ -148,52 +111,45 @@ namespace ReconstructMeGUI {
     setWindowIcon(titleBarIcon);
 
     // Create 
-    create_mappings();
-
-    // ui connections
-    connect(_scan_ui, SIGNAL(status_bar_msg(const QString&, const int)), SLOT(status_bar_msg(const QString&, const int)));
-    connect(_scan_ui->scanner(), SIGNAL(current_fps(const float)), SLOT(show_fps(const float)));
-
-    // Dialog connections
-    _settings_dialog->connect(_ui->actionSettings, SIGNAL(triggered()),SLOT(show()));
-    _about_dialog->connect(_ui->actionAbout, SIGNAL(triggered()), SLOT(show()));
-    _hardware_key_dialog->connect(_ui->actionGenerate_hardware_key, SIGNAL(triggered()), SLOT(show()));
-    
-    connect(_ui->actionLog, SIGNAL(toggled(bool)), SLOT(action_log_toggled(bool)));
-    _ui->actionLog->connect(_logging_dialog, SIGNAL(close_clicked()), SLOT(toggle()));
-
-    // sdk _initializer
-    qRegisterMetaType<init_t>( "init_t" );
-    _status_dialog->connect(_initializer.get(), SIGNAL(initializing(init_t)), SLOT(initializing(init_t)), Qt::BlockingQueuedConnection);
-    _status_dialog->connect(_initializer.get(), SIGNAL(initialized(init_t, bool)), SLOT(initialized(init_t, bool)), Qt::BlockingQueuedConnection);
-
-    _status_dialog->connect(_status_dialog->closeBtn(), SIGNAL(clicked()), SLOT(hide()));
-    _status_dialog->connect(_status_dialog->onlineHelpBtn(), SIGNAL(clicked()), SLOT(hide()));
-    _status_dialog->connect(_initializer.get(), SIGNAL(initializing_sdk()), SLOT(reset()));
-    _status_dialog->connect(_initializer.get(), SIGNAL(initializing_sdk()), SLOT(show()));
-    _status_dialog->closeBtn()->connect(_initializer.get(), SIGNAL(initializing_sdk()), SLOT(hide()));
-    _status_dialog->closeBtn()->connect(_initializer.get(), SIGNAL(sdk_initialized(bool)), SLOT(show()));
-    _status_dialog->onlineHelpBtn()->connect(_initializer.get(), SIGNAL(initializing_sdk()), SLOT(hide()));
-    _status_dialog->onlineHelpBtn()->connect(_initializer.get(), SIGNAL(sdk_initialized(bool)), SLOT(show()));
-
-    _initializer->connect(_settings_dialog, SIGNAL(initialize()), SLOT(initialize()));
-    _scan_ui->scanner()->connect(_initializer.get(), SIGNAL(sdk_initialized(bool)), SLOT(initialize(bool)));
-
-    qRegisterMetaType<init_t>( "reme_log_severity_t" );
-    _logging_dialog->connect(_initializer.get(), SIGNAL(log_message(reme_log_severity_t, const QString &)), SLOT(add_log_message(reme_log_severity_t, const QString &)));
+    create_url_mappings();
 
     // Trigger concurrent initialization
-    _initializer->initialize();
+    _fg = std::shared_ptr<frame_grabber>(new frame_grabber(_rm));
+    connect(_fg.get(), SIGNAL(frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)), SLOT(show_frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)), Qt::BlockingQueuedConnection);
+    _rm->connect(this, SIGNAL(initialize()), SLOT(initialize()));
+    _rm_thread = new QThread(this);
+    _rm->moveToThread(_rm_thread);
+    _fg->moveToThread(_rm_thread);
+    _rm_thread->start();
 
-    // Shortcuts
-    _ui->actionLog->setShortcut(QKeySequence("Ctrl+L"));
-    _ui->actionSettings->setShortcut(QKeySequence("Ctrl+E"));
+    _fg->request(REME_IMAGE_AUX);
+    _fg->request(REME_IMAGE_DEPTH);
+    _fg->request(REME_IMAGE_VOLUME);
 
-    // CLose _splashscreen
-    _splash->finish(this);
+    emit initialize();
   }
 
-  void reconstructme::create_mappings() {
+  void reconstructme::show_frame(reme_sensor_image_t type, const void* data, int length, int width, int height, int channels, int num_bytes_per_channel, int row_stride) {
+    
+    std::cout << length << " " << width << " " << height << " " << channels << " " << num_bytes_per_channel << " " << row_stride<< std::endl;
+
+    switch(type) {
+    case REME_IMAGE_AUX:
+      _ui->rgb_canvas->set_image_size(width, height);
+      _ui->rgb_canvas->set_image_data(data);
+      break;
+    case REME_IMAGE_DEPTH:
+      _ui->depth_canvas->set_image_size(width, height);
+      _ui->depth_canvas->set_image_data(data);
+      break;
+    case REME_IMAGE_VOLUME:
+      _ui->rec_canvas->set_image_size(width, height);
+      _ui->rec_canvas->set_image_data(data);
+      break;
+    }
+  }
+
+  void reconstructme::create_url_mappings() {
     _url_mapper = new QSignalMapper(this);
     _url_mapper->setMapping(_ui->actionDevice, QString(url_device_matrix_tag));
     _url_mapper->setMapping(_ui->actionFAQ_2, QString(url_faq_tag));
@@ -202,7 +158,7 @@ namespace ReconstructMeGUI {
     _url_mapper->setMapping(_ui->actionProjectHome, QString(url_reconstructme_qt));
     _url_mapper->setMapping(_ui->actionSDKDocumentation, QString(url_sdk_doku_tag));
     _url_mapper->setMapping(_ui->actionUsage, QString(url_usage_tag));
-    _url_mapper->setMapping(_status_dialog->onlineHelpBtn(), QString(url_faq_tag));
+    _url_mapper->setMapping(_dialog_state->onlineHelpBtn(), QString(url_faq_tag));
     
     _url_mapper->connect(_ui->actionDevice, SIGNAL(triggered()), SLOT(map()));
     _url_mapper->connect(_ui->actionFAQ_2, SIGNAL(triggered()), SLOT(map()));
@@ -211,17 +167,17 @@ namespace ReconstructMeGUI {
     _url_mapper->connect(_ui->actionProjectHome, SIGNAL(triggered()), SLOT(map()));
     _url_mapper->connect(_ui->actionSDKDocumentation, SIGNAL(triggered()), SLOT(map()));
     _url_mapper->connect(_ui->actionUsage, SIGNAL(triggered()), SLOT(map()));
-    _url_mapper->connect(_status_dialog->onlineHelpBtn(), SIGNAL(clicked()), SLOT(map()));
+    _url_mapper->connect(_dialog_state->onlineHelpBtn(), SIGNAL(clicked()), SLOT(map()));
 
     connect(_url_mapper, SIGNAL(mapped(const QString&)), SLOT(open_url(const QString&)));
   }
 
   // ==================== closing ====================
   void reconstructme::closeEvent(QCloseEvent *ev) {
-    if (_frame_grabber->is_grabbing()) {
+    if (_fg->is_grabbing()) {
       // 1. stop frame grabber before closing
-      _frame_grabber->connect(this, SIGNAL(closing()), SLOT(stop()), Qt::QueuedConnection);
-      this->connect(_frame_grabber.get(), SIGNAL(stopped_grabbing()), SLOT(really_close()), Qt::QueuedConnection);
+      _fg->connect(this, SIGNAL(closing()), SLOT(stop()), Qt::QueuedConnection);
+      this->connect(_fg.get(), SIGNAL(stopped_grabbing()), SLOT(really_close()), Qt::QueuedConnection);
       emit closing();
       ev->ignore();
     } else {
@@ -238,27 +194,13 @@ namespace ReconstructMeGUI {
 
   reconstructme::~reconstructme() {
     // 4. Since the close event is accepted, destruct this
-    _frame_grabber_thread->quit();
-    _frame_grabber_thread->wait();
+    _rm_thread->quit();
+    _rm_thread->wait();
 
     delete _ui;
   }
 
   // ==================== closing ====================
-
-  void reconstructme::action_log_toggled(bool checked) {
-    if (checked) 
-      _logging_dialog->show();
-    else
-      _logging_dialog->hide();
-  }
-
-  void reconstructme::action_status_toggled(bool checked) {
-    if (checked) 
-      _status_dialog->show();
-    else
-      _status_dialog->hide();
-  }
 
   void reconstructme::show_message_box(
       int icon, 
@@ -283,13 +225,9 @@ namespace ReconstructMeGUI {
   }
 
   void reconstructme::action_settings_clicked() {
-    _settings_dialog->show();
-    _settings_dialog->raise();
-    _settings_dialog->activateWindow();
-  }
-
-  void reconstructme::action_about_clicked() {
-    _about_dialog->show();
+    //_dialog_settings->show();
+    //_dialog_settings->raise();
+    //_dialog_settings->activateWindow();
   }
 
   void reconstructme::open_url(const QString &url_string) {
@@ -304,13 +242,13 @@ namespace ReconstructMeGUI {
   }
 
   void reconstructme::show_fps(const float fps) {
-    if (fps > 20) 
-      _fps_color_label->setStyleSheet("background-color: green;");
-    else if (fps > 10)
-      _fps_color_label->setStyleSheet("background-color: orange;");
-    else
-      _fps_color_label->setStyleSheet("background-color: #FF4848;");
-    
-    _fps_label->setText(QString().sprintf("%.2f fps", fps));
+    //if (fps > 20) 
+    //  _label_fps_color->setStyleSheet("background-color: green;");
+    //else if (fps > 10)
+    //  _label_fps_color->setStyleSheet("background-color: orange;");
+    //else
+    //  _label_fps_color->setStyleSheet("background-color: #FF4848;");
+    //
+    //_label_fps->setText(QString().sprintf("%.2f fps", fps));
   }
 }

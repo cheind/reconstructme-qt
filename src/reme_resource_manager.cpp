@@ -53,16 +53,14 @@
 namespace ReconstructMeGUI {
 
   void reme_log(reme_log_severity_t sev, const char *message, void *user_data)  {
-    reme_resource_manager *i = static_cast<reme_resource_manager*>(user_data);
-    i->new_log_message(sev, QString(message));
+    reme_resource_manager *rm = static_cast<reme_resource_manager*>(user_data);
+    rm->new_log_message(sev, QString(message));
   }
 
-  reme_resource_manager::reme_resource_manager() 
-    : _has_valid_license(false)
+  reme_resource_manager::reme_resource_manager() : 
+    _has_valid_license(false),
+    _c(0)
   {
-    _c = 0;
-    _initializing = false;
-    connect(&_fw, SIGNAL(finished()), this, SLOT(finished_initialize()));
   }
 
   reme_resource_manager::~reme_resource_manager() {
@@ -74,7 +72,7 @@ namespace ReconstructMeGUI {
     emit log_message(sev, log);
   }
 
-  void reme_resource_manager::_initialize() {
+  void reme_resource_manager::initialize() {
     bool success = false;
 
     _has_sensor = false;
@@ -105,23 +103,6 @@ namespace ReconstructMeGUI {
     emit sdk_initialized(success);
   }
 
-  void _init(reme_resource_manager *initializer) {
-    return initializer->_initialize();
-  }
-
-  void reme_resource_manager::initialize() {
-    if (_initializing) return;
-
-    _initializing = true;
-    _future = QtConcurrent::run(_init, this);
-    _fw.setFuture(_future);
-  }
-
-  void reme_resource_manager::finished_initialize() {
-    _initializing = false;
-  }
-
-
   bool reme_resource_manager::open_sensor() {
     bool success = true;
     
@@ -130,7 +111,7 @@ namespace ReconstructMeGUI {
 
     // create and open a sensor from settings
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
-    QString sensor_path = settings.value(sensor_path_tag).toString();
+    QString sensor_path = settings.value(sensor_path_tag, sensor_path_default_tag).toString();
     success = success && REME_SUCCESS(reme_sensor_create(_c, sensor_path.toStdString().c_str(), true, &_s));
     success = success && REME_SUCCESS(reme_sensor_open(_c, _s));
    
@@ -221,6 +202,45 @@ namespace ReconstructMeGUI {
 
     _has_compiled_context = success;
     return _has_compiled_context;
+  }
+
+  void reme_resource_manager::get_version(std::string& version) {
+    int length;
+    const char* data;
+    reme_context_get_version(_c, &data, &length);
+
+    version = data;
+  }
+
+  void reme_resource_manager::get_opencl_info(opencl_info &ocl) {
+    const void *bytes;
+    int length;
+
+    reme_options_t o;
+    reme_options_create(_c, &o);
+
+    reme_context_bind_opencl_info(_c, o);
+
+    reme_options_get_bytes(_c, o, &bytes, &length); 
+
+    opencl_info ocl_info;
+    ocl_info.ParseFromArray(bytes, length);
+  }
+
+  void reme_resource_manager::get_hardware_hashes(hardware& hashes) {
+    const void *bytes;
+    int length;
+
+    reme_options_t o;
+    reme_options_create(_c, &o);
+
+    reme_license_t l;
+    reme_license_create(_c, &l);
+    reme_license_bind_hardware_hashes(_c, l, o);
+
+    reme_options_get_bytes(_c, o, &bytes, &length); 
+
+    hashes.ParseFromArray(bytes, length);
   }
 
   bool reme_resource_manager::has_valid_license() const {

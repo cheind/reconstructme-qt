@@ -37,10 +37,10 @@
 #pragma once
 
 #include "types.h"
+#include "reme_resource_manager.h"
 
 #include <QDialog>
 
-#include <reconstructmesdk/reme.h>
 
 // Forward Declaration
 class QFileDialog;
@@ -59,7 +59,7 @@ namespace ReconstructMeGUI {
     Q_OBJECT
     
   public:
-    settings_dialog(reme_context_t ctx, QWidget *parent = 0);
+    settings_dialog(std::shared_ptr<reme_resource_manager> rm, QWidget *parent = 0);
     ~settings_dialog();
 
   public slots:
@@ -92,19 +92,20 @@ namespace ReconstructMeGUI {
     QString get_file_from_dialog(QString &current_path, QString &filter);
 
     // Members
-    Ui::settings_dialog *ui;
+    Ui::settings_dialog *_ui;
     
-    reme_context_t c;
+    std::shared_ptr<reme_resource_manager> _rm;
 
     // Paths
-    QString cfg_path;
-    QString sens_path;
-    QString license_file;
+    QString _cfg_path;
+    QString _sens_path;
+    QString _license_file;
+
     // Paths utils
-    QFileSystemWatcher *file_watcher;
+    QFileSystemWatcher *_file_watcher;
 
     // Selected device
-    int device_id;
+    int _device_id;
   };
 
 }

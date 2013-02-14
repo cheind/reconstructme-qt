@@ -35,6 +35,7 @@
 #define LOGGING_WIDGET_H
 
 #include "window_dialog.h"
+#include "reme_resource_manager.h"
 
 #include <QStandardItemModel>
 #include <QSortFilterProxyModel>
@@ -54,21 +55,24 @@ namespace ReconstructMeGUI {
     Q_OBJECT;
 
   public:
-    logging_dialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    logging_dialog(std::shared_ptr<reme_resource_manager> rm, QWidget *parent = 0, Qt::WindowFlags f = 0);
     ~logging_dialog();
 
   public slots:
     /** This will append a log-string */
     void add_log_message(reme_log_severity_t sev, const QString &log);
 
+  public slots:
     void clear_log();
 
     void save_log();
 
   private:
-    Ui::logging_widget *ui;
+    Ui::logging_widget *_ui;
     QStandardItemModel *_log_model;
     QSortFilterProxyModel *_proxy_model;
+
+    std::shared_ptr<reme_resource_manager> _rm;
   };
 } 
 

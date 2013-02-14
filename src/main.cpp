@@ -33,10 +33,14 @@
 
 #include <QApplication>
 #include <QFile>
+#include <QSplashScreen>
 
 #include "settings.h"
+#include "strings.h"
 #include "reconstructme.h"
 #include "defines.h"
+
+#define SPLASH_MSG_ALIGNMENT Qt::AlignBottom | Qt::AlignLeft
 
 #if _WIN32 && !RECONSTRUCTMEQT_ENABLE_CONSOLE
   #define WIN32_LEAN_AND_MEAN
@@ -54,6 +58,13 @@
 
   QApplication app(argc, argv);
 
+  // Splashscreen
+  QPixmap splashPix(":/images/splash_screen.png");
+  QSplashScreen *sc = new QSplashScreen(splashPix);
+  sc->setAutoFillBackground(false);
+  sc->showMessage(welcome_tag, SPLASH_MSG_ALIGNMENT);
+  sc->show();
+
   // global style sheet
   QFile style_file(style_sheet_file_tag);
   if(style_file.open(QFile::ReadOnly)) {
@@ -63,6 +74,7 @@
 
   // MainWindow
   reconstructme reme;
+  sc->finish(&reme);
   reme.show();
 
   return app.exec();
