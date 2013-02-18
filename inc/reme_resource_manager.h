@@ -37,9 +37,11 @@
 #pragma once
 
 #include "types.h"
-#include "opencl_info.pb.h"
-#include "hardware.pb.h"
 #include "frame_grabber.h"
+
+#include "opencl_info.pb.h"
+#include "surface.pb.h"
+#include "hardware.pb.h"
 
 #include <ctime>
 
@@ -47,6 +49,7 @@
 #include <QPair>
 #include <QFuture>
 #include <QFutureWatcher>
+#include <QSharedPointer>
 
 #include <reconstructmesdk/types.h>
 
@@ -89,13 +92,17 @@ namespace ReconstructMeGUI {
     void stop_scanning();
     void scan();
     void reset_volume();
-
-    /** Getter for correct sized RGB QImage */
-    const QSize *rgb_size() const;
-    /** Getter for correct sized Depth QImage */
-    const QSize *depth_size() const;
+     
+    void generate_surface(
+      const QSharedPointer<generation_options> go, 
+      const QSharedPointer<decimation_options> deco);
 
   signals:
+    void surface(bool has_surface,
+      const float *points, int num_points,
+      const float *normals, int num_normals,
+      const unsigned *faces, int num_faces);
+
     void initializing(init_t what);
     void initialized(init_t what, bool success);
     void sdk_initialized(bool success);
@@ -118,6 +125,7 @@ namespace ReconstructMeGUI {
     reme_context_t _c;
     reme_sensor_t _s;
     reme_volume_t _v;
+    reme_surface_t _p;
 
     QSize *_rgb_size;
     QSize *_phong_size;

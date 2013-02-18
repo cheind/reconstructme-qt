@@ -101,6 +101,10 @@ namespace ReconstructMeGUI {
     emit initialized(SENSOR, success);
     
     success = _has_compiled_context && _has_sensor && _has_volume;
+
+    if (success) {
+      reme_surface_create(_c, &_p);
+    }
     emit sdk_initialized(success);
   }
 
@@ -265,6 +269,53 @@ namespace ReconstructMeGUI {
     }
   }
 
+  void reme_resource_manager::generate_surface(
+      QSharedPointer<generation_options> go,
+      QSharedPointer<decimation_options> deco)
+  {
+     
+    std::string msg;
+    
+    // options
+    reme_options_t o;
+    reme_options_create(_c, &o);
+
+    // generation options
+    if (go) {
+      go->SerializeToString(&msg);
+      reme_surface_bind_generation_options(_c, _p, o);
+      reme_options_set_bytes(_c, o, msg.c_str(), msg.size());
+    }
+  
+
+    const unsigned *faces;
+    const float *points, *normals;
+    int num_point_coordinates, num_normals_coordinates, num_triangle_indices;
+    int num_points, num_normals, num_faces;
+    
+    bool has_surface = REME_SUCCESS(reme_surface_generate(_c, _p, _v));
+    if(has_surface)
+    {
+      // dezimation options
+      if (deco) {
+        deco->SerializeToString(&msg);
+        reme_surface_bind_decimation_options(_c, _p, o);
+        reme_options_set_bytes(_c, o, msg.c_str(), msg.size());
+        has_surface = has_surface && REME_SUCCESS(reme_surface_decimate(_c, _p));
+      }
+
+      // data
+      reme_surface_get_points(_c, _p, &points, &num_point_coordinates);
+      reme_surface_get_normals(_c, _p, &normals, &num_normals_coordinates);
+      reme_surface_get_triangles(_c, _p, &faces, &num_triangle_indices);
+    
+      num_points = num_point_coordinates / 4;
+      num_normals = num_normals_coordinates / 4;
+      num_faces  = num_triangle_indices / 3;
+    }
+    emit surface(has_surface, points, num_points, normals, num_normals, faces, num_faces);
+  }
+
   void reme_resource_manager::reset_volume() {
     reme_volume_reset(_c, _v);
     reme_sensor_reset(_c, _s);
@@ -352,13 +403,5 @@ namespace ReconstructMeGUI {
 
   const reme_volume_t reme_resource_manager::volume() const{
     return _v;
-  }
-
-  const QSize *reme_resource_manager::rgb_size() const {
-    return _rgb_size;
-  }
-
-  const QSize *reme_resource_manager::depth_size() const {
-    return _depth_size;
   }
 }

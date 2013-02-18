@@ -76,6 +76,9 @@
 #include <QCloseEvent>
 #include <QMovie>
 
+#include <osg/PolygonMode>
+#include <osgUtil/Optimizer>
+
 #include <iostream>
 
 #define STATUSBAR_TIME 1500
@@ -133,6 +136,34 @@ namespace ReconstructMeGUI {
     // Create 
     create_url_mappings();
 
+    // surface rendering
+    _root = new osg::Group();
+    _geode_group = new osg::Group();
+    _view = _ui->viewer->osg_view();
+    _manip = new osgGA::TrackballManipulator;
+    
+    _root->addChild(_geode_group);
+    _view->setSceneData(_root);
+    _view->setCameraManipulator(_manip);
+    _view->getCamera()->setClearColor(osg::Vec4(50/255.f, 50/255.f, 50/255.f, 1.0));
+
+    _mat = new osg::Material();
+    // Front side
+    _mat->setDiffuse(osg::Material::FRONT,  osg::Vec4(200/255.f, 214/255.f, 230/255.f, 1.0));
+    _mat->setSpecular(osg::Material::FRONT, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0));
+    _mat->setAmbient(osg::Material::FRONT,  osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
+    _mat->setEmission(osg::Material::FRONT, osg::Vec4(0.0, 0.0, 0.0, 1.0));
+    _mat->setShininess(osg::Material::FRONT, 10);
+    // Back side
+    _mat->setDiffuse(osg::Material::BACK,  osg::Vec4(255/255.f, 217/255.f, 228/255.f, 1.0));
+    _mat->setSpecular(osg::Material::BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0));
+    _mat->setAmbient(osg::Material::BACK,  osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
+    _mat->setEmission(osg::Material::BACK, osg::Vec4(0.0, 0.0, 0.0, 1.0));
+    _mat->setShininess(osg::Material::BACK, 2);
+
+    _lightmodel = new osg::LightModel();
+    _lightmodel->setTwoSided(true);
+
     // Trigger concurrent initialization
     _fg = std::shared_ptr<frame_grabber>(new frame_grabber(_rm));
     _rm->set_frame_grabber(_fg);
@@ -153,6 +184,13 @@ namespace ReconstructMeGUI {
     connect(_ui->play_button, SIGNAL(clicked()), SLOT(toggle_mode()));
     _rm->connect(_ui->reset_button, SIGNAL(clicked()), SLOT(reset_volume()));
     connect(_rm.get(), SIGNAL(current_fps(const float)), SLOT(show_fps(const float)));
+    qRegisterMetaType<QSharedPointer<generation_options>>("QSharedPointer<generation_options>");
+    qRegisterMetaType<QSharedPointer<decimation_options>>("QSharedPointer<decimation_options>");
+    _rm->connect(this, SIGNAL(generate_surface(const QSharedPointer<generation_options>, const QSharedPointer<decimation_options>)), SLOT(generate_surface(const QSharedPointer<generation_options>, const QSharedPointer<decimation_options>)));
+    connect(_rm.get(), SIGNAL(surface(bool, const float *, int, const float *, int, const unsigned *, int)), SLOT(render_surface(bool, const float *, int, const float *, int, const unsigned *, int)));
+    connect(_ui->btnGenerate, SIGNAL(clicked()), SLOT(request_surface()));
+    connect(_ui->polygonRB, SIGNAL(toggled(bool)), SLOT(render_polygon(bool)));
+    connect(_ui->wireframeRB, SIGNAL(toggled(bool)), SLOT(render_wireframe(bool)));
 
     emit initialize();
   }
@@ -175,14 +213,150 @@ namespace ReconstructMeGUI {
   }
 
   void reconstructme::toggle_mode() {
+    disconnect(_fg.get(), SIGNAL(frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)), this, SLOT(show_frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)));
+
     if (_mode == PAUSE) {
       _mode = PLAY;
+      _fg->request(REME_IMAGE_AUX);
+      _fg->request(REME_IMAGE_DEPTH);
+      _fg->request(REME_IMAGE_VOLUME);
+      connect(_fg.get(), SIGNAL(frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)), SLOT(show_frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)));
+      _ui->stackedWidget->setCurrentWidget(_ui->scanPage);
       emit start_scanning();
     }
     else if (_mode == PLAY) {
       _mode = PAUSE;
+      _fg->release(REME_IMAGE_AUX);
+      _fg->release(REME_IMAGE_DEPTH);
+      _fg->release(REME_IMAGE_VOLUME);
+      _ui->stackedWidget->setCurrentWidget(_ui->surfacePage);
+      request_surface();
       emit stop_scanning();
     }
+  }
+
+  void reconstructme::request_surface()
+  {
+    _ui->viewer->start_loading_animation();
+    
+    // Assumes that the timer is stopped.
+    // Remove old geometry
+    const unsigned int n = _geode_group->getNumChildren();             
+    _geode_group->removeChildren(0, n);
+
+    _ui->viewer->stop_rendering();
+
+    // surface options
+    QSharedPointer<generation_options> go(new generation_options);
+    go->set_merge_duplicate_vertices(true);
+    go->set_merge_radius((float)_ui->spMergeRadius->value());
+    go->set_merge_mode(generation_options_merge_type_USE_AVERAGE);
+
+    // Decimate
+    QSharedPointer<decimation_options> deco;
+    if (_ui->gbDecimation->isChecked()) {
+      deco = QSharedPointer<decimation_options>(new decimation_options);
+      deco->set_maximum_error((float)_ui->spMaximumError->value());
+      deco->set_maximum_faces(_ui->spMaximumFaces->value());
+      deco->set_maximum_vertices(_ui->spMaximumVertices->value());
+      deco->set_minimum_roundness(_ui->spMinRoundness->value());
+    }
+    emit generate_surface(go, deco);
+  }
+
+  void reconstructme::render_surface( bool has_surface,
+      const float *points, int num_points,
+      const float *normals, int num_normals,
+      const unsigned *faces, int num_faces) 
+  {
+
+    _ui->viewer->stop_loading_animation();
+
+    if (!has_surface) {
+      QMessageBox::information(this, "Rendering Surface", "Could not create surface.", QMessageBox::Ok);
+      return;
+    }
+
+    _ui->numTrianglesLE->setText(QString::number(num_faces));
+    _ui->numVerticesLE->setText(QString::number(num_points));
+
+    osg::ref_ptr<osg::Geode> geode;
+    osg::ref_ptr<osg::Geometry> geom;
+
+    geom = new osg::Geometry();
+    geom->setUseDisplayList(true);
+    geom->setUseVertexBufferObjects(false);
+
+    typedef osg::TemplateIndexArray<unsigned int, osg::Array::UIntArrayType, 24, 4> index_array_type;
+
+    osg::ref_ptr<osg::Vec3Array> vertex_coords = new osg::Vec3Array();
+    osg::ref_ptr<osg::Vec3Array> vertex_normals = new osg::Vec3Array();
+    osg::ref_ptr<osg::DrawElementsUInt> face_to_vertex = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
+    osg::ref_ptr<index_array_type> normal_to_vertex = new index_array_type();
+
+    int i = 0;
+    while (i < num_points)
+    {
+      vertex_coords->push_back(osg::Vec3(points[i*4+0], points[i*4+1], points[i*4+2]));
+      vertex_normals->push_back(osg::Vec3(normals[i*4+0], normals[i*4+1], normals[i*4+2]));
+      normal_to_vertex->push_back(i);
+      i++;
+    }
+
+    face_to_vertex->insert(face_to_vertex->begin(), faces, faces + num_faces * 3);
+
+    geom->setVertexArray(vertex_coords);
+    geom->setNormalArray(vertex_normals);
+    geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+    geom->setNormalIndices(normal_to_vertex);
+    geom->addPrimitiveSet(face_to_vertex);
+      
+    geode = new osg::Geode();
+    geode->getOrCreateStateSet()->setAttributeAndModes(_mat, osg::StateAttribute::ON);
+    geode->getOrCreateStateSet()->setAttributeAndModes(_lightmodel, osg::StateAttribute::ON);
+    
+    osgUtil::Optimizer optimizer;
+    optimizer.optimize(geode, osgUtil::Optimizer::DEFAULT_OPTIMIZATIONS);
+    
+    geode->addDrawable(geom);
+    _geode_group->addChild(geode);
+    
+    // Rendermode
+    if (_ui->wireframeRB->isChecked())
+      render_wireframe(true);
+    else
+      render_polygon(true);
+
+    _root->dirtyBound();
+
+    _manip->computeHomePosition();
+    _manip->home(0);
+    _ui->viewer->start_rendering();
+    
+    //_unlicensed_dialog->hide();
+  }
+
+  osg::ref_ptr<osg::PolygonMode> reconstructme::poly_mode() {
+    osg::ref_ptr<osg::StateSet> state = _geode_group->getOrCreateStateSet();
+    osg::ref_ptr<osg::PolygonMode> polygon_mode;
+    polygon_mode = dynamic_cast< osg::PolygonMode* >( state->getAttribute( osg::StateAttribute::POLYGONMODE ));
+    if ( !polygon_mode ) {
+      polygon_mode = new osg::PolygonMode;
+      state->setAttribute( polygon_mode );
+    }
+    return polygon_mode;
+  }
+
+  void reconstructme::render_polygon(bool do_apply) {
+    osg::ref_ptr<osg::PolygonMode> polygon_mode = poly_mode();
+    if (do_apply)
+      polygon_mode->setMode( osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::FILL );
+  }
+
+  void reconstructme::render_wireframe(bool do_apply) {
+    osg::ref_ptr<osg::PolygonMode> polygon_mode = poly_mode();
+    if (do_apply)
+      polygon_mode->setMode( osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE );
   }
 
   void reconstructme::create_url_mappings() {

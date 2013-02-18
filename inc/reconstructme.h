@@ -36,10 +36,22 @@
 #pragma once
 
 #include "types.h"
+#include "surface.pb.h"
+#include "hardware.pb.h"
 
 #include <QMainWindow>
+#include <QSharedPointer>
 
 #include <reconstructmesdk/types.h>
+
+#include <osg/Geometry>
+#include <osg/Geode>
+#include <osg/Group>
+#include <osgViewer/View>
+#include <osgGA/TrackballManipulator>
+#include <osg/PolygonMode>
+#include <osg/LightModel>
+#include <osg/Material>
 
 // Forward declarations
 class QImage;
@@ -101,12 +113,26 @@ namespace ReconstructMeGUI {
     void really_close();
     void show_frame(reme_sensor_image_t type, const void* data, int length, int width, int height, int channels, int num_bytes_per_channel, int row_stride);
 
+    void request_surface();
+
+    void render_surface(bool has_surface,
+      const float *points, int num_points,
+      const float *normals, int num_normals,
+      const unsigned *faces, int num_faces);
+
+    void render_polygon(bool do_apply);
+    void render_wireframe(bool do_apply);
+    osg::ref_ptr<osg::PolygonMode> poly_mode();
+
   signals:
     /** This signal is emited when this objects constructor finished */
     void initialize();
     void closing();
     void start_scanning();
     void stop_scanning();
+    void generate_surface(
+      const QSharedPointer<generation_options> go, 
+      const QSharedPointer<decimation_options> deco);
 
   protected:
      void	closeEvent(QCloseEvent *event);
@@ -134,6 +160,16 @@ namespace ReconstructMeGUI {
     std::shared_ptr<frame_grabber> _fg;
     QThread* _rm_thread;
    
+    // OSG rendering
+    osg::ref_ptr<osgViewer::View> _view;
+    osg::ref_ptr<osg::Group> _root;
+    osg::ref_ptr<osg::Group> _geode_group;
+    osg::ref_ptr<osg::Material> _mat;
+    osg::ref_ptr<osg::LightModel> _lightmodel;
+    osg::ref_ptr<osgGA::CameraManipulator> _manip;
+
+    reme_surface_t _s;
+
     mode_t _mode;
   };
 }
