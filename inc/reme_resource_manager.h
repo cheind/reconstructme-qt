@@ -111,10 +111,6 @@ namespace ReconstructMeGUI {
     void initializing_sdk();
     void log_message(reme_log_severity_t sev, const QString &log);
 
-    void depth_size(const QSize*);
-    void rgb_size(const QSize*);
-    void phong_size(const QSize*);
-
     void current_fps(const float);
    
   private:
@@ -128,10 +124,6 @@ namespace ReconstructMeGUI {
     reme_sensor_t _s;
     reme_volume_t _v;
     reme_surface_t _p;
-
-    QSize *_rgb_size;
-    QSize *_phong_size;
-    QSize *_depth_size;
 
     bool _has_compiled_context;
     bool _has_sensor;

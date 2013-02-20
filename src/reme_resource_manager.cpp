@@ -135,8 +135,6 @@ namespace ReconstructMeGUI {
         reme_options_get_int(_c, o, "frame_info.aux_size.width", &w);
         reme_options_get_int(_c, o, "frame_info.aux_size.height", &h);
       }
-      _rgb_size = supports_aux ? new QSize(w, h) : 0;
-      emit rgb_size(_rgb_size);
       
       // DEPTH image
       reme_options_get_bool(_c, o, "frame_info.supports_depth", &supports_depth);
@@ -144,8 +142,6 @@ namespace ReconstructMeGUI {
         reme_options_get_int(_c, o, "frame_info.depth_size.width", &w);
         reme_options_get_int(_c, o, "frame_info.depth_size.height", &h);
       }
-      _depth_size = supports_depth ? new QSize(w, h) : 0;
-      emit depth_size(_depth_size);
     }
 
     _has_sensor = success;

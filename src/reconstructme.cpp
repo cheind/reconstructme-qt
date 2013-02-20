@@ -200,21 +200,21 @@ namespace ReconstructMeGUI {
   void reconstructme::show_frame(reme_sensor_image_t type, const void* data, int length, int width, int height, int channels, int num_bytes_per_channel, int row_stride) {
     switch(type) {
     case REME_IMAGE_AUX:
-      _ui->rgb_canvas->set_image_size(width, height);
-      _ui->rgb_canvas->set_image_data(data, length);
+      _ui->rgb_canvas->set_image(width, height, data, length);
       break;
     case REME_IMAGE_DEPTH:
-      _ui->depth_canvas->set_image_size(width, height);
-      _ui->depth_canvas->set_image_data(data, length);
+      _ui->depth_canvas->set_image(width, height, data, length);
       break;
     case REME_IMAGE_VOLUME:
-      _ui->rec_canvas->set_image_size(width, height);
-      _ui->rec_canvas->set_image_data(data, length);
+      _ui->rec_canvas->set_image(width, height, data, length);
       break;
     }
   }
 
   void reconstructme::toggle_mode() {
+    _fg->release(REME_IMAGE_AUX);
+    _fg->release(REME_IMAGE_DEPTH);
+    _fg->release(REME_IMAGE_VOLUME);
     disconnect(_fg.get(), SIGNAL(frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)), this, SLOT(show_frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)));
 
     if (_mode == PAUSE) {
@@ -228,9 +228,6 @@ namespace ReconstructMeGUI {
     }
     else if (_mode == PLAY) {
       _mode = PAUSE;
-      _fg->release(REME_IMAGE_AUX);
-      _fg->release(REME_IMAGE_DEPTH);
-      _fg->release(REME_IMAGE_VOLUME);
       _ui->stackedWidget->setCurrentWidget(_ui->surfacePage);
       request_surface();
       emit stop_scanning();
@@ -272,7 +269,6 @@ namespace ReconstructMeGUI {
       const float *normals, int num_normals,
       const unsigned *faces, int num_faces) 
   {
-    std::cout << "render_surface" << std::endl;
     _ui->viewer->stop_loading_animation();
 
     if (!has_surface) {

@@ -45,45 +45,36 @@
 namespace ReconstructMeGUI {
 
   QGLCanvas::QGLCanvas(QWidget* parent) : QGLWidget(parent),
-    _width(2),
-    _height(2)
+    _width(3),
+    _height(3)
   {
-    img = new QImage(_width, _height, QImage::Format_RGB888);
+    _img = std::shared_ptr<QImage>(new QImage(_width, _height, QImage::Format_RGB888));
   }
 
-  void QGLCanvas::set_image_size(int width, int height) {
-    if ((_width != width || _height != height) && width > 0 && height > 0) {
-      _width = width;
-      _height = height;
-      img = new QImage(_width, _height, QImage::Format_RGB888);
-    }
-  }
-
-  void QGLCanvas::set_image_data(const void *data, int length) {
-    if (data == 0)
+  void QGLCanvas::set_image(int width, int height, const void *data, int length) {
+    
+    if (width < 0 || height < 0 || data == 0)
       return;
 
-    memcpy((void*)img->bits(), data, length); 
+    if (_width != width || _height != height) {
+      _width = width;
+      _height = height;
+      _img = std::shared_ptr<QImage>(new QImage(_width, _height, QImage::Format_RGB888));
+    }
+
+    memcpy((void*)_img->bits(), data, length); 
     repaint();
+
   }
 
   void QGLCanvas::paintEvent(QPaintEvent* ev) {
     QPainter p(this);
 
-    if (!_has_data) {
-      p.fillRect(this->rect(), QColor(0, 0, 0));
-    } 
-    else {
-      //Set the painter to use a smooth scaling algorithm.
-      p.setRenderHint(QPainter::SmoothPixmapTransform, 1);
-      p.drawImage(this->rect(), *img);
-    }
-
+    //Set the painter to use a smooth scaling algorithm.
+    p.setRenderHint(QPainter::SmoothPixmapTransform, 1);
+    p.drawImage(this->rect(), *_img.get());
+    
     p.end();
-  }
-
-  void QGLCanvas::mouseReleaseEvent(QMouseEvent *event) {
-    emit mouse_released();
   }
 
 }

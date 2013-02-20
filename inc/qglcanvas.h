@@ -48,25 +48,16 @@ namespace ReconstructMeGUI {
       QGLCanvas(QWidget* parent = NULL);
       
     public slots:
-      void set_image_data(const void *data, int length);
-      /** Set the image to render in paintEvent */
-      void set_image_size(int width, int height);
+      void set_image(int width, int height, const void *data, int length);
 
     protected:
       /** Render the content of the image */
       virtual void paintEvent(QPaintEvent *event);
 
-      virtual void mouseReleaseEvent(QMouseEvent *event);
-
-    signals:
-      void mouse_released();
-
     private:
-      QImage *img;
-      QImage *default_img;
-      bool _has_data;
+      std::shared_ptr<QImage> _img;
       int _width;
-      int _height; 
+      int _height;
   };
 
 }
