@@ -189,6 +189,8 @@ namespace ReconstructMeGUI {
     _rm->connect(this, SIGNAL(generate_surface(const QSharedPointer<generation_options>, const QSharedPointer<decimation_options>)), SLOT(generate_surface(const QSharedPointer<generation_options>, const QSharedPointer<decimation_options>)));
     connect(_rm.get(), SIGNAL(surface(bool, const float *, int, const float *, int, const unsigned *, int)), SLOT(render_surface(bool, const float *, int, const float *, int, const unsigned *, int)));
     connect(_ui->btnGenerate, SIGNAL(clicked()), SLOT(request_surface()));
+    _rm->connect(this, SIGNAL(save_surface(const char *)), SLOT(save(const char *)));
+    connect(_ui->saveButton, SIGNAL(clicked()), SLOT(save()));
     connect(_ui->polygonRB, SIGNAL(toggled(bool)), SLOT(render_polygon(bool)));
     connect(_ui->wireframeRB, SIGNAL(toggled(bool)), SLOT(render_wireframe(bool)));
 
@@ -237,6 +239,8 @@ namespace ReconstructMeGUI {
 
   void reconstructme::request_surface()
   {
+    //_dialog_license->show();
+
     _ui->viewer->start_loading_animation();
     
     // Assumes that the timer is stopped.
@@ -250,7 +254,6 @@ namespace ReconstructMeGUI {
     QSharedPointer<generation_options> go(new generation_options);
     go->set_merge_duplicate_vertices(true);
     go->set_merge_radius((float)_ui->spMergeRadius->value());
-    go->set_merge_mode(generation_options_merge_type_USE_AVERAGE);
 
     // Decimate
     QSharedPointer<decimation_options> deco;
@@ -269,13 +272,14 @@ namespace ReconstructMeGUI {
       const float *normals, int num_normals,
       const unsigned *faces, int num_faces) 
   {
-
+    std::cout << "render_surface" << std::endl;
     _ui->viewer->stop_loading_animation();
 
     if (!has_surface) {
       QMessageBox::information(this, "Rendering Surface", "Could not create surface.", QMessageBox::Ok);
       return;
     }
+
 
     _ui->numTrianglesLE->setText(QString::number(num_faces));
     _ui->numVerticesLE->setText(QString::number(num_points));
@@ -333,7 +337,20 @@ namespace ReconstructMeGUI {
     _manip->home(0);
     _ui->viewer->start_rendering();
     
-    //_unlicensed_dialog->hide();
+    //_dialog_li->hide();
+  }
+
+  void reconstructme::save() {
+    const QString file_name = QFileDialog::getSaveFileName(this, tr("Save 3D Model"),
+      QDir::currentPath(),
+      tr("PLY files (*.ply);;OBJ files (*.obj);;3DS files (*.3ds);;STL files (*.stl);; RAW Volume (*.raw)"),
+      0);
+
+    if (file_name.isEmpty())
+      return;
+
+    emit save_surface(file_name.toStdString().c_str());
+
   }
 
   osg::ref_ptr<osg::PolygonMode> reconstructme::poly_mode() {

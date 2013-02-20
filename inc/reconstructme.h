@@ -114,15 +114,14 @@ namespace ReconstructMeGUI {
     void show_frame(reme_sensor_image_t type, const void* data, int length, int width, int height, int channels, int num_bytes_per_channel, int row_stride);
 
     void request_surface();
-
     void render_surface(bool has_surface,
       const float *points, int num_points,
       const float *normals, int num_normals,
       const unsigned *faces, int num_faces);
-
     void render_polygon(bool do_apply);
     void render_wireframe(bool do_apply);
     osg::ref_ptr<osg::PolygonMode> poly_mode();
+    void save();
 
   signals:
     /** This signal is emited when this objects constructor finished */
@@ -133,6 +132,7 @@ namespace ReconstructMeGUI {
     void generate_surface(
       const QSharedPointer<generation_options> go, 
       const QSharedPointer<decimation_options> deco);
+    void save_surface(const char *);
 
   protected:
      void	closeEvent(QCloseEvent *event);

@@ -297,13 +297,17 @@ namespace ReconstructMeGUI {
     if(has_surface)
     {
       // dezimation options
-      if (deco) {
+      if (deco) 
+      {
         deco->SerializeToString(&msg);
         reme_surface_bind_decimation_options(_c, _p, o);
         reme_options_set_bytes(_c, o, msg.c_str(), msg.size());
-        has_surface = has_surface && REME_SUCCESS(reme_surface_decimate(_c, _p));
+        has_surface = REME_SUCCESS(reme_surface_decimate(_c, _p));
       }
-
+    }
+    
+    if (has_surface)
+    {
       // data
       reme_surface_get_points(_c, _p, &points, &num_point_coordinates);
       reme_surface_get_normals(_c, _p, &normals, &num_normals_coordinates);
@@ -314,6 +318,16 @@ namespace ReconstructMeGUI {
       num_faces  = num_triangle_indices / 3;
     }
     emit surface(has_surface, points, num_points, normals, num_normals, faces, num_faces);
+  }
+
+  void reme_resource_manager::save(const char* filename) {
+    // Transform the mesh from world space to CAD space, so external viewers
+    // can cope better with the result.
+    float mat[16];
+    reme_transform_set_predefined(_c, REME_TRANSFORM_WORLD_TO_CAD, mat);
+    reme_surface_transform(_c, _p, mat);
+
+    reme_surface_save_to_file(_c, _p, filename);
   }
 
   void reme_resource_manager::reset_volume() {
@@ -340,11 +354,10 @@ namespace ReconstructMeGUI {
 
     reme_options_get_bytes(_c, o, &bytes, &length); 
 
-    opencl_info ocl_info;
-    ocl_info.ParseFromArray(bytes, length);
+    ocl.ParseFromArray(bytes, length);
   }
 
-  void reme_resource_manager::get_hardware_hashes(hardware& hashes) {
+  void reme_resource_manager::get_hardware_hashes(hardware &hashes) {
     const void *bytes;
     int length;
 

@@ -38,18 +38,6 @@ message generation_options {
   optional bool merge_duplicate_vertices = 1 [default = true];
   // Defines merge radius. Larger values will perform a simple decimation
   optional float merge_radius = 2 [default = 0.1];
-  
-  // Merge modus type
-  enum merge_type {
-    // For all vertices identified as duplicates use the first vertex as representative.
-    // Fast but inaccurate.
-    USE_FIRST = 0;
-    // For all vertices identified as duplicates use the average vertex position as representative.
-    // Slower but more accurate.
-    USE_AVERAGE = 1;
-  }
-  // How the merge is performed.
-  optional merge_type merge_mode = 3;
 }
 
 // Poisson surface generation options

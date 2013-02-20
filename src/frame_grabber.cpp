@@ -88,9 +88,11 @@ namespace ReconstructMeGUI {
     while (_do_grab && success)
     {
       // Prepare image and depth data
-      success = success && REME_SUCCESS(reme_sensor_grab(_rm->context(), _rm->sensor()));
+      reme_error_t err = reme_sensor_grab(_rm->context(), _rm->sensor());
 
-      if (_req_count[REME_IMAGE_AUX] > 0) {
+      success = REME_SUCCESS(err);
+
+      if (success && _req_count[REME_IMAGE_AUX] > 0) {
         const void* data;
         int length, width, height, channels, num_bytes_per_channel, row_stride;
         reme_sensor_prepare_image(_rm->context(), _rm->sensor(), REME_IMAGE_AUX);
@@ -100,7 +102,7 @@ namespace ReconstructMeGUI {
         emit frame(REME_IMAGE_AUX, data, length, width, height, channels, num_bytes_per_channel, row_stride);
       }
 
-      if (_req_count[REME_IMAGE_DEPTH] > 0) {
+      if (success && _req_count[REME_IMAGE_DEPTH] > 0) {
         const void* data;
         int length, width, height, channels, num_bytes_per_channel, row_stride;
         reme_sensor_prepare_image(_rm->context(), _rm->sensor(), REME_IMAGE_DEPTH);
@@ -110,7 +112,7 @@ namespace ReconstructMeGUI {
         emit frame(REME_IMAGE_DEPTH, data, length, width, height, channels, num_bytes_per_channel, row_stride);
       }
 
-      if (_req_count[REME_IMAGE_VOLUME] > 0) {
+      if (success && _req_count[REME_IMAGE_VOLUME] > 0) {
         const void* data;
         int length, width, height, channels, num_bytes_per_channel, row_stride;
         reme_sensor_prepare_image(_rm->context(), _rm->sensor(), REME_IMAGE_VOLUME);
