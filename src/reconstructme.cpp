@@ -185,10 +185,9 @@ namespace ReconstructMeGUI {
     _rm->connect(_ui->reset_button, SIGNAL(clicked()), SLOT(reset_volume()));
     connect(_rm.get(), SIGNAL(current_fps(const float)), SLOT(show_fps(const float)));
     qRegisterMetaType<QSharedPointer<generation_options>>("QSharedPointer<generation_options>");
-    qRegisterMetaType<QSharedPointer<decimation_options>>("QSharedPointer<decimation_options>");
-    _rm->connect(this, SIGNAL(generate_surface(const QSharedPointer<generation_options>, const QSharedPointer<decimation_options>)), SLOT(generate_surface(const QSharedPointer<generation_options>, const QSharedPointer<decimation_options>)));
+    _rm->connect(this, SIGNAL(generate_surface(const QSharedPointer<generation_options>, float)), SLOT(generate_surface(const QSharedPointer<generation_options>, float)));
     connect(_rm.get(), SIGNAL(surface(bool, const float *, int, const float *, int, const unsigned *, int)), SLOT(render_surface(bool, const float *, int, const float *, int, const unsigned *, int)));
-    connect(_ui->btnGenerate, SIGNAL(clicked()), SLOT(request_surface()));
+    connect(_ui->numTriangleSlider, SIGNAL(valueChanged(int)), SLOT(request_surface(int)));
     _rm->connect(this, SIGNAL(save_surface(const char *)), SLOT(save(const char *)));
     connect(_ui->saveButton, SIGNAL(clicked()), SLOT(save()));
     connect(_ui->polygonRB, SIGNAL(toggled(bool)), SLOT(render_polygon(bool)));
@@ -229,39 +228,31 @@ namespace ReconstructMeGUI {
     else if (_mode == PLAY) {
       _mode = PAUSE;
       _ui->stackedWidget->setCurrentWidget(_ui->surfacePage);
-      request_surface();
+      _ui->numTrianglesLE->setValue(0);
+      request_surface(100);
       emit stop_scanning();
     }
   }
 
-  void reconstructme::request_surface()
+  void reconstructme::request_surface(int face_decimation)
   {
     //_dialog_license->show();
 
-    _ui->viewer->start_loading_animation();
-    
     // Assumes that the timer is stopped.
     // Remove old geometry
     const unsigned int n = _geode_group->getNumChildren();             
     _geode_group->removeChildren(0, n);
 
-    _ui->viewer->stop_rendering();
+    _ui->viewer->start_loading_animation();
 
+    _ui->viewer->stop_rendering();
+    
     // surface options
     QSharedPointer<generation_options> go(new generation_options);
     go->set_merge_duplicate_vertices(true);
-    go->set_merge_radius((float)_ui->spMergeRadius->value());
+    
 
-    // Decimate
-    QSharedPointer<decimation_options> deco;
-    if (_ui->gbDecimation->isChecked()) {
-      deco = QSharedPointer<decimation_options>(new decimation_options);
-      deco->set_maximum_error((float)_ui->spMaximumError->value());
-      deco->set_maximum_faces(_ui->spMaximumFaces->value());
-      deco->set_maximum_vertices(_ui->spMaximumVertices->value());
-      deco->set_minimum_roundness(_ui->spMinRoundness->value());
-    }
-    emit generate_surface(go, deco);
+    emit generate_surface(go, face_decimation/100.f);
   }
 
   void reconstructme::render_surface( bool has_surface,
@@ -276,10 +267,8 @@ namespace ReconstructMeGUI {
       return;
     }
 
-
-    _ui->numTrianglesLE->setText(QString::number(num_faces));
-    _ui->numVerticesLE->setText(QString::number(num_points));
-
+    _ui->numTrianglesLE->setValue(num_faces);
+    _ui->numVerticesLE->setValue(num_points);
     osg::ref_ptr<osg::Geode> geode;
     osg::ref_ptr<osg::Geometry> geom;
 

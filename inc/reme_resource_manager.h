@@ -95,7 +95,7 @@ namespace ReconstructMeGUI {
      
     void generate_surface(
       const QSharedPointer<generation_options> go, 
-      const QSharedPointer<decimation_options> deco);
+      float face_decimation);
 
     void save(const char *filename);
 

@@ -267,9 +267,8 @@ namespace ReconstructMeGUI {
 
   void reme_resource_manager::generate_surface(
       QSharedPointer<generation_options> go,
-      QSharedPointer<decimation_options> deco)
+      float face_decimation)
   {
-     
     std::string msg;
     
     // options
@@ -290,12 +289,19 @@ namespace ReconstructMeGUI {
     int num_points, num_normals, num_faces;
     
     bool has_surface = REME_SUCCESS(reme_surface_generate(_c, _p, _v));
+    
     if(has_surface)
     {
       // dezimation options
-      if (deco) 
+      if (0.f < face_decimation && face_decimation < 1.f) 
       {
-        deco->SerializeToString(&msg);
+        reme_surface_get_triangles(_c, _p, &faces, &num_triangle_indices);
+        num_faces = num_triangle_indices / 3;
+        
+        decimation_options deco;
+        deco.set_maximum_faces(num_faces * face_decimation);
+        deco.SerializeToString(&msg);
+        
         reme_surface_bind_decimation_options(_c, _p, o);
         reme_options_set_bytes(_c, o, msg.c_str(), msg.size());
         has_surface = REME_SUCCESS(reme_surface_decimate(_c, _p));

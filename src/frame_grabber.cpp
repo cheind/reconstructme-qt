@@ -66,19 +66,11 @@ namespace ReconstructMeGUI {
   void frame_grabber::request(reme_image_t image)
   {
     _req_count[image] += 1;
-    
-    std::cout << "request_count[RGB]" << _req_count[REME_IMAGE_AUX] << std::endl;
-    std::cout << "request_count[DEP]" << _req_count[REME_IMAGE_DEPTH] << std::endl;
-    std::cout << "request_count[REC]" << _req_count[REME_IMAGE_VOLUME] << std::endl << std::endl;
   }
 
   void frame_grabber::release(reme_image_t image)
   {
     _req_count[image] = std::max<int>(0, _req_count[image] - 1);
-
-    std::cout << "request_count[RGB]" << _req_count[REME_IMAGE_AUX] << std::endl;
-    std::cout << "request_count[DEP]" << _req_count[REME_IMAGE_DEPTH] << std::endl;
-    std::cout << "request_count[REC]" << _req_count[REME_IMAGE_VOLUME] << std::endl << std::endl;
   }
 
   void frame_grabber::start(bool initialization_success) {
