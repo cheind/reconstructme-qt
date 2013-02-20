@@ -51,7 +51,7 @@ namespace ReconstructMeGUI {
     unlicensed_dialog(QWidget *parent = 0, Qt::WindowFlags flags = Qt::FramelessWindowHint);
     ~unlicensed_dialog();
 
-    virtual void showEvent(QShowEvent* event);
+    //virtual void showEvent(QShowEvent* event);
 
   private:
     Ui::unlicensedDialog *_ui;

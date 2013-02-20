@@ -50,17 +50,17 @@ namespace ReconstructMeGUI {
     delete _ui;
   }
 
-  void unlicensed_dialog::showEvent(QShowEvent* event)
-  {
-    QWidget* root = this;
-    while (root->parent() != 0) {
-      root = root->parentWidget();
-    }
-
-    int x = root->x() + (root->width()  - width() ) / 2;
-    int y = root->y() + (root->height() - height()) / 2;
-    
-    move(x, y);
-    this->setEnabled(true);
-  }
+  //void unlicensed_dialog::showEvent(QShowEvent* event)
+  //{
+  //  QWidget* root = this;
+  //  while (root->parent() != 0) {
+  //    root = root->parentWidget();
+  //  }
+  //
+  //  int x = root->x() + (root->width()  - width() ) / 2;
+  //  int y = root->y() + (root->height() - height()) / 2;
+  //  
+  //  move(x, y);
+  //  this->setEnabled(true);
+  //}
 }

@@ -50,6 +50,7 @@
 #include "about_dialog.h"
 #include "settings_dialog.h"
 #include "status_dialog.h"
+#include "unlicensed_dialog.h"
 
 #include <stdlib.h>
 
@@ -122,6 +123,7 @@ namespace ReconstructMeGUI {
     _dialog_license = new hardware_key_dialog(_rm, this);
     _dialog_about = new about_dialog(this);
     _dialog_state = new status_dialog(_rm, this);
+    _dialog_unlicensed = new unlicensed_dialog(this);
 
     _dialog_license->connect(_ui->actionGenerate_hardware_key, SIGNAL(triggered()), SLOT(show()));
     _dialog_log->connect(_ui->actionLog, SIGNAL(triggered()), SLOT(show()));
@@ -236,7 +238,8 @@ namespace ReconstructMeGUI {
 
   void reconstructme::request_surface(int face_decimation)
   {
-    //_dialog_license->show();
+    if (!_dialog_state->licensed())
+      _dialog_unlicensed->show();
 
     // Assumes that the timer is stopped.
     // Remove old geometry
@@ -251,8 +254,12 @@ namespace ReconstructMeGUI {
     QSharedPointer<generation_options> go(new generation_options);
     go->set_merge_duplicate_vertices(true);
     
-
     emit generate_surface(go, face_decimation/100.f);
+
+    _ui->play_button->setDisabled(true);
+    _ui->reset_button->setDisabled(true);
+    _ui->numTriangleSlider->setDisabled(true);
+    _ui->saveButton->setDisabled(true);
   }
 
   void reconstructme::render_surface( bool has_surface,
@@ -322,7 +329,12 @@ namespace ReconstructMeGUI {
     _manip->home(0);
     _ui->viewer->start_rendering();
     
-    //_dialog_li->hide();
+    _dialog_unlicensed->hide();
+    
+    _ui->play_button->setEnabled(true);
+    _ui->reset_button->setEnabled(true);
+    _ui->numTriangleSlider->setEnabled(true);
+    _ui->saveButton->setEnabled(true);
   }
 
   void reconstructme::save() {

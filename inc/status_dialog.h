@@ -63,6 +63,7 @@ namespace ReconstructMeGUI {
     
     const QPushButton *closeBtn();
     QPushButton *onlineHelpBtn();
+    bool licensed();
 
   public slots:
     void reset();

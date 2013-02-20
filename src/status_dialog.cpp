@@ -46,7 +46,8 @@ namespace ReconstructMeGUI {
   status_dialog::status_dialog(std::shared_ptr<reme_resource_manager> rm, QWidget *parent, Qt::WindowFlags f) : 
     QDialog(parent, f),
     _rm(rm),
-    _ui(new Ui::status_dialog)
+    _ui(new Ui::status_dialog),
+    _has_license(false)
   {
     _ui->setupUi(this);
 
@@ -192,7 +193,7 @@ namespace ReconstructMeGUI {
       case OPENCL:
         _dev_status_item->setIcon(icon);
         _dev_message_item->setText(message);
-        _has_license = success;
+        _has_device = success;
         break;
       case SENSOR:
         _sen_status_item->setIcon(icon);
@@ -201,7 +202,7 @@ namespace ReconstructMeGUI {
         break;
       case LICENSE:
         _lic_status_item->setIcon(icon);
-        _has_device = success;
+        _has_license = success;
         if (success) 
           _lic_message_item->setText("License applied successfully");
         else 
@@ -220,5 +221,9 @@ namespace ReconstructMeGUI {
 
   QPushButton *status_dialog::onlineHelpBtn() {
     return _ui->onlineHelpBtn;
+  }
+
+  bool status_dialog::licensed() {
+    return _has_license;
   }
 }

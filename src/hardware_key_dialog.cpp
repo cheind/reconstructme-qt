@@ -65,6 +65,7 @@ namespace ReconstructMeGUI {
     std::stringstream ss;
     ::google::protobuf::RepeatedPtrField< ::std::string>::const_iterator it;
 
+    _ui->hw_key_te->clear();
     for (it = hardware.hashes().begin(); it < hardware.hashes().end(); it++) 
       ss << "hashes: \"" << *it << "\"\n";
     

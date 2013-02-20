@@ -72,6 +72,7 @@ namespace ReconstructMeGUI {
   class status_dialog;
   class hardware_key_dialog;
   class reme_resource_manager;
+  class unlicensed_dialog;
   class frame_grabber;
 }
 
@@ -153,6 +154,7 @@ namespace ReconstructMeGUI {
     hardware_key_dialog *_dialog_license;
     about_dialog *_dialog_about;
     status_dialog *_dialog_state;
+    unlicensed_dialog *_dialog_unlicensed;
 
     // utils
     std::shared_ptr<reme_resource_manager> _rm;
