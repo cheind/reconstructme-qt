@@ -210,8 +210,11 @@ namespace ReconstructMeGUI {
   }
 
   void reme_resource_manager::start_scanning() {
+    reme_sensor_set_trackhint(_c, _s, REME_SENSOR_TRACKHINT_USE_GLOBAL);
+
     _fg->request(REME_IMAGE_DEPTH);
     connect(_fg.get(), SIGNAL(frames_updated()), SLOT(scan()));
+
     _lost_track_prev = true;
     _cnt = 0;
     _c0 = clock();
@@ -239,12 +242,6 @@ namespace ReconstructMeGUI {
       if (_lost_track_prev) {
         // track found
         _lost_track_prev = false;
-        reme_options_t o;
-        reme_options_create(_c, &o);
-        reme_context_bind_reconstruction_options(_c, o);
-        reme_options_set(_c, o, "camera_tracking.search_mode", "AUTO");
-        reme_options_destroy(_c, &o);
-        //emit status_bar_msg(camera_track_found_tag, STATUS_MSG_DURATION);
       }
       // Update volume with depth data from the current sensor perspective
       success = success && REME_SUCCESS(reme_sensor_update_volume(_c, _s));
@@ -252,16 +249,6 @@ namespace ReconstructMeGUI {
     else if (!_lost_track_prev) {
       // track lost
       _lost_track_prev = true;
-      reme_options_t o;
-      reme_options_create(_c, &o);
-      reme_context_bind_reconstruction_options(_c, o);
-      reme_options_set(_c, o, "camera_tracking.search_mode", "GLOBAL");
-      reme_options_destroy(_c, &o);
-      //emit status_bar_msg(camera_track_lost_tag);
-    }
-
-    if (!success) {
-      //emit status_bar_msg(something_went_wrong_tag, STATUS_MSG_DURATION);
     }
   }
 
@@ -281,7 +268,6 @@ namespace ReconstructMeGUI {
       reme_surface_bind_generation_options(_c, _p, o);
       reme_options_set_bytes(_c, o, msg.c_str(), msg.size());
     }
-  
 
     const unsigned *faces;
     const float *points, *normals;
