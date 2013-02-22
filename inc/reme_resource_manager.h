@@ -97,7 +97,7 @@ namespace ReconstructMeGUI {
       const QSharedPointer<generation_options> go, 
       float face_decimation);
 
-    void save(const char *filename);
+    void save(const QString &filename);
 
   signals:
     void surface(bool has_surface,

@@ -308,14 +308,14 @@ namespace ReconstructMeGUI {
     emit surface(has_surface, points, num_points, normals, num_normals, faces, num_faces);
   }
 
-  void reme_resource_manager::save(const char* filename) {
+  void reme_resource_manager::save(const QString &filename) {
     // Transform the mesh from world space to CAD space, so external viewers
     // can cope better with the result.
     float mat[16];
     reme_transform_set_predefined(_c, REME_TRANSFORM_WORLD_TO_CAD, mat);
     reme_surface_transform(_c, _p, mat);
 
-    reme_surface_save_to_file(_c, _p, filename);
+    reme_surface_save_to_file(_c, _p, filename.toStdString().c_str());
   }
 
   void reme_resource_manager::reset_volume() {

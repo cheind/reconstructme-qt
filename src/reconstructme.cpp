@@ -190,7 +190,7 @@ namespace ReconstructMeGUI {
     _rm->connect(this, SIGNAL(generate_surface(const QSharedPointer<generation_options>, float)), SLOT(generate_surface(const QSharedPointer<generation_options>, float)));
     connect(_rm.get(), SIGNAL(surface(bool, const float *, int, const float *, int, const unsigned *, int)), SLOT(render_surface(bool, const float *, int, const float *, int, const unsigned *, int)));
     connect(_ui->numTriangleSlider, SIGNAL(valueChanged(int)), SLOT(request_surface(int)));
-    _rm->connect(this, SIGNAL(save_surface(const char *)), SLOT(save(const char *)));
+    _rm->connect(this, SIGNAL(save_surface(const QString &)), SLOT(save(const QString &)));
     connect(_ui->saveButton, SIGNAL(clicked()), SLOT(save()));
     connect(_ui->polygonRB, SIGNAL(toggled(bool)), SLOT(render_polygon(bool)));
     connect(_ui->wireframeRB, SIGNAL(toggled(bool)), SLOT(render_wireframe(bool)));
@@ -346,7 +346,7 @@ namespace ReconstructMeGUI {
     if (file_name.isEmpty())
       return;
 
-    emit save_surface(file_name.toStdString().c_str());
+    emit save_surface(file_name);
 
   }
 

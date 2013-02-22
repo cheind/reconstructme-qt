@@ -130,9 +130,8 @@ namespace ReconstructMeGUI {
     void closing();
     void start_scanning();
     void stop_scanning();
-    void generate_surface(
-      const QSharedPointer<generation_options> go, float);
-    void save_surface(const char *);
+    void generate_surface(const QSharedPointer<generation_options> go, float);
+    void save_surface(const QString &);
 
   protected:
      void	closeEvent(QCloseEvent *event);
