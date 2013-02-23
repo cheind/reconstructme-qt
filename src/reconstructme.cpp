@@ -36,7 +36,6 @@
 #include "reconstructme.h"
 #include "ui_reconstructmeqt.h"
 
-#include "scan.h"
 #include "reme_resource_manager.h"
 #include "frame_grabber.h"
 
