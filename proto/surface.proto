@@ -53,8 +53,9 @@ message poisson_options {
 
 // Mesh decimation options
 message decimation_options {
-  optional int32 maximum_faces = 1 [default = 100000];
-  optional int32 maximum_vertices = 2 [default = 0];
-  optional float maximum_error = 3 [default = 100000];
-  optional float minimum_roundness = 4 [default = 0];
+  optional int32 maximum_faces = 1 [default = 100000];  
+  optional float maximum_quadric_error = 2 [default = 100000];
+  optional float minimum_triangle_roundness = 3 [default = 0.1];
+  optional float maximum_angle_error = 4 [default = 90];
+  optional bool preserve_boundary = 5 [default = true];
 }
