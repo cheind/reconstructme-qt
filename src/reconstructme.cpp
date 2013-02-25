@@ -194,6 +194,10 @@ namespace ReconstructMeGUI {
     connect(_ui->polygonRB, SIGNAL(toggled(bool)), SLOT(render_polygon(bool)));
     connect(_ui->wireframeRB, SIGNAL(toggled(bool)), SLOT(render_wireframe(bool)));
 
+    _ui->rgb_canvas->connect(_rm.get(), SIGNAL(initializing_sdk()), SLOT(fill()));
+    _ui->depth_canvas->connect(_rm.get(), SIGNAL(initializing_sdk()), SLOT(fill()));
+    _ui->rec_canvas->connect(_rm.get(), SIGNAL(initializing_sdk()), SLOT(fill()));
+
     emit initialize();
   }
 

@@ -34,8 +34,8 @@
 #pragma once
 
 #include <QtOpenGL/QGLWidget>
-
 #include <QImage>
+#include <QColor>
 
 namespace ReconstructMeGUI {
 
@@ -49,6 +49,7 @@ namespace ReconstructMeGUI {
       
     public slots:
       void set_image(int width, int height, const void *data, int length);
+      void fill(const QColor &color = QColor(100, 100, 100));
 
     protected:
       /** Render the content of the image */

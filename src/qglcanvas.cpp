@@ -49,6 +49,11 @@ namespace ReconstructMeGUI {
     _height(3)
   {
     _img = std::shared_ptr<QImage>(new QImage(_width, _height, QImage::Format_RGB888));
+    fill();
+  }
+
+  void QGLCanvas::fill(const QColor &color) {
+    _img->fill(color);
   }
 
   void QGLCanvas::set_image(int width, int height, const void *data, int length) {
