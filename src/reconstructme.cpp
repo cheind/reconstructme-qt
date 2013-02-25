@@ -185,10 +185,9 @@ namespace ReconstructMeGUI {
     connect(_ui->play_button, SIGNAL(clicked()), SLOT(toggle_mode()));
     _rm->connect(_ui->reset_button, SIGNAL(clicked()), SLOT(reset_volume()));
     connect(_rm.get(), SIGNAL(current_fps(const float)), SLOT(show_fps(const float)));
-    qRegisterMetaType<QSharedPointer<generation_options>>("QSharedPointer<generation_options>");
-    _rm->connect(this, SIGNAL(generate_surface(const QSharedPointer<generation_options>, float)), SLOT(generate_surface(const QSharedPointer<generation_options>, float)));
+    connect(_ui->numTriangleSlider, SIGNAL(valueChanged(int)), SLOT(request_surface()));
+    _rm->connect(this, SIGNAL(generate_surface(float)), SLOT(generate_surface(float)));
     connect(_rm.get(), SIGNAL(surface(bool, const float *, int, const float *, int, const unsigned *, int)), SLOT(render_surface(bool, const float *, int, const float *, int, const unsigned *, int)));
-    connect(_ui->numTriangleSlider, SIGNAL(valueChanged(int)), SLOT(request_surface(int)));
     _rm->connect(this, SIGNAL(save_surface(const QString &)), SLOT(save(const QString &)));
     connect(_ui->saveButton, SIGNAL(clicked()), SLOT(save()));
     connect(_ui->polygonRB, SIGNAL(toggled(bool)), SLOT(render_polygon(bool)));
@@ -234,12 +233,12 @@ namespace ReconstructMeGUI {
       _mode = PAUSE;
       _ui->stackedWidget->setCurrentWidget(_ui->surfacePage);
       _ui->numTrianglesLE->setValue(0);
-      request_surface(100);
+      request_surface();
       emit stop_scanning();
     }
   }
 
-  void reconstructme::request_surface(int face_decimation)
+  void reconstructme::request_surface()
   {
     if (!_dialog_state->licensed())
       _dialog_unlicensed->show();
@@ -252,12 +251,9 @@ namespace ReconstructMeGUI {
     _ui->viewer->start_loading_animation();
 
     _ui->viewer->stop_rendering();
-    
-    // surface options
-    QSharedPointer<generation_options> go(new generation_options);
-    go->set_merge_duplicate_vertices(true);
-    
-    emit generate_surface(go, face_decimation/100.f);
+
+    int face_decimation = _ui->numTriangleSlider->value();
+    emit generate_surface(face_decimation/100.f);
 
     _ui->play_button->setDisabled(true);
     _ui->reset_button->setDisabled(true);

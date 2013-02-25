@@ -252,9 +252,7 @@ namespace ReconstructMeGUI {
     }
   }
 
-  void reme_resource_manager::generate_surface(
-      QSharedPointer<generation_options> go,
-      float face_decimation)
+  void reme_resource_manager::generate_surface(float face_decimation)
   {
     std::string msg;
     
@@ -262,12 +260,37 @@ namespace ReconstructMeGUI {
     reme_options_t o;
     reme_options_create(_c, &o);
 
+    reme_context_bind_reconstruction_options(_c, o);    
+    
+    // volume information
+    int res_x, res_y, res_z;
+    int min_x, min_y, min_z;
+    int max_x, max_y, max_z;
+    reme_options_get_int(_c, o, "volume.resolution.x", &res_x);
+    reme_options_get_int(_c, o, "volume.resolution.y", &res_y);
+    reme_options_get_int(_c, o, "volume.resolution.z", &res_z);
+    reme_options_get_int(_c, o, "volume.minimum_corner.x", &min_x);
+    reme_options_get_int(_c, o, "volume.minimum_corner.y", &min_y);
+    reme_options_get_int(_c, o, "volume.minimum_corner.z", &min_z);
+    reme_options_get_int(_c, o, "volume.maximum_corner.x", &max_x);
+    reme_options_get_int(_c, o, "volume.maximum_corner.y", &max_y);
+    reme_options_get_int(_c, o, "volume.maximum_corner.z", &max_z);
+    
+    float vox_x, vox_y, vox_z;
+    vox_x = std::abs(max_x - min_x) / (float)res_x;
+    vox_y = std::abs(max_y - min_y) / (float)res_y;
+    vox_z = std::abs(max_z - min_z) / (float)res_z;
+
+    float min_vox = std::min(vox_x, std::min(vox_y, vox_z));
+    float merge_radius = min_vox * 0.1f;
+
     // generation options
-    if (go) {
-      go->SerializeToString(&msg);
-      reme_surface_bind_generation_options(_c, _p, o);
-      reme_options_set_bytes(_c, o, msg.c_str(), msg.size());
-    }
+    generation_options go;
+    go.set_merge_duplicate_vertices(true);
+    go.set_merge_radius(merge_radius);
+    go.SerializeToString(&msg);
+    reme_surface_bind_generation_options(_c, _p, o);
+    reme_options_set_bytes(_c, o, msg.c_str(), msg.size());
 
     const unsigned *faces;
     const float *points, *normals;
@@ -275,10 +298,10 @@ namespace ReconstructMeGUI {
     int num_points, num_normals, num_faces;
     
     bool has_surface = REME_SUCCESS(reme_surface_generate(_c, _p, _v));
-    
+
     if(has_surface)
     {
-      // dezimation options
+      // decimation options
       if (0.f < face_decimation && face_decimation < 1.f) 
       {
         reme_surface_get_triangles(_c, _p, &faces, &num_triangle_indices);
@@ -296,7 +319,7 @@ namespace ReconstructMeGUI {
     
     if (has_surface)
     {
-      // data
+      // retrieve data
       reme_surface_get_points(_c, _p, &points, &num_point_coordinates);
       reme_surface_get_normals(_c, _p, &normals, &num_normals_coordinates);
       reme_surface_get_triangles(_c, _p, &faces, &num_triangle_indices);

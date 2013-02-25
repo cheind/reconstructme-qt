@@ -93,9 +93,7 @@ namespace ReconstructMeGUI {
     void scan();
     void reset_volume();
      
-    void generate_surface(
-      const QSharedPointer<generation_options> go, 
-      float face_decimation);
+    void generate_surface(float face_decimation);
 
     void save(const QString &filename);
 

@@ -114,7 +114,7 @@ namespace ReconstructMeGUI {
     void really_close();
     void show_frame(reme_sensor_image_t type, const void* data, int length, int width, int height, int channels, int num_bytes_per_channel, int row_stride);
 
-    void request_surface(int);
+    void request_surface();
     void render_surface(bool has_surface,
       const float *points, int num_points,
       const float *normals, int num_normals,
@@ -130,7 +130,7 @@ namespace ReconstructMeGUI {
     void closing();
     void start_scanning();
     void stop_scanning();
-    void generate_surface(const QSharedPointer<generation_options> go, float);
+    void generate_surface(float);
     void save_surface(const QString &);
 
   protected:

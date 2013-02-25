@@ -46,7 +46,7 @@ message poisson_options {
   optional int32 solver_divide = 2 [default = 8];
   optional int32 iso_divide = 3 [default = 8];
   optional int32 minimum_samples_per_node = 4 [default = 1];
-  optional float scale = 5 [default = 1];  
+  optional float scale = 5 [default = 1.25];  
   optional bool enable_manifold = 6 [default = true];  
   optional int32 minimum_depth = 7 [default = 5];
 }
