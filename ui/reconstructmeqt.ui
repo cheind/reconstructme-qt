@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>ReconstructMeQt</string>
+   <string>ReconstructMe</string>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
