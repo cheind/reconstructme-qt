@@ -62,6 +62,7 @@ namespace ReconstructMeGUI {
     _has_valid_license(false),
     _c(0)
   {
+    reme_context_create(&_c);
   }
 
   reme_resource_manager::~reme_resource_manager() {
@@ -275,7 +276,7 @@ namespace ReconstructMeGUI {
     reme_options_get_int(_c, o, "volume.maximum_corner.x", &max_x);
     reme_options_get_int(_c, o, "volume.maximum_corner.y", &max_y);
     reme_options_get_int(_c, o, "volume.maximum_corner.z", &max_z);
-    
+
     float vox_x, vox_y, vox_z;
     vox_x = std::abs(max_x - min_x) / (float)res_x;
     vox_y = std::abs(max_y - min_y) / (float)res_y;
