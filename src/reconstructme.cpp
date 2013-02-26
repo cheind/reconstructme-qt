@@ -279,7 +279,7 @@ namespace ReconstructMeGUI {
     osg::ref_ptr<osg::Geometry> geom;
 
     geom = new osg::Geometry();
-    geom->setUseDisplayList(true);
+    geom->setUseDisplayList(num_faces < 500000);
     geom->setUseVertexBufferObjects(false);
 
     typedef osg::TemplateIndexArray<unsigned int, osg::Array::UIntArrayType, 24, 4> index_array_type;
