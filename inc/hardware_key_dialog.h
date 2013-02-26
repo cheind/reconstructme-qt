@@ -63,6 +63,10 @@ namespace ReconstructMeGUI {
 
     void set_hashes();
 
+    void apply_license();
+
+    void browse_license();
+
   private:
     Ui::hardware_key_dialog *_ui;
     std::shared_ptr<reme_resource_manager> _rm;

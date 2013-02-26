@@ -67,45 +67,17 @@ namespace ReconstructMeGUI {
     virtual void accept();
     /** Discard changes */
     virtual void reject();
-    /** Set a specific path */
-    void set_settings_path(const QString &file_path, init_t type);
+
   private slots:
-    /** Open file dialog */
-    void browse_config_button_clicked();
-    /** Open file dialog */
-    void browse_sensor_button_clicked();
-    /** Open file dialog */
-    void browse_license_file_clicked();
-    /** Load default settings */
-    void create_default_settings();
-    /** Get a list of opencl devices on the current Platform*/
-    void init_opencl_device_widget();
-    /** Apply changes when a selected file changed (was edited) outside this application */
-    void trigger_scanner_with_file(const QString &file_path);
+    void refresh_entries();
 
-  signals:
-    /** Reports a change of the selected sensor */
-    void initialize();
-  
+    void apply_changed_file(const QString &);
+
   private:
-    /** Private helper function for easy file_dialog interaction */
-    QString get_file_from_dialog(QString &current_path, QString &filter);
-
-    // Members
     Ui::settings_dialog *_ui;
-    
     std::shared_ptr<reme_resource_manager> _rm;
 
-    // Paths
-    QString _cfg_path;
-    QString _sens_path;
-    QString _license_file;
-
-    // Paths utils
-    QFileSystemWatcher *_file_watcher;
-
-    // Selected device
-    int _device_id;
+    QFileSystemWatcher *_fw;
   };
 
 }

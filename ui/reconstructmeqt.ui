@@ -438,6 +438,7 @@
      <string>File</string>
     </property>
     <addaction name="actionSettings"/>
+    <addaction name="actionGenerate_hardware_key"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -450,7 +451,6 @@
     <addaction name="actionDevice"/>
     <addaction name="actionFAQ_2"/>
     <addaction name="separator"/>
-    <addaction name="actionGenerate_hardware_key"/>
     <addaction name="actionLog"/>
     <addaction name="separator"/>
     <addaction name="actionAbout"/>

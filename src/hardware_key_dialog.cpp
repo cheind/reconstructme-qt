@@ -36,11 +36,16 @@
 
 #include "hardware.pb.h"
 
+#include "settings.h"
+
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QSettings>
+#include <QDir>
 
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 namespace ReconstructMeGUI {
   hardware_key_dialog::hardware_key_dialog(std::shared_ptr<reme_resource_manager> rm, QWidget *parent) : 
@@ -51,10 +56,51 @@ namespace ReconstructMeGUI {
     _ui->setupUi(this);
     setModal(true);
     
+    QSettings s(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
+    QString license = s.value(license_file_tag, license_file_default_tag).value<QString>();
+    _ui->le_license->setText(license);
+
     // connections
     connect(_ui->cp_clipboard_btn, SIGNAL(clicked()), SLOT(copy_keys_to_clipboard()));
     connect(_ui->save_btn, SIGNAL(clicked()), SLOT(save_keys()));
     connect(rm.get(), SIGNAL(sdk_initialized(bool)), SLOT(set_hashes()));
+    connect(_ui->pb_apply, SIGNAL(clicked()), SLOT(apply_license()));
+    connect(_ui->pb_browse, SIGNAL(clicked()), SLOT(browse_license()));
+  }
+
+  hardware_key_dialog::~hardware_key_dialog() 
+  {
+    delete _ui;
+  }
+
+  void hardware_key_dialog::browse_license() 
+  {
+    QSettings s(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
+    QString license = s.value(license_file_tag, license_file_default_tag).value<QString>();
+    
+    QString fd_path = QDir::currentPath();
+    if (QString::compare(license, license_file_default_tag) != 0)
+      if (QFileInfo(license).exists())
+        fd_path = license;
+      
+    QString license_path = QFileDialog::getOpenFileName(
+      this, "Open License File", fd_path, "License File (*.sgn)");
+
+    if (license_path.isEmpty())
+      return;
+
+    _ui->le_license->setText(license_path);
+  }
+
+  void hardware_key_dialog::apply_license() 
+  {
+    QString license_path = _ui->le_license->text();
+    
+    QSettings s(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
+    s.setValue(license_file_tag, license_path);
+
+    QMetaObject::invokeMethod(_rm.get(), "initialize", Qt::QueuedConnection);
+    hide();
   }
 
   void hardware_key_dialog::set_hashes()
@@ -93,10 +139,5 @@ namespace ReconstructMeGUI {
     _ui->hw_key_te->copy();
 
     QMessageBox::information(this, "Copy", "Copied hardware keys to clipboard", QMessageBox::Ok);
-  }
-
-  hardware_key_dialog::~hardware_key_dialog() 
-  {
-    delete _ui;
   }
 }

@@ -43,6 +43,7 @@
 #include <QStringList>
 #include <QFileSystemWatcher>
 #include <QMessageBox>
+#include <QComboBox>
 
 #include <iostream>
 
@@ -56,196 +57,116 @@ namespace ReconstructMeGUI {
     // setup this
     _ui->setupUi(this);
 
-    _file_watcher = new QFileSystemWatcher(this);
-    connect(_file_watcher, SIGNAL(fileChanged(const QString &)), SLOT(trigger_scanner_with_file(const QString &)));
+    _fw = new QFileSystemWatcher(this);
+    connect(_fw, SIGNAL(fileChanged(const QString &)), SLOT(apply_changed_file(const QString &)));
 
-    // create default settings at first program start or restore settings
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
-
-    _device_id    = settings.value(opencl_device_tag, opencl_device_default_tag).toInt();
-    _sens_path    = settings.value(sensor_path_tag, sensor_path_default_tag).toString();
-    _cfg_path     = settings.value(config_path_tag, config_path_default_tag).toString();
-    _license_file = settings.value(license_file_tag, license_file_default_tag).toString();
-    
-    if (QFile::exists(_sens_path))    _file_watcher->addPath(_sens_path);
-    if (QFile::exists(_cfg_path))     _file_watcher->addPath(_cfg_path);
-    if (QFile::exists(_license_file)) _file_watcher->addPath(_license_file);
-
-    settings.setValue(sensor_path_tag, _sens_path);
-    settings.setValue(opencl_device_tag, _device_id);
-    settings.setValue(config_path_tag, _cfg_path);
-    settings.setValue(license_file_tag, _license_file);
-    settings.sync();
-
-    // update textboxes
-    _ui->config_path_tb->setText(_cfg_path);
-    _ui->sensor_path_tb->setText(_sens_path);
-    _ui->license_file_tb->setText(_license_file);
-
-    // devices from ReconstructMe SDK
-    connect(_rm.get(), SIGNAL(sdk_initialized(bool)), SLOT(init_opencl_device_widget()));
-
-    connect(_ui->browse_button_config,  SIGNAL(clicked()), SLOT(browse_config_button_clicked()));
-    connect(_ui->browse_button_sensor,  SIGNAL(clicked()), SLOT(browse_sensor_button_clicked()));
-    connect(_ui->browse_button_license, SIGNAL(clicked()), SLOT(browse_license_file_clicked()));
-
-    _rm->connect(this, SIGNAL(initialize()), SLOT(initialize()));
-
-    QAbstractButton *restore_btn = _ui->buttonBox->button(QDialogButtonBox::RestoreDefaults);
-    connect(restore_btn, SIGNAL(clicked()), SLOT(create_default_settings()));
+    refresh_entries();
   }
 
-
-  void settings_dialog::init_opencl_device_widget() {
-    _ui->device_list_widget->clear();
-
-    opencl_info ocl_info;
-    _rm->get_opencl_info(ocl_info);
-
-    ::google::protobuf::RepeatedPtrField<opencl_info_device>::const_iterator it;
-    for (it = ocl_info.devices().begin(); it < ocl_info.devices().end(); it++) {
-      QString device (it->name().c_str());
-      _ui->device_list_widget->addItem(new QListWidgetItem(device.trimmed()));
-    }
-    
-    if (_device_id == opencl_device_default_tag)
-      _ui->ocl_device_auto_cb->setChecked(true);
-    else 
-      _ui->device_list_widget->setCurrentRow(_device_id);
-  }
-
-  settings_dialog::~settings_dialog() {
+  settings_dialog::~settings_dialog() 
+  {
     delete _ui;
   }
 
-  void settings_dialog::set_settings_path(const QString &file_path, init_t type) {
-    switch(type) {
-      case LICENSE:
-        _ui->license_file_tb->setText(file_path);
-        accept();
-        break;
-      case OPENCL:
-        _ui->config_path_tb->setText(file_path);
-        accept();
-        break;
-      case SENSOR:
-        _ui->sensor_path_tb->setText(file_path);
-        accept();
-        break;
-    }
+  void settings_dialog::apply_changed_file(const QString &file) 
+  {
+    if (QMessageBox::Yes == QMessageBox::information(this, "File Content Changed", "File " + file + " changed. Apply Changes?", QMessageBox::Yes, QMessageBox::No))
+      QMetaObject::invokeMethod(_rm.get(), "initialize", Qt::QueuedConnection);
   }
 
-  void settings_dialog::accept() {
-    // remove old once from filesystemwatcher
-    if (QFile::exists(_sens_path))    _file_watcher->removePath(_sens_path);
-    if (QFile::exists(_cfg_path))     _file_watcher->removePath(_cfg_path);
-    if (QFile::exists(_license_file)) _file_watcher->removePath(_license_file);
+  void settings_dialog::refresh_entries() 
+  {
+    QSettings s(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
 
-    _cfg_path     = _ui->config_path_tb->text();
-    _sens_path    = _ui->sensor_path_tb->text();
-    _license_file = _ui->license_file_tb->text();
+    QString config = s.value(config_path_tag, config_path_default_tag).toString();
+    QString sensor = s.value(sensor_path_tag, sensor_path_default_tag).toString();
+    int device = s.value(devcice_id_tag, -1).toInt();
 
-    // add to filesystemwatcher
-    if (QFile::exists(_sens_path))    _file_watcher->addPath(_sens_path);
-    if (QFile::exists(_cfg_path))     _file_watcher->addPath(_cfg_path);
-    if (QFile::exists(_license_file)) _file_watcher->addPath(_license_file);
+    QDir dir = QDir::current();
+    dir.setFilter(QDir::Files);
+    dir.setSorting(QDir::Name);
 
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
+    dir.cd("cfg");
+    QStringList config_list = dir.entryList();
+    QComboBox &lw_config = *_ui->lw_config;
+    lw_config.clear();
+    lw_config.addItem("AUTO: Default Configuration", config_path_default_tag);
+    lw_config.setCurrentIndex(0);
+    std::for_each(config_list.begin(), config_list.end(), [&lw_config, &dir, &config](QString &c) {
+      lw_config.addItem(QFileInfo(c).baseName(), dir.absoluteFilePath(c));
+      if (QString::compare(QFileInfo(config).fileName(), QFileInfo(c).fileName()) == 0)
+        lw_config.setCurrentIndex(lw_config.count()-1);
+    });
 
-    // get current device selection
-    if (_ui->ocl_device_auto_cb->isChecked()) {
-      _device_id = opencl_device_default_tag;
+    dir.cd("sensor");
+    QStringList sensor_list = dir.entryList();
+    QComboBox &lw_sensor = *_ui->lw_sensor;
+    lw_sensor.clear();
+    lw_sensor.addItem("AUTO: Let ReconstructMe Chosse A Sensor", sensor_path_default_tag);
+    lw_sensor.setCurrentIndex(0);
+    std::for_each(sensor_list.begin(), sensor_list.end(), [&lw_sensor, &dir, &sensor](QString &s) {
+      lw_sensor.addItem(QFileInfo(s).baseName(), dir.absoluteFilePath(s));
+      if (QString::compare(QFileInfo(sensor).fileName(), QFileInfo(s).fileName()) == 0)
+        lw_sensor.setCurrentIndex(lw_sensor.count()-1);
+    });
+
+    opencl_info ocl;
+    _rm->get_opencl_info(ocl);
+    QComboBox &lw_device = *_ui->lw_device;
+    lw_device.clear();
+    lw_device.addItem("AUTO: Autoselect Best Device", -1);
+    lw_config.setCurrentIndex(0);
+    int cnt = 0;
+    std::for_each(ocl.devices().begin(), ocl.devices().end(), [&lw_device, &device, &cnt](const opencl_info_device &dev) {
+      lw_device.addItem(dev.name().c_str(), cnt);
+      if (device == cnt) 
+        lw_device.setCurrentIndex(lw_device.count()-1);
+      cnt++;
+    });
+  }
+
+  void settings_dialog::accept() 
+  { 
+    _fw->removePaths(_fw->files()); // Remove watched paths
+
+    QDir dir = QDir::current();
+    dir.cd("cfg");
+    QString config = _ui->lw_config->itemData(_ui->lw_config->currentIndex()).value<QString>();
+    QString config_path;
+    if (QFileInfo(dir.absoluteFilePath(config)).exists() && QFileInfo(dir.absoluteFilePath(config)).isFile()) {
+      _fw->addPath(config);
+      config_path = dir.absoluteFilePath(config);
     }
     else {
-      QListWidgetItem* item = _ui->device_list_widget->currentItem();
-      if (!item) {
-        // no selection, use preferred
-        _device_id = opencl_device_default_tag;
-        _ui->ocl_device_auto_cb->setChecked(true);
-      }
-      else {
-        _device_id = _ui->device_list_widget->row(item);      
-      }
+      config_path = config_path_default_tag;
     }
     
-    // if an option changed
-    if ((settings.value(config_path_tag, config_path_default_tag).toString()   != _cfg_path)     ||
-        (settings.value(opencl_device_tag, opencl_device_default_tag).toInt()  != _device_id)    ||  
-        (settings.value(license_file_tag, license_file_default_tag).toString() != _license_file) ||
-        (settings.value(sensor_path_tag, sensor_path_default_tag).toString()   != _sens_path)      )
-      emit initialize();
+    dir.cd("sensor");
+    QString sensor = _ui->lw_sensor->itemData(_ui->lw_sensor->currentIndex()).value<QString>();
+    QString sensor_path;
+    if (QFileInfo(dir.absoluteFilePath(sensor)).exists() && QFileInfo(dir.absoluteFilePath(sensor)).isFile()) {
+      _fw->addPath(sensor);
+      sensor_path = dir.absoluteFilePath(sensor);
+    }
+    else {
+      sensor_path = sensor_path_default_tag;
+    }
+    
+    int device = _ui->lw_device->itemData(_ui->lw_device->currentIndex()).value<int>();
+    
+    QSettings s(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
+    s.setValue(config_path_tag, config_path);
+    s.setValue(sensor_path_tag, sensor_path);
+    s.setValue(devcice_id_tag, device);
+    s.sync();
 
-    // persist changes
-    settings.setValue(config_path_tag, _cfg_path);
-    settings.setValue(sensor_path_tag, _sens_path); // find preferred sensor
-    settings.setValue(license_file_tag, _license_file);
-    settings.setValue(opencl_device_tag, _device_id); 
-    settings.sync();
-
+    QMetaObject::invokeMethod(_rm.get(), "initialize", Qt::QueuedConnection);
     hide();
   }
 
-  void settings_dialog::reject() {
-    // restore values
-    _ui->config_path_tb->setText(_cfg_path);
-    _ui->sensor_path_tb->setText(_sens_path);
-    _ui->license_file_tb->setText(_license_file);
-
-    if (_device_id == opencl_device_default_tag)
-      _ui->ocl_device_auto_cb->setChecked(true);
-    else 
-      _ui->device_list_widget->setCurrentRow(_device_id);
-
-    // and hide
+  void settings_dialog::reject() 
+  {
     hide();
   }
 
-  void settings_dialog::create_default_settings() {
-    // update ui
-    _ui->config_path_tb->setText(config_path_default_tag);
-    _ui->sensor_path_tb->setText(sensor_path_default_tag);
-    _ui->license_file_tb->setText(license_file_default_tag);
-    _ui->ocl_device_auto_cb->setChecked(true);
-  }
-
-  QString settings_dialog::get_file_from_dialog(QString &current_path, QString &filter) {
-
-    QFileInfo fi(current_path);
-    QString file_name = QFileDialog::getOpenFileName(this, tr("Open File"),
-                                                     fi.absolutePath(),
-                                                     filter);
-
-    return file_name;
-  }
-
-  void settings_dialog::browse_config_button_clicked() {
-    QString selected_file = get_file_from_dialog(_cfg_path, QString("Configruation files (*.txt);; All files (*.*)"));
-    if (selected_file == "") return;
-
-    _ui->config_path_tb->setText(selected_file); 
-  }
-
-  void settings_dialog::browse_sensor_button_clicked() {
-    QString selected_file = get_file_from_dialog(_sens_path, QString("Sensor files (*.txt);; All files (*.*)"));
-    if (selected_file == "") return;
-
-    _ui->sensor_path_tb->setText(selected_file);
-  }
-
-  void settings_dialog::browse_license_file_clicked() {
-    QString selected_file = get_file_from_dialog(_license_file, QString("License files (*.txt.sgn);; All files (*.*)"));
-    if (selected_file == "") return;
-
-    _ui->license_file_tb->setText(selected_file);
-  }
-
-  void settings_dialog::trigger_scanner_with_file(const QString &file_path) {
-    bool do_reload = QMessageBox::Yes == QMessageBox::information(this, file_changed_tag, apply_changes_tag + file_path + "?", QMessageBox::Yes, QMessageBox::No);
-
-    if (do_reload && (
-        (file_path == _cfg_path)     ||
-        (file_path == _license_file) ||
-        (file_path == _sens_path)   )  )
-      emit initialize();
-  }
 }
