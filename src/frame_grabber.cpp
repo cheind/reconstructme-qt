@@ -76,6 +76,12 @@ namespace ReconstructMeGUI {
   void frame_grabber::start(bool initialization_success) {
     if (!initialization_success) return;
 
+    bool has_aux = false, has_depth = false, has_volume = false;
+
+    reme_sensor_is_image_supported(_rm->context(), _rm->sensor(), REME_IMAGE_AUX, &has_aux);
+    reme_sensor_is_image_supported(_rm->context(), _rm->sensor(), REME_IMAGE_DEPTH, &has_depth);
+    reme_sensor_is_image_supported(_rm->context(), _rm->sensor(), REME_IMAGE_VOLUME, &has_volume);
+
     // Image creation
     reme_image_create(_rm->context(), &_rgb);
     reme_image_create(_rm->context(), &_depth);
@@ -92,7 +98,7 @@ namespace ReconstructMeGUI {
 
       success = REME_SUCCESS(err);
 
-      if (success && _req_count[REME_IMAGE_AUX] > 0) {
+      if (success && has_aux && _req_count[REME_IMAGE_AUX] > 0) {
         const void* data;
         int length, width, height, channels, num_bytes_per_channel, row_stride;
         reme_sensor_prepare_image(_rm->context(), _rm->sensor(), REME_IMAGE_AUX);
@@ -102,24 +108,24 @@ namespace ReconstructMeGUI {
         emit frame(REME_IMAGE_AUX, data, length, width, height, channels, num_bytes_per_channel, row_stride);
       }
 
-      if (success && _req_count[REME_IMAGE_DEPTH] > 0) {
+      if (success && has_depth && _req_count[REME_IMAGE_DEPTH] > 0) {
         const void* data;
         int length, width, height, channels, num_bytes_per_channel, row_stride;
         reme_sensor_prepare_image(_rm->context(), _rm->sensor(), REME_IMAGE_DEPTH);
         reme_sensor_get_image(_rm->context(), _rm->sensor(), REME_IMAGE_DEPTH, _depth);
         reme_image_get_bytes(_rm->context(), _depth, &data, &length);
         reme_image_get_info(_rm->context(), _depth, &width, &height, &channels, &num_bytes_per_channel, &row_stride);
-        emit frame(REME_IMAGE_DEPTH, data, length, width, height, channels, num_bytes_per_channel, row_stride);
+        emit frame(REME_IMAGE_DEPTH, data, length, width, height, channels, num_bytes_per_channel, row_stride);        
       }
 
-      if (success && _req_count[REME_IMAGE_VOLUME] > 0) {
+      if (success && has_volume && _req_count[REME_IMAGE_VOLUME] > 0) {
         const void* data;
         int length, width, height, channels, num_bytes_per_channel, row_stride;
         reme_sensor_prepare_image(_rm->context(), _rm->sensor(), REME_IMAGE_VOLUME);
         reme_sensor_get_image(_rm->context(), _rm->sensor(), REME_IMAGE_VOLUME, _phong);
         reme_image_get_bytes(_rm->context(), _phong, &data, &length);
         reme_image_get_info(_rm->context(), _phong, &width, &height, &channels, &num_bytes_per_channel, &row_stride);
-        emit frame(REME_IMAGE_VOLUME, data, length, width, height, channels, num_bytes_per_channel, row_stride);
+        emit frame(REME_IMAGE_VOLUME, data, length, width, height, channels, num_bytes_per_channel, row_stride);        
       }      
 
       emit frames_updated();  
