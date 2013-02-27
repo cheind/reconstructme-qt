@@ -8,13 +8,13 @@ class reme_controller_test: public QObject
 {
     Q_OBJECT
 private slots:
-    void myTest();
+    void my_test();
 };
  
-void reme_controller_test::myTest()
+void reme_controller_test::my_test()
 {
   QString str = "Hello";
   QVERIFY(str.toUpper() == "HELLO");
 }
  
-QTEST_MAIN(reme_controller_test)
+//QTEST_MAIN(reme_controller_test)
