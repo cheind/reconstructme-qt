@@ -76,7 +76,7 @@ robvis_wix_installer_heat_directory(
 # Compile relevant files	
 set(CANDLE_OPTS -dSDKRuntimeFilesDirectory="${REME_SDK_ROOT}/bin" -dSDKConfigFilesDirectory="${REME_SDK_ROOT}/cfg")
 GET_TARGET_PROPERTY(RECONSTRUCTMEQT_EXE ReconstructMeQt RELEASE_LOCATION)
-list(APPEND CANDLE_SOURCES Main.wxs QtRuntimes.wxs ReconstructMeQtRuntimes.wxs RegistryEntriesDrivers.wxs)
+list(APPEND CANDLE_SOURCES Main.wxs QtRuntimes.wxs ReconstructMeQtRuntimes.wxs)
 
 robvis_wix_installer_compile(
 	ReconstructMeQtInstaller
@@ -92,29 +92,3 @@ robvis_wix_installer_link(
 	CANDLE_OBJS
 	${RECONSTRUCTMEQTINSTALLER_OUTPUT_LOCATION}	
 	LIGHT_OPTS)
-	
-# Bootstrapper Installer bundled with current drivers.
-robvis_create_wix_installer(ReconstructMeQtBootstrapper)
-add_dependencies(ReconstructMeQtBootstrapper ReconstructMeQtInstaller)
-
-set(CANDLE_SOURCES)
-set(CANDLE_OBJS)
-set(CANDLE_OPTS)
-
-list(APPEND CANDLE_SOURCES Bootstrapper.wxs)
-list(APPEND CANDLE_OPTS -ext WixBalExtension)
-robvis_wix_installer_compile(
-	ReconstructMeQtBootstrapper
-	CANDLE_SOURCES
-	CANDLE_OBJS
-	CANDLE_OPTS)
-
-set(LIGHT_OPTS)
-list(APPEND LIGHT_OPTS -ext WixBalExtension)
-set(RECONSTRUCTMEQTBOOTSTRAPPER_OUTPUT_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/ReconstructMeQt Setup-${RECONSTRUCTMEQT_VERSION_MAJOR}.${RECONSTRUCTMEQT_VERSION_MINOR}.${RECONSTRUCTMEQT_VERSION_BUILD}.exe")
-robvis_wix_installer_link(
-	ReconstructMeQtBootstrapper
-	CANDLE_OBJS
-	${RECONSTRUCTMEQTBOOTSTRAPPER_OUTPUT_LOCATION}	
-	LIGHT_OPTS)
-	

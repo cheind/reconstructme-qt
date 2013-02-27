@@ -21,19 +21,49 @@
 
     <Media Id='1' Cabinet='ReconstructMeQt.cab' EmbedCab='yes'/>
 
-    <MajorUpgrade DowngradeErrorMessage='A later version of [ProductName] is already installed. Setup will now exit' />
-
     <Directory Id='TARGETDIR' Name='SourceDir'>
+      <Merge Id="VCRedist" SourceFile="@CMAKE_CURRENT_SOURCE_DIR@/Microsoft_VC100_CRT_x86.msm" DiskId="1" Language="0"/>
+      <Merge Id="OpenMP" SourceFile="@CMAKE_CURRENT_SOURCE_DIR@/Microsoft_VC100_OpenMP_x86.msm" DiskId="1" Language="0"/>
       <Directory Id="DesktopFolder" Name="Desktop"/>
       <Directory Id='ProgramFilesFolder' Name='PFiles'>
         <Directory Id='INSTALLDIR' Name='ReconstructMeQt'>
-          <Merge Id="VCRedist" SourceFile="@PROJECT_SOURCE_DIR@/etc/wix/Microsoft_VC100_CRT_x86.msm" DiskId="1" Language="0"/>
-		  <Directory Id='IMAGEFORMATSDIR' Name='imageformats'>
-		  </Directory>
+	  <Directory Id='cfg' Name='cfg' />
+	  <Directory Id='IMAGEFORMATSDIR' Name='imageformats' />
         </Directory>
       </Directory>
     </Directory>
     
+   <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="*">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+          Name="ReconstructMe"
+          Description="Start ReconstructMe"
+          Target="[INSTALLDIR]\ReconstructMeQt.exe"
+          WorkingDirectory="INSTALLDIR" />
+        <Shortcut Id="DirShortcut"
+          Name="Open configuration folder"
+          Description="Opens the folder containing configuration files."
+          Target="[cfg]"
+          WorkingDirectory="cfg" />
+        <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+        <RegistryValue Root="HKCU" Key="Software\Microsoft\ReconstructMe\$(var.ProductVersion)" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+    
+    <DirectoryRef Id="INSTALLDIR">
+	<Component Id="ApplicationDesktopShortcut" Guid="*">
+		<Shortcut Advertise="yes"
+			    Id="ReconstructMeQtShortcut"
+			    Directory="DesktopFolder"
+			    Name="ReconstructMe"
+			    WorkingDirectory="INSTALLDIR"
+			    Description="Starts ReconstructMe"
+			    Icon="QtIcon.ico">
+		    
+		    <Icon Id="QtIcon.ico" SourceFile="@PROJECT_SOURCE_DIR@/rc/icon.ico" />
+		  </Shortcut>
+	</Component>
+  </DirectoryRef>
     
 
     <Feature Id='Complete' Title='ReconstructMe' Description='ReconstructMe Complete' Display='expand' Level='1' ConfigurableDirectory='INSTALLDIR'>
@@ -42,26 +72,17 @@
         <ComponentGroupRef Id='ReconstructMeSDKRuntimeFiles' />
         <ComponentGroupRef Id='ReconstructMeSDKConfigFiles' />
         <ComponentGroupRef Id='QtRuntimeFiles' />
+        <ComponentRef Id='ApplicationShortcut' />
+        <ComponentRef Id='ApplicationDesktopShortcut' />
         <ComponentGroupRef Id='ReconstructMeQtRuntimeFiles' />
-        <MergeRef Id="VCRedist"/>
+	<MergeRef Id="VCRedist" />
+        <MergeRef Id="OpenMP" />
       </Feature>
-
-      <Feature Id='AsusXtionDriver' Title='Driver For ASUS Xtion' Description='Driver For ASUS Xtion' Level='1000'>
-        <ComponentGroupRef Id='AsusXtionDriverRegistry'/>
-      </Feature>
-
-      <Feature Id='MicrosoftKinectDriver' Title='Driver For Microsoft Kinect' Description='Driver For Microsoft Kinect' Level='1000'>
-        <ComponentGroupRef Id='KinectWindowsRegistry' />
-      </Feature>
-
-      <Feature Id='MicrosoftXBoxDriver' Title='Driver For XBox Kinect' Description='Driver For XBox Kinect' Level='1000'>
-        <ComponentGroupRef Id='KinectXBoxRegistry'/>
-      </Feature>
-      
       
     </Feature>
 
-    <UIRef Id="WixUI_FeatureTree" />
+    <UIRef Id="WixUI_InstallDir" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
 
     <!-- Set the license text -->
     <WixVariable Id="WixUILicenseRtf" Value="@PROJECT_SOURCE_DIR@/etc/wix/License.rtf" />
