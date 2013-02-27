@@ -1,5 +1,5 @@
 /// @file
-/// @copyright Copyright (c) 2006-2012 PROFACTOR GmbH. All rights reserved. Use is subject to license terms.
+/// @copyright Copyright (c) 2013 PROFACTOR GmbH. All rights reserved. 
 ///
 /// @author christoph.kopf@profactor.at
 #pragma once
