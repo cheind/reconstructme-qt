@@ -168,7 +168,7 @@ namespace ReconstructMeGUI {
     // Trigger concurrent initialization
     _fg = std::shared_ptr<frame_grabber>(new frame_grabber(_rm));
     _rm->set_frame_grabber(_fg);
-    connect(_fg.get(), SIGNAL(frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)), SLOT(show_frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)));
+    connect(_fg.get(), SIGNAL(frame(reme_sensor_image_t,const void*,int,int,int,int,int,int)), SLOT(show_frame(reme_sensor_image_t,const void*,int,int,int,int,int,int)));
     _rm->connect(this, SIGNAL(initialize()), SLOT(initialize()));
     _rm_thread = new QThread(this);
     _rm->moveToThread(_rm_thread);
