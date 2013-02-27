@@ -171,6 +171,9 @@ namespace ReconstructMeGUI {
     reme_surface_t _s;
 
     mode_t _mode;
+
+    bool _wait_for_surface;
+    int _decimation_value;
   };
 }
 

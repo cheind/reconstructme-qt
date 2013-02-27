@@ -83,13 +83,17 @@
 
 #define STATUSBAR_TIME 1500
 
+#define QT_NO_WHEELEVENT
+#define QT_NO_ACCESSIBILITY
+
 namespace ReconstructMeGUI {
   
   reconstructme::reconstructme(QWidget *parent) : 
     QMainWindow(parent),
     _ui(new Ui::reconstructmeqt),
     _rm(new reme_resource_manager()),
-    _mode(PAUSE)
+    _mode(PAUSE),
+    _wait_for_surface(false)
   {
     // ui's setup
     _ui->setupUi(this);
@@ -240,6 +244,14 @@ namespace ReconstructMeGUI {
 
   void reconstructme::request_surface()
   {
+    if (_wait_for_surface) {
+      _ui->numTriangleSlider->setValue(_decimation_value);
+      return;
+    }
+    
+    _decimation_value = _ui->numTriangleSlider->value();
+    _ui->numTriangleSpinBox->setValue(_decimation_value);
+
     if (!_dialog_state->licensed())
       _dialog_unlicensed->show();
 
@@ -252,8 +264,8 @@ namespace ReconstructMeGUI {
 
     _ui->viewer->stop_rendering();
 
-    int face_decimation = _ui->numTriangleSlider->value();
-    emit generate_surface(face_decimation/100.f);
+    emit generate_surface(_decimation_value/100.f);
+    _wait_for_surface = true;
 
     _ui->play_button->setDisabled(true);
     _ui->reset_button->setDisabled(true);
@@ -330,6 +342,8 @@ namespace ReconstructMeGUI {
     
     _dialog_unlicensed->hide();
     
+    _wait_for_surface = false;
+
     _ui->play_button->setEnabled(true);
     _ui->reset_button->setEnabled(true);
     _ui->numTriangleSlider->setEnabled(true);
