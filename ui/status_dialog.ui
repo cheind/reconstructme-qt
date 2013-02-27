@@ -35,21 +35,7 @@
        </property>
       </spacer>
      </item>
-     <item row="2" column="4">
-      <widget class="QPushButton" name="closeBtn">
-       <property name="text">
-        <string>Close</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1" colspan="3">
-      <widget class="QPushButton" name="onlineHelpBtn">
-       <property name="text">
-        <string>Online Help</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0" colspan="5">
+     <item row="1" column="0" colspan="6">
       <widget class="QTableView" name="statustableView">
        <property name="focusPolicy">
         <enum>Qt::NoFocus</enum>
@@ -80,7 +66,7 @@
        </attribute>
       </widget>
      </item>
-     <item row="0" column="0" colspan="5">
+     <item row="0" column="0" colspan="6">
       <widget class="QLabel" name="lblStatusDialogHeader">
        <property name="font">
         <font>
@@ -91,6 +77,20 @@
        </property>
        <property name="text">
         <string>Configure</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QPushButton" name="closeBtn">
+       <property name="text">
+        <string>Close</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2" colspan="4">
+      <widget class="QPushButton" name="onlineHelpBtn">
+       <property name="text">
+        <string>Online Help</string>
        </property>
       </widget>
      </item>
