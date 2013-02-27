@@ -115,7 +115,7 @@ namespace ReconstructMeGUI {
     QComboBox &lw_device = *_ui->lw_device;
     lw_device.clear();
     lw_device.addItem("AUTO: Autoselect Best Device", -1);
-    lw_config.setCurrentIndex(0);
+    lw_device.setCurrentIndex(0);
     int cnt = 0;
     std::for_each(ocl.devices().begin(), ocl.devices().end(), [&lw_device, &device, &cnt](const opencl_info_device &dev) {
       lw_device.addItem(dev.name().c_str(), cnt);
