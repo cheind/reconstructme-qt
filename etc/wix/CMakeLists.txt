@@ -45,7 +45,7 @@ include(${ROBVIS_CMAKE_DIRECTORY}/functions/util_creators.cmake)
 robvis_create_wix_installer(ReconstructMeQtInstaller)
 add_dependencies(ReconstructMeQtInstaller ReconstructMeQt)
 
-set(REME_SDK_ROOT "${RECONSTRUCTMESDK_BIN}/../")	
+set(REME_SDK_ROOT ${REME_ROOT_DIRECTORY})	
 
 # Collect necessary ReconstructMe SDK binaries
 set(HEAT_OPTS -dr INSTALLDIR 

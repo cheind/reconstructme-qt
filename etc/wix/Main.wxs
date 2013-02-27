@@ -31,6 +31,9 @@
 	  <Directory Id='IMAGEFORMATSDIR' Name='imageformats' />
         </Directory>
       </Directory>
+	  <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="ReconstructMeSDK $(var.ProductVersion)" />
+      </Directory>
     </Directory>
     
    <DirectoryRef Id="ApplicationProgramsFolder">
