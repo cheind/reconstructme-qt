@@ -90,10 +90,10 @@ namespace ReconstructMeGUI {
     QStringList config_list = dir.entryList();
     QComboBox &lw_config = *_ui->lw_config;
     lw_config.clear();
-    lw_config.addItem("AUTO: Default Configuration", config_path_default_tag);
+    lw_config.addItem("AUTO: Default configuration", config_path_default_tag);
     lw_config.setCurrentIndex(0);
     std::for_each(config_list.begin(), config_list.end(), [&lw_config, &dir, &config](QString &c) {
-      lw_config.addItem(QFileInfo(c).baseName(), dir.absoluteFilePath(c));
+      lw_config.addItem(QFileInfo(c).completeBaseName(), dir.absoluteFilePath(c));
       if (QString::compare(QFileInfo(config).fileName(), QFileInfo(c).fileName()) == 0)
         lw_config.setCurrentIndex(lw_config.count()-1);
     });
@@ -102,10 +102,10 @@ namespace ReconstructMeGUI {
     QStringList sensor_list = dir.entryList();
     QComboBox &lw_sensor = *_ui->lw_sensor;
     lw_sensor.clear();
-    lw_sensor.addItem("AUTO: Let ReconstructMe Chosse A Sensor", sensor_path_default_tag);
+    lw_sensor.addItem("AUTO: Let ReconstructMe choose a sensor", sensor_path_default_tag);
     lw_sensor.setCurrentIndex(0);
     std::for_each(sensor_list.begin(), sensor_list.end(), [&lw_sensor, &dir, &sensor](QString &s) {
-      lw_sensor.addItem(QFileInfo(s).baseName(), dir.absoluteFilePath(s));
+      lw_sensor.addItem(QFileInfo(s).completeBaseName(), dir.absoluteFilePath(s));
       if (QString::compare(QFileInfo(sensor).fileName(), QFileInfo(s).fileName()) == 0)
         lw_sensor.setCurrentIndex(lw_sensor.count()-1);
     });
@@ -114,18 +114,20 @@ namespace ReconstructMeGUI {
     _rm->get_opencl_info(ocl);
     QComboBox &lw_device = *_ui->lw_device;
     lw_device.clear();
-    lw_device.addItem("AUTO: Autoselect Best Device", -1);
+    lw_device.addItem("AUTO: Autoselect best device", -1);
     lw_device.setCurrentIndex(0);
     int cnt = 0;
     std::for_each(ocl.devices().begin(), ocl.devices().end(), [&lw_device, &device, &cnt](const opencl_info_device &dev) {
-      lw_device.addItem(dev.name().c_str(), cnt);
+      lw_device.addItem(QString(dev.name().c_str()).trimmed(), cnt);
       if (device == cnt) 
         lw_device.setCurrentIndex(lw_device.count()-1);
       cnt++;
     });
+
+    save_settings();
   }
 
-  void settings_dialog::accept() 
+  void settings_dialog::save_settings() 
   { 
     _fw->removePaths(_fw->files()); // Remove watched paths
 
@@ -159,7 +161,11 @@ namespace ReconstructMeGUI {
     s.setValue(sensor_path_tag, sensor_path);
     s.setValue(devcice_id_tag, device);
     s.sync();
+  }
 
+  void settings_dialog::accept()
+  {
+    save_settings();
     QMetaObject::invokeMethod(_rm.get(), "initialize", Qt::QueuedConnection);
     hide();
   }

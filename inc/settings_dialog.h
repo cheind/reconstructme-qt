@@ -71,6 +71,8 @@ namespace ReconstructMeGUI {
   private slots:
     void refresh_entries();
 
+    void save_settings();
+
     void apply_changed_file(const QString &);
 
   private:
