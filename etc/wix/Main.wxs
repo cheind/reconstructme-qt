@@ -27,16 +27,16 @@
       <Directory Id="DesktopFolder" Name="Desktop"/>
       <Directory Id='ProgramFilesFolder' Name='PFiles'>
         <Directory Id='INSTALLDIR' Name='ReconstructMeQt'>
-	  <Directory Id='cfg' Name='cfg' />
-	  <Directory Id='IMAGEFORMATSDIR' Name='imageformats' />
+          <Directory Id='cfg' Name='cfg' />
+          <Directory Id='IMAGEFORMATSDIR' Name='imageformats' />
         </Directory>
       </Directory>
-	  <Directory Id="ProgramMenuFolder">
-        <Directory Id="ApplicationProgramsFolder" Name="ReconstructMeSDK $(var.ProductVersion)" />
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="ReconstructMe" />
       </Directory>
     </Directory>
-    
-   <DirectoryRef Id="ApplicationProgramsFolder">
+
+    <DirectoryRef Id="ApplicationProgramsFolder">
       <Component Id="ApplicationShortcut" Guid="*">
         <Shortcut Id="ApplicationStartMenuShortcut"
           Name="ReconstructMe"
@@ -52,22 +52,22 @@
         <RegistryValue Root="HKCU" Key="Software\Microsoft\ReconstructMe\$(var.ProductVersion)" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
       </Component>
     </DirectoryRef>
-    
+
     <DirectoryRef Id="INSTALLDIR">
-	<Component Id="ApplicationDesktopShortcut" Guid="*">
-		<Shortcut Advertise="yes"
-			    Id="ReconstructMeQtShortcut"
-			    Directory="DesktopFolder"
-			    Name="ReconstructMe"
-			    WorkingDirectory="INSTALLDIR"
-			    Description="Starts ReconstructMe"
-			    Icon="QtIcon.ico">
-		    
-		    <Icon Id="QtIcon.ico" SourceFile="@PROJECT_SOURCE_DIR@/rc/icon.ico" />
-		  </Shortcut>
-	</Component>
-  </DirectoryRef>
-    
+      <Component Id="ApplicationDesktopShortcut" Guid="*">
+        <Shortcut Advertise="yes"
+              Id="ReconstructMeQtShortcut"
+              Directory="DesktopFolder"
+              Name="ReconstructMe"
+              WorkingDirectory="INSTALLDIR"
+              Description="Starts ReconstructMe"
+              Icon="QtIcon.ico">
+
+          <Icon Id="QtIcon.ico" SourceFile="@PROJECT_SOURCE_DIR@/rc/icon.ico" />
+        </Shortcut>
+      </Component>
+    </DirectoryRef>
+
 
     <Feature Id='Complete' Title='ReconstructMe' Description='ReconstructMe Complete' Display='expand' Level='1' ConfigurableDirectory='INSTALLDIR'>
 
@@ -78,10 +78,10 @@
         <ComponentRef Id='ApplicationShortcut' />
         <ComponentRef Id='ApplicationDesktopShortcut' />
         <ComponentGroupRef Id='ReconstructMeQtRuntimeFiles' />
-	<MergeRef Id="VCRedist" />
+        <MergeRef Id="VCRedist" />
         <MergeRef Id="OpenMP" />
       </Feature>
-      
+
     </Feature>
 
     <UIRef Id="WixUI_InstallDir" />
