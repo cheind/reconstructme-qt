@@ -23,7 +23,7 @@ cmake.exe -G "Visual Studio 10" ^
 
 cd %WS%
 
-"%VS100COMNTOOLS%\..\IDE\devenv.com" "build/reconstructme-qt.sln" /out build.log /build "Release" /project ReconstructMeQtBootstrapper
+"%VS100COMNTOOLS%\..\IDE\devenv.com" "build/reconstructme-qt.sln" /out build.log /build "Release" /project ReconstructMeQtInstaller
 if %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 :ERROR
