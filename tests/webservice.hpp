@@ -35,9 +35,9 @@ void webservice::request()
 {
   // 1. Variant: URL with parameters
   QUrl url("https://api.sketchfab.com/v1/models");
-  url.addQueryItem("token", "???");
-  url.addQueryItem("fileModel", "test.ply");
-  url.addQueryItem("title", "MyDesk");
+  //url.addQueryItem("token", "???");
+  //url.addQueryItem("fileModel", "test.ply");
+  //url.addQueryItem("title", "MyDesk");
   //url.addQueryItem("description", "This is a test");
   //url.addQueryItem("tags", "");
   //url.addQueryItem("private", "1");
@@ -48,14 +48,12 @@ void webservice::request()
   // 2. Variant: Data as json
   QUrl url2("https://api.sketchfab.com/v1/models");
   QByteArray data;
-  data.append("{");
-  data.append(  "token:???,");
-  data.append(  "fileModel:test.ply,");
-  data.append(  "title:MyDesk,");
-  data.append("}");
+  data.append("token=???&");
+  data.append("fileModel=test.ply&");
+  data.append("title:MyDesk");
   
   QNetworkRequest req2(url2);
-  req.setRawHeader("Content-Type", "application/json");
+  //req.setRawHeader("Content-Type", "application/json");
   
   // POST message
   QNetworkAccessManager* manager = new QNetworkAccessManager(this);
