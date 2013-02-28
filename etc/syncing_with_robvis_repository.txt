@@ -15,6 +15,7 @@ Then proceed as follows to update the robvis internal to 1.0.40
  - update versionnumber in qsettings, to make shure to use the moset current onse
 
  - example: svn_load_dirs.pl https://pinguin.profactor.at/mas/ ras_projects/reconstructme-qt/trunk D:\reconstructme-qt-export
+   this updated the trunk to the current development state
  - Vendor-Branch check out
  - Merge Vendor-Branch with Trunk in Branch
  - Vendor-Branch commit
