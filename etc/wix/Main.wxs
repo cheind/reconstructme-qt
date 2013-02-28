@@ -1,7 +1,7 @@
 <?xml version='1.0' ?>
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
 
-  <?define ProductName = 'ReconstructMe Qt'?>
+  <?define ProductName = 'ReconstructMe'?>
   <?define ProductCode = '*' ?>
   <?define UpgradeCode = 'd5ce32f5-4503-41e0-820a-0668270c8aab'?>
   <?define ManufacturerName = 'Profactor GmbH' ?>
@@ -15,7 +15,7 @@
 			 Version=		'$(var.ProductVersion)'
 			 Manufacturer=	'$(var.ManufacturerName)'>
 
-    <Package Id='*' Keywords='Installer' Description="ReconstructMe Qt Installer - $(var.ProductVersion)"
+    <Package Id='*' Keywords='Installer' Description="ReconstructMe Installer - $(var.ProductVersion)"
 		  Comments='Add your comments here' Manufacturer='$(var.ManufacturerName)'
 		  InstallerVersion='300' Languages='1033' Compressed='yes' />
 
@@ -26,7 +26,7 @@
       <Merge Id="OpenMP" SourceFile="@CMAKE_CURRENT_SOURCE_DIR@/Microsoft_VC100_OpenMP_x86.msm" DiskId="1" Language="0"/>
       <Directory Id="DesktopFolder" Name="Desktop"/>
       <Directory Id='ProgramFilesFolder' Name='PFiles'>
-        <Directory Id='INSTALLDIR' Name='ReconstructMeQt'>
+        <Directory Id='INSTALLDIR' Name='ReconstructMe'>
           <Directory Id='cfg' Name='cfg' />
           <Directory Id='IMAGEFORMATSDIR' Name='imageformats' />
         </Directory>
@@ -53,30 +53,34 @@
       </Component>
     </DirectoryRef>
 
+
+	
     <DirectoryRef Id="INSTALLDIR">
-      <Component Id="ApplicationDesktopShortcut" Guid="*">
-        <Shortcut Advertise="yes"
+      <Component Id="ReconstructMeQt" Guid="53236194-b9c0-4bc7-bcc5-461e5ca5015a">
+        <File KeyPath="yes" Source="@RECONSTRUCTMEQT_EXE@">
+	    <Shortcut Advertise="yes"
               Id="ReconstructMeQtShortcut"
               Directory="DesktopFolder"
               Name="ReconstructMe"
               WorkingDirectory="INSTALLDIR"
               Description="Starts ReconstructMe"
               Icon="QtIcon.ico">
-
-          <Icon Id="QtIcon.ico" SourceFile="@PROJECT_SOURCE_DIR@/rc/icon.ico" />
-        </Shortcut>
+      
+            <Icon Id="QtIcon.ico" SourceFile="@PROJECT_SOURCE_DIR@/rc/icon.ico" />
+          </Shortcut>
+        </File>
       </Component>
     </DirectoryRef>
 
 
     <Feature Id='Complete' Title='ReconstructMe' Description='ReconstructMe Complete' Display='expand' Level='1' ConfigurableDirectory='INSTALLDIR'>
 
-      <Feature Id='MainProgram' Title='ReconstructMe Qt' Description='ReconstructMe Qt fronted.' Level='1'>
+      <Feature Id='MainProgram' Title='ReconstructMe' Description='ReconstructMe fronted.' Level='1'>
         <ComponentGroupRef Id='ReconstructMeSDKRuntimeFiles' />
         <ComponentGroupRef Id='ReconstructMeSDKConfigFiles' />
         <ComponentGroupRef Id='QtRuntimeFiles' />
         <ComponentRef Id='ApplicationShortcut' />
-        <ComponentRef Id='ApplicationDesktopShortcut' />
+        <ComponentRef Id='ReconstructMeQt' />
         <ComponentGroupRef Id='ReconstructMeQtRuntimeFiles' />
         <MergeRef Id="VCRedist" />
         <MergeRef Id="OpenMP" />

@@ -2,10 +2,6 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <Fragment>
     <DirectoryRef Id="INSTALLDIR">
-      <Component Id="ReconstructMeQt" Guid="53236194-b9c0-4bc7-bcc5-461e5ca5015a">
-        <File KeyPath="yes" Source="@RECONSTRUCTMEQT_EXE@">
-        </File>
-      </Component>
 	<Component Id="OsgQt" Guid="D200E371-8648-4B88-91EC-3CFA827D43DB">
 		<File KeyPath="yes" Source="@OSG_BINARY_DIR@/osg80-osgQt.dll" />
 	</Component>
@@ -13,7 +9,6 @@
   </Fragment>
   <Fragment>
     <ComponentGroup Id="ReconstructMeQtRuntimeFiles">
-	<ComponentRef Id="ReconstructMeQt" />
 	<ComponentRef Id="OsgQt" />
     </ComponentGroup>
   </Fragment>

@@ -4,7 +4,7 @@ set WS=%WORKSPACE:/=\%
 
 :: Set ReMe Version for all projects to be build
 set GUI_VERSION_MAJOR=1
-set GUI_VERSION_MINOR=1
+set GUI_VERSION_MINOR=2
 set GUI_VERSION_BUILD=%BUILD_NUMBER%
 
 rmdir /Q /S %WS%\build
