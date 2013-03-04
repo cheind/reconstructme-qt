@@ -90,7 +90,7 @@ namespace ReconstructMeGUI {
     QStringList config_list = dir.entryList();
     QComboBox &lw_config = *_ui->lw_config;
     lw_config.clear();
-    lw_config.addItem("AUTO: Default configuration", config_path_default_tag);
+    lw_config.addItem("AUTO: Default configuration - 1m cubed", config_path_default_tag);
     lw_config.setCurrentIndex(0);
     std::for_each(config_list.begin(), config_list.end(), [&lw_config, &dir, &config](QString &c) {
       lw_config.addItem(QFileInfo(c).completeBaseName(), dir.absoluteFilePath(c));
@@ -102,7 +102,7 @@ namespace ReconstructMeGUI {
     QStringList sensor_list = dir.entryList();
     QComboBox &lw_sensor = *_ui->lw_sensor;
     lw_sensor.clear();
-    lw_sensor.addItem("AUTO: Let ReconstructMe choose a sensor", sensor_path_default_tag);
+    lw_sensor.addItem("AUTO: Let ReconstructMe look for a sensor", sensor_path_default_tag);
     lw_sensor.setCurrentIndex(0);
     std::for_each(sensor_list.begin(), sensor_list.end(), [&lw_sensor, &dir, &sensor](QString &s) {
       lw_sensor.addItem(QFileInfo(s).completeBaseName(), dir.absoluteFilePath(s));
@@ -114,7 +114,7 @@ namespace ReconstructMeGUI {
     _rm->get_opencl_info(ocl);
     QComboBox &lw_device = *_ui->lw_device;
     lw_device.clear();
-    lw_device.addItem("AUTO: Autoselect best device", -1);
+    lw_device.addItem("AUTO: Autoselect best calculation device", -1);
     lw_device.setCurrentIndex(0);
     int cnt = 0;
     std::for_each(ocl.devices().begin(), ocl.devices().end(), [&lw_device, &device, &cnt](const opencl_info_device &dev) {
