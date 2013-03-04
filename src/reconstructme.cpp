@@ -187,6 +187,7 @@ namespace ReconstructMeGUI {
     _rm->connect(this, SIGNAL(stop_scanning()), SLOT(stop_scanning()));
 
     connect(_ui->play_button, SIGNAL(clicked()), SLOT(toggle_mode()));
+    connect(_ui->reset_button, SIGNAL(clicked()), SLOT(toggle_mode()));
     _rm->connect(_ui->reset_button, SIGNAL(clicked()), SLOT(reset_volume()));
     connect(_rm.get(), SIGNAL(current_fps(const float)), SLOT(show_fps(const float)));
     connect(_ui->numTriangleSlider, SIGNAL(valueChanged(int)), SLOT(request_surface()));
@@ -219,21 +220,27 @@ namespace ReconstructMeGUI {
   }
 
   void reconstructme::toggle_mode() {
+    if (sender() == _ui->reset_button && _mode != PAUSE) 
+      return;
+
     _fg->release(REME_IMAGE_AUX);
     _fg->release(REME_IMAGE_DEPTH);
     _fg->release(REME_IMAGE_VOLUME);
     disconnect(_fg.get(), SIGNAL(frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)), this, SLOT(show_frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)));
 
     if (_mode == PAUSE) {
-      _mode = PLAY;
       _fg->request(REME_IMAGE_AUX);
       _fg->request(REME_IMAGE_DEPTH);
       _fg->request(REME_IMAGE_VOLUME);
       connect(_fg.get(), SIGNAL(frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)), SLOT(show_frame(reme_sensor_image_t, const void*, int, int, int, int, int, int)));
       _ui->stackedWidget->setCurrentWidget(_ui->scanPage);
-      emit start_scanning();
+      
+      if (sender() != _ui->reset_button) {
+        _mode = PLAY;
+        emit start_scanning();
+      }
     }
-    else if (_mode == PLAY) {
+    else if (_mode == PLAY && sender()) {
       _mode = PAUSE;
       _ui->stackedWidget->setCurrentWidget(_ui->surfacePage);
       _ui->numTrianglesLE->setValue(0);
@@ -352,7 +359,7 @@ namespace ReconstructMeGUI {
 
   void reconstructme::save() {
     const QString file_name = QFileDialog::getSaveFileName(this, tr("Save 3D Model"),
-      QDir::currentPath(),
+      QDesktopServices::storageLocation(QDesktopServices::HomeLocation),
       tr("PLY files (*.ply);;OBJ files (*.obj);;3DS files (*.3ds);;STL files (*.stl);; RAW Volume (*.raw)"),
       0);
 
