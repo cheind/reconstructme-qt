@@ -95,6 +95,17 @@ namespace ReconstructMeGUI {
     _mode(PAUSE),
     _wait_for_surface(false)
   {
+    // take license from prev version
+    {
+      QSettings s(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
+      QSettings s_prev(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag_prev);
+      if (s.value(license_file_tag, license_file_default_tag).toString() == QString(license_file_default_tag) &&
+          s_prev.value(license_file_tag, license_file_default_tag).toString() != QString(license_file_default_tag)) {
+        QString license_path = s_prev.value(license_file_tag).toString();
+        s.setValue(license_file_tag, license_path);
+      }
+    }
+
     // ui's setup
     _ui->setupUi(this);
     _ui->stackedWidget->setCurrentWidget(_ui->scanPage);
