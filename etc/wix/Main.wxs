@@ -34,6 +34,15 @@
       <Directory Id="ProgramMenuFolder">
         <Directory Id="ApplicationProgramsFolder" Name="ReconstructMe" />
       </Directory>
+	  <Directory Id="PersonalFolder">
+	    <Directory Id="DocumentsFolder" Name="ReconstructMe"> 
+		  <Component Id="DocumentsFolder" Guid="3B6500C6-4582-4465-8ACF-8BC9C53938DF" SharedDllRefCount="no" KeyPath="no" NeverOverwrite="no" Permanent="no" Transitive="no" Win64="no" Location="either">
+            <CreateFolder/>
+			<RemoveFolder Id="DocumentsFolder" On="uninstall" />
+			<RegistryValue Root="HKCU" Key="Software\Profactor\ReconstructMe\Documents" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+          </Component>
+		</Directory>
+	  </Directory>
     </Directory>
 
     <DirectoryRef Id="ApplicationProgramsFolder">
@@ -49,11 +58,9 @@
           Target="[cfg]"
           WorkingDirectory="cfg" />
         <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
-        <RegistryValue Root="HKCU" Key="Software\Microsoft\ReconstructMe\$(var.ProductVersion)" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+        <RegistryValue Root="HKCU" Key="Software\Profactor\ReconstructMe\$(var.ProductVersion)" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
       </Component>
     </DirectoryRef>
-
-
 	
     <DirectoryRef Id="INSTALLDIR">
       <Component Id="ReconstructMeQt" Guid="53236194-b9c0-4bc7-bcc5-461e5ca5015a">
@@ -81,6 +88,7 @@
         <ComponentGroupRef Id='QtRuntimeFiles' />
         <ComponentRef Id='ApplicationShortcut' />
         <ComponentRef Id='ReconstructMeQt' />
+		<ComponentRef Id='DocumentsFolder' />
         <ComponentGroupRef Id='ReconstructMeQtRuntimeFiles' />
         <MergeRef Id="VCRedist" />
         <MergeRef Id="OpenMP" />
