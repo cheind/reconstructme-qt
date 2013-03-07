@@ -368,20 +368,46 @@ namespace ReconstructMeGUI {
     _ui->saveButton->setEnabled(true);
   }
 
-  void reconstructme::save() {
+  void reconstructme::save() 
+  { 
+    QSettings s(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
+    QString save_path = s.value(save_path_tag, save_path_default_tag).toString();
+    
+    if (save_path == save_path_default_tag) 
+    {
+      QString path = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
+      QDir documents(path);
+      
+      if (!documents.cd("ReconstructMe"))
+      {
+        documents.mkdir("ReconstructMe");
+        documents.cd("ReconstructMe");
+      }
+      save_path = documents.absolutePath();
+      s.setValue(save_path_tag, save_path);
+      s.sync();
+    }
+
     const QString file_name = QFileDialog::getSaveFileName(this, tr("Save 3D Model"),
-      QDesktopServices::storageLocation(QDesktopServices::HomeLocation),
+      save_path,
       tr("PLY files (*.ply);;OBJ files (*.obj);;3DS files (*.3ds);;STL files (*.stl);; RAW Volume (*.raw)"),
       0);
 
     if (file_name.isEmpty())
       return;
+    
+    if (QDir(save_path).absolutePath() != QDir(file_name).absolutePath())
+    {
+       s.setValue(save_path_tag, QDir(file_name).absolutePath());
+       s.sync();
+    }
 
     emit save_surface(file_name);
 
   }
 
-  osg::ref_ptr<osg::PolygonMode> reconstructme::poly_mode() {
+  osg::ref_ptr<osg::PolygonMode> reconstructme::poly_mode() 
+  {
     osg::ref_ptr<osg::StateSet> state = _geode_group->getOrCreateStateSet();
     osg::ref_ptr<osg::PolygonMode> polygon_mode;
     polygon_mode = dynamic_cast< osg::PolygonMode* >( state->getAttribute( osg::StateAttribute::POLYGONMODE ));

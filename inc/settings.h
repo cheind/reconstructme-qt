@@ -37,6 +37,8 @@ namespace ReconstructMeGUI {
   const char* const profactor_tag = "Profactor";
   const char* const reme_tag = "ReconstructMe-1.2";
   const char* const reme_tag_prev = "ReconstructMe-1.1";
+  const char* const save_path_tag = "save_path";
+  const char* const save_path_default_tag = "";
   const char* const sensor_path_tag = "sensor_path";
   const char* const sensor_path_default_tag = "openni;mskinect;file";
   const char* const config_path_tag = "config_path";
