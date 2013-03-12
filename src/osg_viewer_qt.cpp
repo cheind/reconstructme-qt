@@ -71,7 +71,7 @@ namespace ReconstructMeGUI {
 
   void viewer_widget::start_rendering()
   {
-    _timer->start(30);
+    _timer->start(10);
   }
 
   void viewer_widget::stop_rendering()
