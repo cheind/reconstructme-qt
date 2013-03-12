@@ -287,6 +287,9 @@
                  <height>16777215</height>
                 </size>
                </property>
+               <property name="toolTip">
+                <string>Reduce triangles from original Mesh</string>
+               </property>
                <property name="title">
                 <string>Number of Triangles</string>
                </property>
