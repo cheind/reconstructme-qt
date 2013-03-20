@@ -4,7 +4,7 @@ PROJECT(reconstructme-qt)
 
 # Version of GUI
 SET(RECONSTRUCTMEQT_VERSION_MAJOR "1" CACHE STRING "Version Major")
-SET(RECONSTRUCTMEQT_VERSION_MINOR "2" CACHE STRING "Version Minor")
+SET(RECONSTRUCTMEQT_VERSION_MINOR "1" CACHE STRING "Version Minor")
 SET(RECONSTRUCTMEQT_VERSION_BUILD "0" CACHE STRING "Version Build")
 SET(RECONSTRUCTMEQT_ENABLE_CONSOLE OFF CACHE BOOL "When enabled shows a console on windows")
 SET(RECONSTRUCTMEQT_LINK_INSTALLED_SDK ON CACHE BOOL "When enabled shows a console on windows")
@@ -41,6 +41,15 @@ SET(ROBVIS_CMAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/robvis/cmake CACHE PATH "Director
 INCLUDE(${PATHS_CMAKE_DIR}/ext/lib_osg/CMakeLists.cmake)
 SET(OSG_INCLUDE_DIR "${PATHS_CMAKE_3RDPARTY_DIR}/osg-3.0.1/inc" CACHE PATH "" FORCE)
 SET(OSG_BINARY_DIR "${PATHS_CMAKE_3RDPARTY_DIR}//osg-3.0.1/bin" CACHE PATH "" FORCE)
+
+# set paths for vtk alternative
+#INCLUDE(${PATHS_CMAKE_DIR}/ext/lib_vtk/CMakeLists.cmake)
+#SET(VTK_INCLUDE_DIR "${PATHS_CMAKE_3RDPARTY_DIR}/vtk-5.10.1/inc" CACHE PATH "" FORCE)
+#SET(VTK_BINARY_DIR "${PATHS_CMAKE_3RDPARTY_DIR}//vtk-5.10.1/bin" CACHE PATH "" FORCE)
+find_package(VTK REQUIRED)
+
+#SET(VTK_DIR ${VTK_BINARY_DIR})
+include(${VTK_USE_FILE})
 
 FILE(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/inc/*.h)
 FILE(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
@@ -80,11 +89,15 @@ IF(RECONSTRUCTMEQT_LINK_INSTALLED_SDK)
 	INCLUDE_DIRECTORIES( ${RECONSTRUCTMESDK_INCLUDE_DIRS} )
 ENDIF()
 	
+IF (NOT IS_DIRECTORY ${ROBVIS_CMAKE_DIRECTORY})
+	INCLUDE_DIRECTORIES( ${PROTOBUF_INCLUDE_DIR} )
+ENDIF()
+
 INCLUDE_DIRECTORIES(
 	${CMAKE_CURRENT_BINARY_DIR} 
 	${CMAKE_CURRENT_SOURCE_DIR}/inc 
 	${OSG_INCLUDE_DIR}
-	${PROTOBUF_INCLUDE_DIR})
+	${VTK_INCLUDE_DIR})
 
 ADD_DEFINITIONS(${QT_DEFINITIONS})
 ADD_DEFINITIONS(-DNOMINMAX)
@@ -109,14 +122,17 @@ ELSE()
 	robvis_target_link_libraries(ReconstructMeQt LibReconstructMeSDK)
 ENDIF()
 
+IF(IS_DIRECTORY ${ROBVIS_CMAKE_DIRECTORY})
+	robvis_target_link_libraries(ReconstructMeQt ${PROTOC_ALL_TARGETS})
+ELSE()
+	TARGET_LINK_LIBRARIES(ReconstructMeQt ${PROTOBUF_LITE_LIBRARIES})
+ENDIF()
+
 TARGET_LINK_LIBRARIES(ReconstructMeQt 
 	${QT_LIBRARIES}
 	${OSG_ALL_TARGETS}
-	${PROTOBUF_LITE_LIBRARIES})
+        ${VTK_ALL_TARGETS})
 
-# Needed for Hudson Build, checksum
-GET_TARGET_PROPERTY(MAINAPPLICATION_EXE ReconstructMeQt RELEASE_LOCATION)
-	
 # Test library
 FILE (GLOB_RECURSE TESTS ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.hpp)
 QT4_WRAP_CPP(TESTS_GENERATED ${TESTS})
@@ -152,6 +168,21 @@ INSTALL(FILES
 		${OSG_BINARY_DIR}/glut32.dll
 		${OSG_BINARY_DIR}/libexpat.dll
 		${OSG_BINARY_DIR}/libpng13.dll
+        ${VTK_DIR}/vtkGraphics.dll
+        ${VTK_DIR}/vtkRendering.dll
+        ${VTK_DIR}/vtkViews.dll	
+        ${VTK_DIR}/vtkVolumeRendering.dll
+        ${VTK_DIR}/vtkWidgets.dll
 	    DESTINATION bin) 
+
+if(VTK_LIBRARIES)
+  if(${VTK_VERSION} VERSION_LESS "6")
+    target_link_libraries(ReconstructMeQt ${VTK_LIBRARIES} QVTK)
+  else()
+    target_link_libraries(ReconstructMeQt ${VTK_LIBRARIES})
+  endif()
+else()
+  target_link_libraries(ReconstructMeQt vtkHybrid QVTK vtkViews ${QT_LIBRARIES})
+endif()
 
 add_subdirectory(etc/wix)
