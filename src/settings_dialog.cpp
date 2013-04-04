@@ -80,7 +80,7 @@ namespace ReconstructMeGUI {
 
     QString config = s.value(config_path_tag, config_path_default_tag).toString();
     QString sensor = s.value(sensor_path_tag, sensor_path_default_tag).toString();
-    int device = s.value(devcice_id_tag, -1).toInt();
+    int device = s.value(opencl_device_tag, opencl_device_default_tag).toInt();
 
     QDir dir = QDir::current();
     dir.setFilter(QDir::Files);
@@ -159,7 +159,7 @@ namespace ReconstructMeGUI {
     QSettings s(QSettings::IniFormat, QSettings::UserScope, profactor_tag, reme_tag);
     s.setValue(config_path_tag, config_path);
     s.setValue(sensor_path_tag, sensor_path);
-    s.setValue(devcice_id_tag, device);
+    s.setValue(opencl_device_tag, device);
     s.sync();
   }
 

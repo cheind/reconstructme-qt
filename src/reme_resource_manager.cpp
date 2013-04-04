@@ -192,7 +192,7 @@ namespace ReconstructMeGUI {
     int device_id = settings.value(opencl_device_tag, opencl_device_default_tag).toInt();
     std::stringstream str_stream;
     str_stream << device_id;
-    success = success && REME_SUCCESS(reme_options_set(_c, o, devcice_id_tag, str_stream.str().c_str()));
+    success = success && REME_SUCCESS(reme_options_set(_c, o, "device_id", str_stream.str().c_str()));
 
     // Compile for OpenCL device using modified options
     success = success && REME_SUCCESS(reme_context_compile(_c));

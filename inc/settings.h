@@ -47,7 +47,6 @@ namespace ReconstructMeGUI {
   const char* const license_file_default_tag = "";
   const char* const opencl_device_tag = "opencl_device";
   const int opencl_device_default_tag = -1;
-  const char* const devcice_id_tag = "device_id";
 
   const char* const style_sheet_file_tag = ":/styles/darkorange.qss";
 }
