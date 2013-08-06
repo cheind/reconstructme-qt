@@ -15,9 +15,11 @@
 			 Version=		'$(var.ProductVersion)'
 			 Manufacturer=	'$(var.ManufacturerName)'>
 
+    <MajorUpgrade DowngradeErrorMessage="A later version of $(var.ProductName) is already installed. Setup will now exit." />
+
     <Package Id='*' Keywords='Installer' Description="ReconstructMe Installer - $(var.ProductVersion)"
-		  Comments='Add your comments here' Manufacturer='$(var.ManufacturerName)'
-		  InstallerVersion='300' Languages='1033' Compressed='yes' />
+      Comments='Add your comments here' Manufacturer='$(var.ManufacturerName)'
+      InstallerVersion='300' Languages='1033' Compressed='yes' />
 
     <Media Id='1' Cabinet='ReconstructMeQt.cab' EmbedCab='yes'/>
 
@@ -34,15 +36,15 @@
       <Directory Id="ProgramMenuFolder">
         <Directory Id="ApplicationProgramsFolder" Name="ReconstructMe" />
       </Directory>
-	  <Directory Id="PersonalFolder">
-	    <Directory Id="DocumentsFolder" Name="ReconstructMe"> 
-		  <Component Id="DocumentsFolder" Guid="3B6500C6-4582-4465-8ACF-8BC9C53938DF" SharedDllRefCount="no" KeyPath="no" NeverOverwrite="no" Permanent="no" Transitive="no" Win64="no" Location="either">
+      <Directory Id="PersonalFolder">
+        <Directory Id="DocumentsFolder" Name="ReconstructMe">
+          <Component Id="DocumentsFolder" Guid="3B6500C6-4582-4465-8ACF-8BC9C53938DF" SharedDllRefCount="no" KeyPath="no" NeverOverwrite="no" Permanent="no" Transitive="no" Win64="no" Location="either">
             <CreateFolder/>
-			<RemoveFolder Id="DocumentsFolder" On="uninstall" />
-			<RegistryValue Root="HKCU" Key="Software\Profactor\ReconstructMe\Documents" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+            <RemoveFolder Id="DocumentsFolder" On="uninstall" />
+            <RegistryValue Root="HKCU" Key="Software\Profactor\ReconstructMe\Documents" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
           </Component>
-		</Directory>
-	  </Directory>
+        </Directory>
+      </Directory>
     </Directory>
 
     <DirectoryRef Id="ApplicationProgramsFolder">
@@ -61,18 +63,18 @@
         <RegistryValue Root="HKCU" Key="Software\Profactor\ReconstructMe\$(var.ProductVersion)" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
       </Component>
     </DirectoryRef>
-	
+
     <DirectoryRef Id="INSTALLDIR">
       <Component Id="ReconstructMeQt" Guid="53236194-b9c0-4bc7-bcc5-461e5ca5015a">
         <File KeyPath="yes" Source="@RECONSTRUCTMEQT_EXE@">
-	    <Shortcut Advertise="yes"
-              Id="ReconstructMeQtShortcut"
-              Directory="DesktopFolder"
-              Name="ReconstructMe"
-              WorkingDirectory="INSTALLDIR"
-              Description="Starts ReconstructMe"
-              Icon="QtIcon.ico">
-      
+          <Shortcut Advertise="yes"
+                  Id="ReconstructMeQtShortcut"
+                  Directory="DesktopFolder"
+                  Name="ReconstructMe"
+                  WorkingDirectory="INSTALLDIR"
+                  Description="Starts ReconstructMe"
+                  Icon="QtIcon.ico">
+
             <Icon Id="QtIcon.ico" SourceFile="@PROJECT_SOURCE_DIR@/rc/icon.ico" />
           </Shortcut>
         </File>
@@ -88,7 +90,7 @@
         <ComponentGroupRef Id='QtRuntimeFiles' />
         <ComponentRef Id='ApplicationShortcut' />
         <ComponentRef Id='ReconstructMeQt' />
-		<ComponentRef Id='DocumentsFolder' />
+        <ComponentRef Id='DocumentsFolder' />
         <ComponentGroupRef Id='ReconstructMeQtRuntimeFiles' />
         <MergeRef Id="VCRedist" />
         <MergeRef Id="OpenMP" />
