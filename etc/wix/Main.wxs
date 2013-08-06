@@ -2,13 +2,12 @@
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
 
   <?define ProductName = 'ReconstructMe'?>
-  <?define ProductCode = '*' ?>
   <?define UpgradeCode = 'd5ce32f5-4503-41e0-820a-0668270c8aab'?>
   <?define ManufacturerName = 'Profactor GmbH' ?>
   <?define ProductVersion = '@RECONSTRUCTMEQT_VERSION_MAJOR@.@RECONSTRUCTMEQT_VERSION_MINOR@.@RECONSTRUCTMEQT_VERSION_BUILD@'?>
 
   <Product Name=			'$(var.ProductName) $(var.ProductVersion)'
-			 Id=			'$(var.ProductCode)'
+			 Id= '*'
 			 UpgradeCode=	'$(var.UpgradeCode)'
 			 Language=		'1033'
 			 Codepage=		'1252'
