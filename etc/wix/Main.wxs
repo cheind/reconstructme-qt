@@ -66,7 +66,7 @@
     <DirectoryRef Id="INSTALLDIR">
       <Component Id="ReconstructMeQt" Guid="53236194-b9c0-4bc7-bcc5-461e5ca5015a">
         <File KeyPath="yes" Source="@RECONSTRUCTMEQT_EXE@">
-          <Shortcut Advertise="no"
+          <Shortcut Advertise="yes"
                   Id="ReconstructMeQtShortcut"
                   Directory="DesktopFolder"
                   Name="ReconstructMe"
